@@ -1,4 +1,4 @@
-import MetricCard from "./MetricC/MetricCard";
+import MetricCard from "./MetricCard";
 
 const Overview = () => {
   return (
