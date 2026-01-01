@@ -3,7 +3,7 @@ import MetricCard from "./MetricC/MetricCard";
 const Overview = () => {
   return (
     <div className="p-6">
-      <h1 className="text-xl font-semibold">Overview</h1>
+      <h1 className="text-xl text-gray-900 font-semibold">Overview</h1>
 
       {/* KPI GRID */}
       <div className="grid grid-cols-4 gap-4 mt-6">

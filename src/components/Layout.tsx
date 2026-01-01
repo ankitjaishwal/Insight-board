@@ -2,7 +2,7 @@ import { NavLink, Outlet } from "react-router-dom";
 
 const Header = () => {
   return (
-    <header className="h-16 px-6 border-b border-gray-200 flex items-center justify-between bg-white">
+    <header className="h-16 px-6 border-b border-gray-200 text-gray-900 flex items-center justify-between bg-white text-sm font-semibold">
       <strong>InsightBoard</strong>
     </header>
   );
@@ -17,8 +17,8 @@ const SideNav = () => {
           className={({ isActive }) =>
             `px-3 py-2 rounded-md text-md ${
               isActive
-                ? "bg-gray-200 text-gray-900 font-medium"
-                : "text-gray-700 hover:bg-gray-50"
+                ? "bg-blue-50 text-blue-500 font-medium rounded-md"
+                : "text-gray-700 bg-transparent"
             }`
           }
         >
