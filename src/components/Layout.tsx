@@ -2,7 +2,7 @@ import { NavLink, Outlet } from "react-router-dom";
 
 const Header = () => {
   return (
-    <header className="h-16 px-6 border-b border-gray-200 flex items-center justify-between bg-white">
+    <header className="h-16 px-6 border-b border-gray-200 text-gray-900 flex items-center justify-between bg-white text-sm font-semibold">
       <strong>InsightBoard</strong>
     </header>
   );
