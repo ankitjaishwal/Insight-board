@@ -13,11 +13,11 @@ const SideNav = () => {
     <aside className="w-60 border-r border-gray-200 bg-white p-4">
       <nav className="flex flex-col gap-2">
         <NavLink
-          to="/"
+          to="/overview"
           className={({ isActive }) =>
-            `px-3 py-2 rounded-md text-sm ${
+            `px-3 py-2 rounded-md text-md ${
               isActive
-                ? "bg-blue-50 text-blue-600 font-medium"
+                ? "bg-gray-200 text-gray-900 font-medium"
                 : "text-gray-700 hover:bg-gray-50"
             }`
           }
