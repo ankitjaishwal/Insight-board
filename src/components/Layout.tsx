@@ -17,8 +17,8 @@ const SideNav = () => {
           className={({ isActive }) =>
             `px-3 py-2 rounded-md text-md ${
               isActive
-                ? "bg-gray-200 text-gray-900 font-medium"
-                : "text-gray-700 hover:bg-gray-50"
+                ? "bg-blue-50 text-blue-500 font-medium rounded-md"
+                : "text-gray-700 bg-transparent"
             }`
           }
         >
