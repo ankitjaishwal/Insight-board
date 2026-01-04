@@ -11,7 +11,7 @@ export const transactions: Transaction[] = [
     transactionId: "TXN-98765",
     user: "Ankit Jaishwal",
     status: "Completed",
-    amount: 250,
+    amount: 250.99,
     date: "1 Jan 2026",
   },
   {
@@ -32,7 +32,7 @@ export const transactions: Transaction[] = [
     transactionId: "TXN-54321",
     user: "Alice Johnson",
     status: "Completed",
-    amount: 400,
+    amount: 400.18,
     date: "15 Jan 2026",
   },
   {
