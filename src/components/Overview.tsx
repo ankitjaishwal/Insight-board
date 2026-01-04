@@ -1,14 +1,24 @@
+import type { Metrics } from "../utils";
 import MetricCard from "./MetricCard";
 
-const Overview = () => {
+const Overview = ({ metrics }: { metrics: Metrics }) => {
   return (
     <div className="mt-6">
       {/* KPI GRID */}
       <div className="grid grid-cols-4 gap-4">
-        <MetricCard label="Total Users" value="12,450" />
-        <MetricCard label="Total Revenue" value="₹4,20,000" />
-        <MetricCard label="Total Transactions" value="38,912" />
-        <MetricCard label="Success Rate" value="98.4%" />
+        <MetricCard label="Total Users" value={metrics.totalUsers} />
+        <MetricCard
+          label="Total Revenue"
+          value={`₹${metrics.totalAmount.toLocaleString()}`}
+        />
+        <MetricCard
+          label="Total Transactions"
+          value={metrics.totalTransactions}
+        />
+        <MetricCard
+          label="Success Rate"
+          value={`${metrics.successRate.toFixed(1)}%`}
+        />
       </div>
 
       {/* TODO - Add chart */}

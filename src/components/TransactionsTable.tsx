@@ -1,9 +1,11 @@
+import type { Transaction } from "../mocks/transactions.mock";
+
 const TransactionsTable = ({
   columns,
   data,
 }: {
   columns: { header: string; accessor: string; alignment?: string }[];
-  data: { [key: string]: string }[];
+  data: Transaction[];
 }) => {
   return (
     /* 1. Wrapper controls the scrolling */
@@ -48,7 +50,7 @@ const TransactionsTable = ({
                       col.alignment === "right" ? "text-right" : ""
                     }`}
                   >
-                    {row[col.accessor]}
+                    {row[col.accessor as keyof Transaction]}
                   </td>
                 ))}
               </tr>
