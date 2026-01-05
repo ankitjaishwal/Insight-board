@@ -1,11 +1,4 @@
-import { type Transaction } from "./mocks/transactions.mock";
-
-export interface Metrics {
-  totalUsers: number;
-  totalAmount: number;
-  totalTransactions: number;
-  successRate: number;
-}
+import type { Metrics, Transaction } from "./types";
 
 export const deriveMetrics = (transactions: Transaction[]): Metrics => {
   const totalUsers = new Set(transactions.map((tx) => tx.user)).size;
@@ -27,4 +20,15 @@ export const deriveMetrics = (transactions: Transaction[]): Metrics => {
     totalAmount,
     successRate,
   };
+};
+
+export const formatDate = (dateStr: string) => {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+
+  const dayNum = date.getDate();
+  const monthName = date.toLocaleString("en-US", { month: "short" });
+  const yearNum = date.getFullYear();
+
+  return `${dayNum} ${monthName} ${yearNum}`;
 };

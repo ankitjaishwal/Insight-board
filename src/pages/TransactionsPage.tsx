@@ -1,12 +1,23 @@
 import TransactionsTable from "../components/TransactionsTable";
 import { transactions } from "../mocks/transactions.mock";
+import type { TransactionColumn } from "../types";
+import { formatDate } from "../utils";
 
-const columns = [
-  { header: "Transaction ID", accessor: "transactionId" },
-  { header: "User", accessor: "user" },
-  { header: "Status", accessor: "status" },
-  { header: "Amount", accessor: "amount", alignment: "right" },
-  { header: "Date", accessor: "date" },
+const columns: TransactionColumn[] = [
+  { key: "transactionId", header: "Transaction ID" },
+  { key: "user", header: "User" },
+  { key: "status", header: "Status" },
+  {
+    key: "amount",
+    header: "Amount",
+    align: "right",
+    render: (value) => `$${value}`,
+  },
+  {
+    key: "date",
+    header: "Date",
+    render: (value) => formatDate(value as string),
+  },
 ];
 
 const TransactionsPage = () => {

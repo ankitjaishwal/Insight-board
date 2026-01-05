@@ -1,5 +1,5 @@
-import type { Metrics } from "../utils";
 import MetricCard from "./MetricCard";
+import { type Metrics } from "../types";
 
 const Overview = ({ metrics }: { metrics: Metrics }) => {
   return (
