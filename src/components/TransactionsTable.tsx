@@ -3,9 +3,13 @@ import type { Transaction, TransactionColumn } from "../types";
 const TransactionsTable = ({
   columns,
   data,
+  sorting,
+  handleSorting,
 }: {
   columns: TransactionColumn[];
   data: Transaction[];
+  sorting: { key: keyof Transaction; direction: "asc" | "desc" } | null;
+  handleSorting: (key: keyof Transaction) => void;
 }) => {
   return (
     <div className="w-full border border-gray-200 rounded-md max-h-[calc(100vh-140px)] overflow-auto">
@@ -18,8 +22,15 @@ const TransactionsTable = ({
                 className={`px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200 ${
                   column.align === "right" ? "text-right" : ""
                 }`}
+                style={{ cursor: column.sortable ? "pointer" : "default" }}
+                onClick={() => handleSorting(column.key as keyof Transaction)}
               >
                 {column.header}
+                {column.sortable && sorting?.key === column.key
+                  ? sorting.direction === "asc"
+                    ? "▲"
+                    : "▼"
+                  : ""}
               </th>
             ))}
           </tr>

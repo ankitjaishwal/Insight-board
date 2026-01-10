@@ -35,7 +35,7 @@ export const transactions: Transaction[] = [
     user: "Bob Brown",
     status: Status.Completed,
     amount: 500,
-    date: "2026-01-20",
+    date: "2025-10-20",
   },
   {
     transactionId: "TXN-12346",

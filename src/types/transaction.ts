@@ -21,4 +21,5 @@ export type TransactionColumn = {
   header: string;
   align?: "left" | "right";
   render?: (value: string | number) => ReactNode;
+  sortable?: boolean;
 };

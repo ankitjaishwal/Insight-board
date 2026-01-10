@@ -32,3 +32,30 @@ export const formatDate = (dateStr: string) => {
 
   return `${dayNum} ${monthName} ${yearNum}`;
 };
+
+export function applySorting(
+  data: Transaction[],
+  sorting: { key: keyof Transaction; direction: "asc" | "desc" } | null
+): Transaction[] {
+  if (!sorting) return data;
+
+  const { key, direction } = sorting;
+
+  return [...data].sort((a, b) => {
+    const aVal = a[key];
+    const bVal = b[key];
+
+    let comparison = 0;
+
+    if (key === "date") {
+      comparison =
+        new Date(aVal as string).getTime() - new Date(bVal as string).getTime();
+    } else if (typeof aVal === "number" && typeof bVal === "number") {
+      comparison = aVal - bVal;
+    } else if (typeof aVal === "string" && typeof bVal === "string") {
+      comparison = aVal.localeCompare(bVal, undefined, { numeric: true });
+    }
+
+    return direction === "asc" ? comparison : -comparison;
+  });
+}
