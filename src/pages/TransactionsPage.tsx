@@ -4,7 +4,6 @@ import { transactions } from "../mocks/transactions.mock";
 import type { Transaction, TransactionColumn } from "../types";
 import { applySorting, formatDate } from "../utils";
 import { Status } from "../types/transaction";
-import { useState } from "react";
 
 const columns: TransactionColumn[] = [
   { key: "transactionId", header: "Transaction ID", sortable: true },
@@ -26,31 +25,49 @@ const columns: TransactionColumn[] = [
 ];
 
 const TransactionsPage = () => {
-  const [sorting, setSorting] = useState<{
-    key: keyof Transaction;
-    direction: "asc" | "desc";
-  } | null>(null);
-
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const status = searchParams.get("status");
+  const sortKey = searchParams.get("sort") as keyof Transaction | null;
+  const direction = searchParams.get("dir") as "asc" | "desc" | null;
 
   const filteredTransactions =
     status === "completed"
       ? transactions.filter((t) => t.status === Status.Completed)
       : transactions;
 
+  const sorting = sortKey && direction ? { key: sortKey, direction } : null;
+
   const sortedTransactions = applySorting(filteredTransactions, sorting);
 
   const handleSorting = (key: keyof Transaction) => {
-    setSorting((prev) => {
-      if (!prev || prev.key !== key) {
-        return { key: key, direction: "asc" };
-      }
-      if (prev.direction === "asc") {
-        return { key: key, direction: "desc" };
+    setSearchParams((prev) => {
+      const currentSort = prev.get("sort");
+      const currentDir = prev.get("dir") as "asc" | "desc" | null;
+
+      let newDir: "asc" | "desc" | null;
+
+      if (currentSort !== key) {
+        // NEW COLUMN → start sorting
+        newDir = "asc";
+      } else if (currentDir === "asc") {
+        newDir = "desc";
+      } else if (currentDir === "desc") {
+        newDir = null;
+      } else {
+        newDir = "asc";
       }
 
-      return null;
+      const next = new URLSearchParams(prev);
+
+      if (newDir) {
+        next.set("sort", key);
+        next.set("dir", newDir);
+      } else {
+        next.delete("sort");
+        next.delete("dir");
+      }
+
+      return next;
     });
   };
 

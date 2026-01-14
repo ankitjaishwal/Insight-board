@@ -23,7 +23,10 @@ const TransactionsTable = ({
                   column.align === "right" ? "text-right" : ""
                 }`}
                 style={{ cursor: column.sortable ? "pointer" : "default" }}
-                onClick={() => handleSorting(column.key as keyof Transaction)}
+                onClick={() =>
+                  column.sortable &&
+                  handleSorting(column.key as keyof Transaction)
+                }
               >
                 {column.header}
                 {column.sortable && sorting?.key === column.key
