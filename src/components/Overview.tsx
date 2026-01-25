@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import MetricCard from "./MetricCard";
 import { type Metrics } from "../types";
+import Chart from "./Chart";
 
-const Overview = ({ metrics }: { metrics: Metrics }) => {
+const Overview = ({ metrics, statusBreakdown }: { metrics: Metrics, statusBreakdown: Record<string, number> }) => {
   const navigate = useNavigate();
 
   return (
@@ -34,9 +35,8 @@ const Overview = ({ metrics }: { metrics: Metrics }) => {
         />
       </div>
 
-      {/* TODO - Add chart */}
-      <div className="bg-white border mt-6 border-gray-200 rounded-md p-4 h-64 flex items-center justify-center text-sm text-gray-400">
-        Chart will be rendered here.
+      <div className="bg-white border mt-6 border-gray-200 rounded-md h-64 p-4">
+        <Chart statusBreakdown={statusBreakdown} />
       </div>
     </div>
   );

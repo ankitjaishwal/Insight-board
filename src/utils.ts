@@ -22,6 +22,16 @@ export const deriveMetrics = (transactions: Transaction[]): Metrics => {
   };
 };
 
+export const deriveStatusBreakdown = (transactions: Transaction[]) => {
+  const breakdown: Record<string, number> = {};
+
+  transactions.forEach((tx) => {
+    breakdown[tx.status] = (breakdown[tx.status] || 0) + 1;
+  });
+
+  return breakdown;
+}
+
 export const formatDate = (dateStr: string) => {
   const [year, month, day] = dateStr.split("-").map(Number);
   const date = new Date(year, month - 1, day);
