@@ -1,42 +1,51 @@
 import { useNavigate } from "react-router-dom";
 import MetricCard from "./MetricCard";
 import { type Metrics } from "../types";
-import Chart from "./Chart";
+import { appConfig } from "../config/app.config";
+import { metricRegistry } from "../registry/metricRegistry";
+import { chartRegistry } from "../registry/chartRegistry";
+import { transactions } from "../mocks/transactions.mock";
 
-const Overview = ({ metrics, statusBreakdown }: { metrics: Metrics, statusBreakdown: Record<string, number> }) => {
+const Overview = ({ metrics }: { metrics: Metrics }) => {
   const navigate = useNavigate();
+
+  const chartConfig = chartRegistry[appConfig.overview.chart];
+  const ChartComponent = chartConfig.component;
+  const chartData = chartConfig.deriveData(transactions);
 
   return (
     <div className="mt-6">
       {/* KPI GRID */}
       <div className="grid grid-cols-4 gap-4">
-        <MetricCard
-          label="Total Users"
-          value={metrics.totalUsers}
-          onClick={() => navigate("/transactions")}
-        />
+        {appConfig.overview.kpis.map((metricKey) => {
+          const metric = metricRegistry[metricKey];
+          const key = metricKey as keyof Metrics;
+          const metricVal = metrics[key];
 
-        <MetricCard
-          label="Total Revenue"
-          value={`₹${metrics.totalAmount.toLocaleString()}`}
-          onClick={() => navigate("/transactions?status=completed")}
-        />
+          const value =
+            metricKey === "totalRevenue"
+              ? `₹${(metricVal as number).toLocaleString()}`
+              : metricKey === "successRate"
+                ? `${(metricVal as number).toFixed(1)}%`
+                : metricVal;
 
-        <MetricCard
-          label="Total Transactions"
-          value={metrics.totalTransactions}
-          onClick={() => navigate("/transactions")}
-        />
-
-        <MetricCard
-          label="Success Rate"
-          value={`${metrics.successRate.toFixed(1)}%`}
-          onClick={() => navigate("/transactions?status=completed")}
-        />
+          return (
+            <MetricCard
+              key={metricKey}
+              label={metric.label}
+              value={value}
+              onClick={
+                metricKey === "totalRevenue" || metricKey === "successRate"
+                  ? () => navigate("/transactions?status=completed")
+                  : () => navigate("/transactions")
+              }
+            />
+          );
+        })}
       </div>
 
       <div className="bg-white border mt-6 border-gray-200 rounded-md h-64 p-4">
-        <Chart statusBreakdown={statusBreakdown} />
+        <ChartComponent statusBreakdown={chartData} />;
       </div>
     </div>
   );

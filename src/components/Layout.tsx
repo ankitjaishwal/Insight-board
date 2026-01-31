@@ -1,9 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-
-const navItems = [
-  { name: "Overview", path: "/overview" },
-  { name: "Transactions", path: "/transactions" },
-];
+import { appConfig } from "../config/app.config";
 
 const Header = () => {
   return (
@@ -17,18 +13,19 @@ const SideNav = () => {
   return (
     <aside className="w-60 border-r border-gray-200 bg-white p-4">
       <nav className="flex flex-col gap-2">
-        {navItems.map((navItem) => (
+        {appConfig.routes.map((navItem) => (
           <NavLink
+            key={navItem.key}
             to={navItem.path}
             className={({ isActive }) =>
               `px-3 py-2 rounded-md text-md ${
                 isActive
-                  ? "bg-blue-50 text-blue-500 font-medium rounded-md"
+                  ? "bg-blue-50 text-blue-500 font-medium"
                   : "text-gray-700 bg-transparent"
               }`
             }
           >
-            {navItem.name}
+            {navItem.label}
           </NavLink>
         ))}
       </nav>
