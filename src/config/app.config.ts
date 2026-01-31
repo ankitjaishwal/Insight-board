@@ -16,25 +16,3 @@ export type DashboardConfig = {
     chart: "statusBreakdown";
   };
 };
-
-export const appConfig: DashboardConfig = {
-  appName: "InsightBoard",
-  currency: "INR",
-  routes: [
-    {
-      key: "overview",
-      label: "Overview",
-      path: "/overview",
-    },
-    {
-      key: "transactions",
-      label: "Transactions",
-      path: "/transactions",
-    },
-  ],
-
-  overview: {
-    kpis: ["totalUsers", "totalRevenue", "totalTransactions", "successRate"],
-    chart: "statusBreakdown",
-  },
-};

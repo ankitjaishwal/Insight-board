@@ -1,12 +1,14 @@
 import Overview from "../components/Overview";
 import { transactions } from "../mocks/transactions.mock";
-import { metricRegistry } from "../registry/metricRegistry";
-import { appConfig } from "../config/app.config";
-import type { Metrics } from "../types";
+import { metricRegistry, type Metrics } from "../registry/metricRegistry";
+import { type DashboardConfig } from "../config/app.config";
+import { useOutletContext } from "react-router-dom";
 
 const OverviewPage = () => {
+  const { config } = useOutletContext<{ config: DashboardConfig }>();
+
   const metrics = Object.fromEntries(
-    appConfig.overview.kpis.map((key) => [
+    config.overview.kpis.map((key) => [
       key,
       metricRegistry[key].derive(transactions),
     ]),
@@ -15,7 +17,7 @@ const OverviewPage = () => {
   return (
     <>
       <h1 className="text-xl text-gray-900 font-semibold pb-6">Overview</h1>
-      <Overview metrics={metrics} />
+      <Overview metrics={metrics} config={config} />
     </>
   );
 };

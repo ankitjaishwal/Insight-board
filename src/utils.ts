@@ -1,26 +1,4 @@
-import type { Metrics, Transaction } from "./types";
-
-export const deriveMetrics = (transactions: Transaction[]): Metrics => {
-  const totalUsers = new Set(transactions.map((tx) => tx.user)).size;
-  const totalTransactions = transactions.length;
-  const completedTransactions = transactions.filter(
-    (tx) => tx.status === "Completed"
-  ).length;
-  const totalAmount = transactions.reduce(
-    (sum, tx) => (tx.status === "Completed" ? sum + tx.amount : sum),
-    0
-  );
-  const successRate = totalTransactions
-    ? (completedTransactions / totalTransactions) * 100
-    : 0;
-
-  return {
-    totalUsers,
-    totalTransactions,
-    totalAmount,
-    successRate,
-  };
-};
+import type { Transaction } from "./types";
 
 export const deriveStatusBreakdown = (transactions: Transaction[]) => {
   const breakdown: Record<string, number> = {};
@@ -30,7 +8,7 @@ export const deriveStatusBreakdown = (transactions: Transaction[]) => {
   });
 
   return breakdown;
-}
+};
 
 export const formatDate = (dateStr: string) => {
   const [year, month, day] = dateStr.split("-").map(Number);
@@ -45,7 +23,7 @@ export const formatDate = (dateStr: string) => {
 
 export function applySorting(
   data: Transaction[],
-  sorting: { key: keyof Transaction; direction: "asc" | "desc" } | null
+  sorting: { key: keyof Transaction; direction: "asc" | "desc" } | null,
 ): Transaction[] {
   if (!sorting) return data;
 

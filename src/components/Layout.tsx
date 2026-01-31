@@ -1,5 +1,6 @@
-import { NavLink, Outlet } from "react-router-dom";
-import { appConfig } from "../config/app.config";
+import { NavLink, Outlet, useParams } from "react-router-dom";
+import { type DashboardConfig } from "../config/app.config";
+import { resolveClientConfig } from "../config/clients/clientResolver";
 
 const Header = () => {
   return (
@@ -9,11 +10,11 @@ const Header = () => {
   );
 };
 
-const SideNav = () => {
+const SideNav = ({ config }: { config: DashboardConfig }) => {
   return (
     <aside className="w-60 border-r border-gray-200 bg-white p-4">
       <nav className="flex flex-col gap-2">
-        {appConfig.routes.map((navItem) => (
+        {config.routes.map((navItem) => (
           <NavLink
             key={navItem.key}
             to={navItem.path}
@@ -34,15 +35,17 @@ const SideNav = () => {
 };
 
 const Layout = () => {
+  const { clientId } = useParams();
+  const config = resolveClientConfig(clientId);
   return (
     <div className="flex flex-col h-screen">
       <Header />
       <div className="flex flex-1">
         {/* Sidebar */}
-        <SideNav />
+        <SideNav config={config} />
         {/* Main */}
         <main className="flex-1 p-6">
-          <Outlet />
+          <Outlet context={{ config }} />
         </main>
       </div>
     </div>
