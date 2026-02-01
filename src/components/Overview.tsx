@@ -22,7 +22,7 @@ const Overview = ({
     <div className="mt-6">
       {/* KPI GRID */}
       <div className="grid grid-cols-4 gap-4">
-        {config.overview.kpis.map((metricKey) => {
+        {config.overview.kpis.map(({ key: metricKey }) => {
           const metric = metricRegistry[metricKey];
           const key = metricKey as keyof Metrics;
           const metricVal = metrics[key];

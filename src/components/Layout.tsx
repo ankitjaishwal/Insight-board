@@ -1,6 +1,8 @@
 import { NavLink, Outlet, useLocation, useParams } from "react-router-dom";
 import { type DashboardConfig } from "../config/app.config";
 import { resolveClientConfig } from "../config/clients/clientResolver";
+import { userContext } from "../context/userContext";
+import { applyRoleVisibility } from "../config/applyRoleVisibility";
 
 const Header = ({ config }: { config: DashboardConfig }) => {
   return (
@@ -36,7 +38,8 @@ const SideNav = ({ config }: { config: DashboardConfig }) => {
 
 const Layout = () => {
   const { clientId } = useParams();
-  const config = resolveClientConfig(clientId);
+  const rawConfig = resolveClientConfig(clientId);
+  const config = applyRoleVisibility(rawConfig, userContext.role);
 
   const location = useLocation();
 

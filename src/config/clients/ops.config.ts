@@ -6,11 +6,19 @@ export const opsConfig: DashboardConfig = {
 
   routes: [
     { key: "overview", label: "Overview", path: "overview" },
-    { key: "transactions", label: "Transactions", path: "transactions" },
+    {
+      key: "transactions",
+      label: "Transactions",
+      path: "transactions",
+    },
   ],
 
   overview: {
-    kpis: ["totalUsers", "totalRevenue", "totalTransactions", "successRate"],
+    kpis: [
+      { key: "totalUsers", roles: ["ops", "admin"] },
+      { key: "totalTransactions" },
+      { key: "successRate" },
+    ],
     chart: "statusBreakdown",
   },
 };

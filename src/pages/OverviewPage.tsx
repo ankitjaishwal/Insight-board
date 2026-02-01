@@ -11,7 +11,7 @@ const OverviewPage = () => {
   }>();
 
   const metrics = Object.fromEntries(
-    config.overview.kpis.map((key) => [
+    config.overview.kpis.map(({ key }) => [
       key,
       metricRegistry[key].derive(transactions),
     ]),

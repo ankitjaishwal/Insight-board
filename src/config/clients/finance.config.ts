@@ -6,11 +6,19 @@ export const financeConfig: DashboardConfig = {
 
   routes: [
     { key: "overview", label: "Summary", path: "overview" },
-    { key: "transactions", label: "Payments", path: "transactions" },
+    {
+      key: "transactions",
+      label: "Payments",
+      path: "transactions",
+    },
   ],
 
   overview: {
-    kpis: ["totalRevenue", "successRate"],
+    kpis: [
+      { key: "totalUsers", roles: ["ops", "admin"] },
+      { key: "totalRevenue", roles: ["finance", "admin"] },
+      { key: "successRate" },
+    ],
     chart: "statusBreakdown",
   },
 };
