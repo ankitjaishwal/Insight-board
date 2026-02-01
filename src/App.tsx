@@ -6,14 +6,14 @@ import TransactionsPage from "./pages/TransactionsPage";
 function App() {
   return (
     <Routes>
-      <Route path="/client/:clientId" element={<Layout />}>
+      <Route path="/:clientId" element={<Layout />}>
         <Route index element={<Navigate to="overview" replace />} />
         <Route path="overview" element={<OverviewPage />} />
         <Route path="transactions" element={<TransactionsPage />} />
       </Route>
 
       {/* Optional fallback */}
-      <Route path="*" element={<Navigate to="/client/ops" replace />} />
+      <Route path="*" element={<Navigate to="/ops" replace />} />
     </Routes>
   );
 }

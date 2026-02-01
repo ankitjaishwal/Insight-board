@@ -5,8 +5,8 @@ export const financeConfig: DashboardConfig = {
   currency: "USD",
 
   routes: [
-    { key: "overview", label: "Summary", path: "/overview" },
-    { key: "transactions", label: "Payments", path: "/transactions" },
+    { key: "overview", label: "Summary", path: "overview" },
+    { key: "transactions", label: "Payments", path: "transactions" },
   ],
 
   overview: {

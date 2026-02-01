@@ -1,9 +1,10 @@
-import { useSearchParams } from "react-router-dom";
+import { useOutletContext, useSearchParams } from "react-router-dom";
 import TransactionsTable from "../components/TransactionsTable";
 import { transactions } from "../mocks/transactions.mock";
 import type { Transaction, TransactionColumn } from "../types";
 import { applySorting, formatDate } from "../utils";
 import { Status } from "../types/transaction";
+import type { RouteConfig } from "../config/app.config";
 
 const columns: TransactionColumn[] = [
   { key: "transactionId", header: "Transaction ID", sortable: true },
@@ -71,9 +72,13 @@ const TransactionsPage = () => {
     });
   };
 
+  const { activeRoute } = useOutletContext<{ activeRoute: RouteConfig }>();
+
   return (
     <>
-      <h1 className="text-xl text-gray-900 font-semibold pb-6">Transactions</h1>
+      <h1 className="text-xl text-gray-900 font-semibold pb-6">
+        {activeRoute.label}
+      </h1>
       <TransactionsTable
         columns={columns}
         data={sortedTransactions}

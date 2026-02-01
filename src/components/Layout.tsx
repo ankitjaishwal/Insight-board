@@ -1,11 +1,11 @@
-import { NavLink, Outlet, useParams } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useParams } from "react-router-dom";
 import { type DashboardConfig } from "../config/app.config";
 import { resolveClientConfig } from "../config/clients/clientResolver";
 
-const Header = () => {
+const Header = ({ config }: { config: DashboardConfig }) => {
   return (
     <header className="h-16 px-6 border-b border-gray-200 text-gray-900 flex items-center justify-between bg-white text-sm font-semibold">
-      <strong>InsightBoard</strong>
+      <strong>{config.appName}</strong>
     </header>
   );
 };
@@ -37,15 +37,22 @@ const SideNav = ({ config }: { config: DashboardConfig }) => {
 const Layout = () => {
   const { clientId } = useParams();
   const config = resolveClientConfig(clientId);
+
+  const location = useLocation();
+
+  const activeRoute = config.routes.find((r) =>
+    location.pathname.endsWith(r.path),
+  );
+
   return (
     <div className="flex flex-col h-screen">
-      <Header />
+      <Header config={config} />
       <div className="flex flex-1">
         {/* Sidebar */}
         <SideNav config={config} />
         {/* Main */}
         <main className="flex-1 p-6">
-          <Outlet context={{ config }} />
+          <Outlet context={{ config, activeRoute }} />
         </main>
       </div>
     </div>

@@ -5,8 +5,8 @@ export const opsConfig: DashboardConfig = {
   currency: "INR",
 
   routes: [
-    { key: "overview", label: "Overview", path: "/overview" },
-    { key: "transactions", label: "Transactions", path: "/transactions" },
+    { key: "overview", label: "Overview", path: "overview" },
+    { key: "transactions", label: "Transactions", path: "transactions" },
   ],
 
   overview: {
