@@ -1,9 +1,15 @@
 import { useOutletContext, useSearchParams } from "react-router-dom";
 import TransactionsTable from "../components/TransactionsTable";
+import TransactionFilters from "../components/TransactionFilters";
 import { transactions } from "../mocks/transactions.mock";
 import type { Transaction, TransactionColumn } from "../types";
-import { applySorting, formatDate } from "../utils";
-import { Status } from "../types/transaction";
+import {
+  applySorting,
+  formatDate,
+  applyTransactionFilters,
+  type Filters,
+  paramToStatus,
+} from "../utils";
 import type { RouteConfig } from "../config/app.config";
 
 const columns: TransactionColumn[] = [
@@ -27,14 +33,19 @@ const columns: TransactionColumn[] = [
 
 const TransactionsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const status = searchParams.get("status");
+
+  const search = searchParams.get("search") || "";
+  const statusParam = searchParams.get("status") || "";
+  const status =
+    statusParam && paramToStatus[statusParam]
+      ? paramToStatus[statusParam]
+      : "All";
   const sortKey = searchParams.get("sort") as keyof Transaction | null;
   const direction = searchParams.get("dir") as "asc" | "desc" | null;
 
-  const filteredTransactions =
-    status === "completed"
-      ? transactions.filter((t) => t.status === Status.Completed)
-      : transactions;
+  const filters: Filters = { search, status };
+
+  const filteredTransactions = applyTransactionFilters(transactions, filters);
 
   const sorting = sortKey && direction ? { key: sortKey, direction } : null;
 
@@ -48,7 +59,6 @@ const TransactionsPage = () => {
       let newDir: "asc" | "desc" | null;
 
       if (currentSort !== key) {
-        // NEW COLUMN → start sorting
         newDir = "asc";
       } else if (currentDir === "asc") {
         newDir = "desc";
@@ -79,6 +89,12 @@ const TransactionsPage = () => {
       <h1 className="text-xl text-gray-900 font-semibold pb-6">
         {activeRoute.label}
       </h1>
+
+      <TransactionFilters
+        searchParams={searchParams}
+        setSearchParams={setSearchParams}
+      />
+
       <TransactionsTable
         columns={columns}
         data={sortedTransactions}
