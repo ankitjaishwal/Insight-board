@@ -1,5 +1,10 @@
 import type { ReactNode } from "react";
 
+export type Sorting<T> = {
+  key: keyof T;
+  direction: "asc" | "desc";
+} | null;
+
 export type Column<T> = {
   key: keyof T;
   header: string;

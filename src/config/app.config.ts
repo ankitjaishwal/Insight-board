@@ -2,7 +2,7 @@ import type { MetricKey } from "../registry/metricRegistry";
 import type { Role } from "../types/role";
 
 export type RouteConfig = {
-  key: "overview" | "transactions";
+  key: "overview" | "transactions" | "audit";
   label: string;
   path: string;
   roles?: Role[];

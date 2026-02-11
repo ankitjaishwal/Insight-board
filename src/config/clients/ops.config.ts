@@ -11,6 +11,12 @@ export const opsConfig: DashboardConfig = {
       label: "Transactions",
       path: "transactions",
     },
+    {
+      key: "audit",
+      label: "Audit Logs",
+      path: "audit",
+      roles: ["admin"],
+    },
   ],
 
   overview: {

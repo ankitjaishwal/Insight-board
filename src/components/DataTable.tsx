@@ -78,7 +78,11 @@ function DataTable<T>({
                         col.align === "right" ? "text-right" : ""
                       }`}
                     >
-                      {col.render ? col.render(value, row) : String(value)}
+                      {value
+                        ? col.render
+                          ? col.render(value, row)
+                          : String(value)
+                        : "-"}
                     </td>
                   );
                 })}

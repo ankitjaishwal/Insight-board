@@ -1,3 +1,4 @@
+import type { Sorting } from "./types/table";
 import { Status, type Transaction } from "./types/transaction";
 
 export type Filters = {
@@ -26,10 +27,10 @@ export const formatDate = (dateStr: string) => {
   return `${dayNum} ${monthName} ${yearNum}`;
 };
 
-export function applySorting(
-  data: Transaction[],
-  sorting: { key: keyof Transaction; direction: "asc" | "desc" } | null,
-): Transaction[] {
+export function applySorting<T extends Record<string, any>>(
+  data: T[],
+  sorting: Sorting<T>,
+): T[] {
   if (!sorting) return data;
 
   const { key, direction } = sorting;
@@ -38,18 +39,27 @@ export function applySorting(
     const aVal = a[key];
     const bVal = b[key];
 
-    let comparison = 0;
-
-    if (key === "date") {
-      comparison =
-        new Date(aVal as string).getTime() - new Date(bVal as string).getTime();
-    } else if (typeof aVal === "number" && typeof bVal === "number") {
-      comparison = aVal - bVal;
-    } else if (typeof aVal === "string" && typeof bVal === "string") {
-      comparison = aVal.localeCompare(bVal, undefined, { numeric: true });
+    // Date handling
+    if (
+      typeof aVal === "string" &&
+      typeof bVal === "string" &&
+      !isNaN(Date.parse(aVal)) &&
+      !isNaN(Date.parse(bVal))
+    ) {
+      return direction === "asc"
+        ? new Date(aVal).getTime() - new Date(bVal).getTime()
+        : new Date(bVal).getTime() - new Date(aVal).getTime();
     }
 
-    return direction === "asc" ? comparison : -comparison;
+    // Number handling
+    if (typeof aVal === "number" && typeof bVal === "number") {
+      return direction === "asc" ? aVal - bVal : bVal - aVal;
+    }
+
+    // Fallback string comparison
+    return direction === "asc"
+      ? String(aVal).localeCompare(String(bVal))
+      : String(bVal).localeCompare(String(aVal));
   });
 }
 
@@ -83,3 +93,14 @@ export const paramToStatus: Record<string, Status> = {
   pending: Status.Pending,
   failed: Status.Failed,
 };
+
+export function formatDateTime(iso: string) {
+  return new Date(iso).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
