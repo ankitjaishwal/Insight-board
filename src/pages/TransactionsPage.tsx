@@ -1,8 +1,7 @@
 import { useOutletContext, useSearchParams } from "react-router-dom";
-import TransactionsTable from "../components/TransactionsTable";
 import TransactionFilters from "../components/TransactionFilters";
 import { transactions } from "../mocks/transactions.mock";
-import type { Transaction, TransactionColumn } from "../types";
+import type { Transaction } from "../types/transaction";
 import {
   applySorting,
   formatDate,
@@ -11,8 +10,10 @@ import {
   paramToStatus,
 } from "../utils";
 import type { RouteConfig } from "../config/app.config";
+import DataTable from "../components/DataTable";
+import type { Column } from "../types/table";
 
-const columns: TransactionColumn[] = [
+const columns: Column<Transaction>[] = [
   { key: "transactionId", header: "Transaction ID", sortable: true },
   { key: "user", header: "User" },
   { key: "status", header: "Status" },
@@ -95,11 +96,12 @@ const TransactionsPage = () => {
         setSearchParams={setSearchParams}
       />
 
-      <TransactionsTable
+      <DataTable<Transaction>
         columns={columns}
         data={sortedTransactions}
         sorting={sorting}
-        handleSorting={handleSorting}
+        onSort={handleSorting}
+        getRowId={(row) => row.transactionId}
       />
     </>
   );
