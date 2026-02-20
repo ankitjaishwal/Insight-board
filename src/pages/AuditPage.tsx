@@ -5,6 +5,8 @@ import type { Column } from "../types/table";
 import { applySorting, formatDateTime } from "../utils";
 import type { AuditAction } from "../types/audit";
 import { useState } from "react";
+import { useOutletContext } from "react-router-dom";
+import type { RouteConfig } from "../config/app.config";
 
 export const auditActionLabels: Record<AuditAction, string> = {
   LOGIN: "Logged in",
@@ -47,6 +49,8 @@ const AuditPage = () => {
     direction: "asc" | "desc";
   } | null>(null);
 
+  const { activeRoute } = useOutletContext<{ activeRoute: RouteConfig }>();
+
   const sortedAuditLogs = applySorting(auditLogs, sorting);
 
   const handleSort = (key: keyof AuditLog) => {
@@ -64,13 +68,19 @@ const AuditPage = () => {
   };
 
   return (
-    <DataTable<AuditLog>
-      columns={columns}
-      data={sortedAuditLogs}
-      sorting={sorting}
-      onSort={handleSort}
-      getRowId={(row) => row.id}
-    />
+    <>
+      <h1 className="text-xl text-gray-900 font-semibold pb-6">
+        {activeRoute.label}
+      </h1>
+
+      <DataTable<AuditLog>
+        columns={columns}
+        data={sortedAuditLogs}
+        sorting={sorting}
+        onSort={handleSort}
+        getRowId={(row) => row.id}
+      />
+    </>
   );
 };
 
