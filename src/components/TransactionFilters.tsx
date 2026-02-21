@@ -1,6 +1,8 @@
-import { useState } from "react";
-import { Status } from "../types/transaction";
-import PresetDropdown from "./PresetDropdown";
+import { useRef } from "react";
+import { useFilterUI } from "../hooks/useFilterUI";
+import { FilterFieldRow } from "./FilterFieldRow";
+import { StatusCheckboxes } from "./StatusCheckboxes";
+import { PresetToolbar } from "./PresetToolbar";
 import type { FilterPreset } from "../types/preset";
 
 type Props = {
@@ -15,6 +17,9 @@ type Props = {
   onSelectCustom?: () => void;
   onSavePreset?: () => void;
   hasActiveFilters?: boolean;
+  isPresetDirty?: boolean;
+  hasActivePreset?: boolean;
+  onClearFilters?: () => void;
 };
 
 const TransactionFilters: React.FC<Props> = ({
@@ -27,7 +32,15 @@ const TransactionFilters: React.FC<Props> = ({
   onSelectCustom = () => {},
   onSavePreset = () => {},
   hasActiveFilters = false,
+  isPresetDirty = false,
+  hasActivePreset = false,
+  onClearFilters = () => {},
 }) => {
+  const { isAdvancedExpanded, setIsAdvancedExpanded, shouldShowAdvanced } =
+    useFilterUI();
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
   const search = searchParams.get("search") || "";
   const statusParam = searchParams.get("status") || "";
   const from = searchParams.get("from") || "";
@@ -36,10 +49,7 @@ const TransactionFilters: React.FC<Props> = ({
   const maxAmount = searchParams.get("max") || "";
 
   const selectedStatuses = statusParam ? statusParam.split(",") : [];
-
   const hasAdvancedFilters = Boolean(from || to || minAmount || maxAmount);
-  const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false);
-  const shouldShowAdvanced = isAdvancedExpanded || hasAdvancedFilters;
 
   const updateSearch = (value: string) => {
     setSearchParams((prev) => {
@@ -94,6 +104,7 @@ const TransactionFilters: React.FC<Props> = ({
   const clearAllFilters = () => {
     setSearchParams(new URLSearchParams());
     setIsAdvancedExpanded(false);
+    onClearFilters();
   };
 
   const hasValidationErrors = Object.keys(validationErrors).length > 0;
@@ -103,6 +114,7 @@ const TransactionFilters: React.FC<Props> = ({
       <div className="flex gap-4 items-center flex-wrap">
         <div className="relative">
           <input
+            ref={searchInputRef}
             id="search"
             name="search"
             type="text"
@@ -123,27 +135,12 @@ const TransactionFilters: React.FC<Props> = ({
             </button>
           )}
         </div>
-        <div className="flex gap-3 items-center">
-          <span className="text-xs font-medium text-gray-600 whitespace-nowrap">
-            Status:
-          </span>
-          <div className="flex gap-3">
-            {[Status.Completed, Status.Pending, Status.Failed].map((status) => (
-              <label
-                key={status}
-                className="flex items-center gap-1 cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedStatuses.includes(status)}
-                  onChange={(e) => updateStatus(status, e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300 cursor-pointer"
-                />
-                <span className="text-sm text-gray-700">{status}</span>
-              </label>
-            ))}
-          </div>
-        </div>
+
+        <StatusCheckboxes
+          selectedStatuses={selectedStatuses}
+          onChange={updateStatus}
+        />
+
         <button
           onClick={() => setIsAdvancedExpanded(!isAdvancedExpanded)}
           className={`px-3 py-2 text-sm font-medium flex items-center gap-1 rounded transition ${
@@ -153,173 +150,64 @@ const TransactionFilters: React.FC<Props> = ({
           }`}
         >
           {hasValidationErrors && <span className="text-lg">⚠</span>}
-          Advanced {shouldShowAdvanced ? "▴" : "▾"}
+          Advanced {shouldShowAdvanced(hasAdvancedFilters) ? "▴" : "▾"}
         </button>
 
-        {presets.length > 0 && (
-          <PresetDropdown
-            presets={presets}
-            activePresetId={activePresetId}
-            onSelectPreset={onSelectPreset}
-            onSelectCustom={onSelectCustom}
-          />
-        )}
-
-        {onSavePreset && (
-          <button
-            onClick={onSavePreset}
-            disabled={!hasActiveFilters}
-            className={`px-3 py-2 text-sm font-medium rounded transition ${
-              hasActiveFilters
-                ? "bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200"
-                : "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
-            }`}
-            title={
-              hasActiveFilters ? "Save current filters" : "Add filters to save"
-            }
-          >
-            ★ Save
-          </button>
-        )}
-        <button
-          onClick={clearAllFilters}
-          className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded text-sm transition whitespace-nowrap"
-        >
-          Clear
-        </button>
+        <PresetToolbar
+          presets={presets}
+          activePresetId={activePresetId}
+          onSelectPreset={onSelectPreset}
+          onSelectCustom={onSelectCustom}
+          onSavePreset={onSavePreset}
+          onClearFilters={clearAllFilters}
+          hasActiveFilters={hasActiveFilters}
+          isPresetDirty={isPresetDirty}
+          hasActivePreset={hasActivePreset}
+          validationErrors={validationErrors}
+        />
       </div>
 
-      {shouldShowAdvanced && (
+      {shouldShowAdvanced(hasAdvancedFilters) && (
         <div className="mt-3 border-t border-gray-300 pt-3">
           <div className="flex gap-3 items-end">
             <div className="flex gap-1.5 items-start flex-1">
-              <div className="flex-1">
-                <label
-                  htmlFor="from"
-                  className="block text-xs text-gray-600 mb-0.5 font-medium"
-                >
-                  From
-                </label>
-                <input
-                  id="from"
-                  type="date"
-                  value={from}
-                  onChange={(e) => updateDateRange("from", e.target.value)}
-                  className={`w-full border rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 ${
-                    validationErrors.from
-                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:ring-blue-500"
-                  }`}
-                />
-                <div className="h-4 mt-0.5">
-                  {validationErrors.from && (
-                    <p className="text-xs text-red-600 flex items-center gap-0.5">
-                      <span>⚠</span>
-                      {validationErrors.from}
-                    </p>
-                  )}
-                  {!validationErrors.from && validationErrors.to && (
-                    <p className="text-xs text-gray-400">Start date</p>
-                  )}
-                </div>
-              </div>
-              <div className="flex-1">
-                <label
-                  htmlFor="to"
-                  className="block text-xs text-gray-600 mb-0.5 font-medium"
-                >
-                  To
-                </label>
-                <input
-                  id="to"
-                  type="date"
-                  value={to}
-                  onChange={(e) => updateDateRange("to", e.target.value)}
-                  className={`w-full border rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 ${
-                    validationErrors.to
-                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:ring-blue-500"
-                  }`}
-                />
-                <div className="h-4 mt-0.5">
-                  {validationErrors.to && (
-                    <p className="text-xs text-red-600 flex items-center gap-0.5">
-                      <span>⚠</span>
-                      {validationErrors.to}
-                    </p>
-                  )}
-                  {!validationErrors.to && validationErrors.from && (
-                    <p className="text-xs text-gray-400">End date</p>
-                  )}
-                </div>
-              </div>
+              <FilterFieldRow
+                label="From"
+                value={from}
+                onChange={(value) => updateDateRange("from", value)}
+                error={validationErrors.from}
+                type="date"
+                id="from"
+              />
+              <FilterFieldRow
+                label="To"
+                value={to}
+                onChange={(value) => updateDateRange("to", value)}
+                error={validationErrors.to}
+                type="date"
+                id="to"
+              />
             </div>
 
             <div className="flex gap-1.5 items-start flex-1">
-              <div className="flex-1">
-                <label
-                  htmlFor="minAmount"
-                  className="block text-xs text-gray-600 mb-0.5 font-medium"
-                >
-                  Min
-                </label>
-                <input
-                  id="minAmount"
-                  type="number"
-                  value={minAmount}
-                  onChange={(e) => updateAmountRange("min", e.target.value)}
-                  placeholder="0"
-                  className={`w-full border rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 ${
-                    validationErrors.minAmount
-                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:ring-blue-500"
-                  }`}
-                />
-                <div className="h-4 mt-0.5">
-                  {validationErrors.minAmount && (
-                    <p className="text-xs text-red-600 flex items-center gap-0.5">
-                      <span>⚠</span>
-                      {validationErrors.minAmount}
-                    </p>
-                  )}
-                  {!validationErrors.minAmount &&
-                    validationErrors.maxAmount && (
-                      <p className="text-xs text-gray-400">Minimum</p>
-                    )}
-                </div>
-              </div>
-              <div className="flex-1">
-                <label
-                  htmlFor="maxAmount"
-                  className="block text-xs text-gray-600 mb-0.5 font-medium"
-                >
-                  Max
-                </label>
-                <input
-                  id="maxAmount"
-                  type="number"
-                  value={maxAmount}
-                  onChange={(e) => updateAmountRange("max", e.target.value)}
-                  placeholder="0"
-                  className={`w-full border rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 ${
-                    validationErrors.maxAmount
-                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:ring-blue-500"
-                  }`}
-                />
-                <div className="h-4 mt-0.5">
-                  {validationErrors.maxAmount && (
-                    <p className="text-xs text-red-600 flex items-center gap-0.5">
-                      <span>⚠</span>
-                      {validationErrors.maxAmount}
-                    </p>
-                  )}
-                  {!validationErrors.maxAmount &&
-                    validationErrors.minAmount && (
-                      <p className="text-xs text-gray-400">Maximum</p>
-                    )}
-                </div>
-              </div>
+              <FilterFieldRow
+                label="Min"
+                value={minAmount}
+                onChange={(value) => updateAmountRange("min", value)}
+                error={validationErrors.minAmount}
+                placeholder="0"
+                type="number"
+                id="minAmount"
+              />
+              <FilterFieldRow
+                label="Max"
+                value={maxAmount}
+                onChange={(value) => updateAmountRange("max", value)}
+                error={validationErrors.maxAmount}
+                placeholder="0"
+                type="number"
+                id="maxAmount"
+              />
             </div>
           </div>
         </div>
