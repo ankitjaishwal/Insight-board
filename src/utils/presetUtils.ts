@@ -36,6 +36,6 @@ export const filtersToParams = (
 export const hasActiveFilters = (filters: TransactionFiltersType): boolean => {
   return Object.values(filters).some((value) => {
     if (Array.isArray(value)) return value.length > 0;
-    return Boolean(value);
+    return value !== undefined && value !== null && value !== "";
   });
 };

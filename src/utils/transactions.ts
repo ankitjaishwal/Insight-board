@@ -28,7 +28,9 @@ export function applyTransactionFilters(
       t.user.toLowerCase().includes(search.toLowerCase());
 
     const matchesStatus =
-      filters.status === "All" || t.status === filters.status;
+      !filters.status ||
+      filters.status === "All" ||
+      t.status === filters.status;
 
     return matchesSearch && matchesStatus;
   });
