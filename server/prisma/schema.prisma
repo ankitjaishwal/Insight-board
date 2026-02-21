@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+model User {
+  id        String   @id @default(uuid())
+  name      String?
+  email     String   @unique
+  role      String
+  createdAt DateTime @default(now())
+
+  transactions Transaction[]
+  auditLogs    AuditLog[]
+}
+
+model Transaction {
+  id            String   @id @default(uuid())
+  transactionId String   @unique
+  userName      String
+  status        String
+  amount        Float
+  date          DateTime
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  action    String
+  entity    String  
+  entityId  String?
+  meta      String?
+  createdAt DateTime @default(now())
+
+  userId String?
+  user   User? @relation(fields: [userId], references: [id])
+}
+
+model FilterPreset {
+  id        String   @id @default(uuid())
+  name      String
+  filters   String   // JSON string
+  createdAt DateTime @default(now())
+}
