@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useMemo, useState } from "react";
 import { useFilterUI } from "../hooks/useFilterUI";
 import { FilterFieldRow } from "./FilterFieldRow";
 import { StatusCheckboxes } from "./StatusCheckboxes";
@@ -24,6 +24,9 @@ type Props = {
   onClearFilters?: () => void;
 };
 
+type FocusedDateField = "from" | "to" | null;
+type FocusedAmountField = "minAmount" | "maxAmount" | null;
+
 const TransactionFilters: React.FC<Props> = ({
   searchParams,
   setSearchParams,
@@ -43,7 +46,10 @@ const TransactionFilters: React.FC<Props> = ({
   const { isAdvancedExpanded, setIsAdvancedExpanded, shouldShowAdvanced } =
     useFilterUI();
 
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [lastFocusedDateField, setLastFocusedDateField] =
+    useState<FocusedDateField>(null);
+  const [lastFocusedAmountField, setLastFocusedAmountField] =
+    useState<FocusedAmountField>(null);
 
   const search = searchParams.get("search") || "";
   const statusParam = searchParams.get("status") || "";
@@ -51,35 +57,33 @@ const TransactionFilters: React.FC<Props> = ({
   const to = searchParams.get("to") || "";
   const minAmount = searchParams.get("min") || "";
   const maxAmount = searchParams.get("max") || "";
-
   const selectedStatuses = statusParam ? statusParam.split(",") : [];
+
   const hasAdvancedFilters = Boolean(from || to || minAmount || maxAmount);
 
   const updateSearch = (value: string) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
-      if (value.trim()) next.set("search", value);
+      if (value.trim()) next.set("search", value.trim());
       else next.delete("search");
       return next;
     });
   };
 
   const updateStatus = (statusValue: string, checked: boolean) => {
+    const currentStatuses = searchParams.get("status")
+      ? searchParams.get("status")!.split(",")
+      : [];
+    const nextStatuses = checked
+      ? currentStatuses.includes(statusValue)
+        ? currentStatuses
+        : [...currentStatuses, statusValue]
+      : currentStatuses.filter((status) => status !== statusValue);
+
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
-      const statuses = next.get("status") ? next.get("status")!.split(",") : [];
-
-      if (checked) {
-        if (!statuses.includes(statusValue)) {
-          statuses.push(statusValue);
-        }
-      } else {
-        const index = statuses.indexOf(statusValue);
-        if (index > -1) statuses.splice(index, 1);
-      }
-
-      if (statuses.length > 0) {
-        next.set("status", statuses.join(","));
+      if (nextStatuses.length > 0) {
+        next.set("status", nextStatuses.join(","));
       } else {
         next.delete("status");
       }
@@ -111,14 +115,35 @@ const TransactionFilters: React.FC<Props> = ({
     onClearFilters();
   };
 
-  const hasValidationErrors = Object.keys(validationErrors).length > 0;
+  const displayedValidationErrors = useMemo(() => {
+    const errors: Record<string, string> = { ...validationErrors };
+
+    const hasDateRangeError =
+      errors.from && errors.to && errors.from === errors.to;
+    if (hasDateRangeError) {
+      if (lastFocusedDateField === "to") delete errors.from;
+      else delete errors.to;
+    }
+
+    const hasAmountRangeError =
+      errors.minAmount &&
+      errors.maxAmount &&
+      errors.minAmount === errors.maxAmount;
+    if (hasAmountRangeError) {
+      if (lastFocusedAmountField === "maxAmount") delete errors.minAmount;
+      else delete errors.maxAmount;
+    }
+
+    return errors;
+  }, [validationErrors, lastFocusedDateField, lastFocusedAmountField]);
+
+  const hasValidationErrors = Object.values(validationErrors).some(Boolean);
 
   return (
     <div className="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
       <div className="flex gap-4 items-center flex-wrap">
         <div className="relative">
           <input
-            ref={searchInputRef}
             id="search"
             name="search"
             type="text"
@@ -169,7 +194,7 @@ const TransactionFilters: React.FC<Props> = ({
           hasActiveFilters={hasActiveFilters}
           isPresetDirty={isPresetDirty}
           hasActivePreset={hasActivePreset}
-          validationErrors={validationErrors}
+          validationErrors={displayedValidationErrors}
         />
       </div>
 
@@ -181,7 +206,8 @@ const TransactionFilters: React.FC<Props> = ({
                 label="From"
                 value={from}
                 onChange={(value) => updateDateRange("from", value)}
-                error={validationErrors.from}
+                onFocus={() => setLastFocusedDateField("from")}
+                error={displayedValidationErrors.from}
                 type="date"
                 id="from"
               />
@@ -189,7 +215,8 @@ const TransactionFilters: React.FC<Props> = ({
                 label="To"
                 value={to}
                 onChange={(value) => updateDateRange("to", value)}
-                error={validationErrors.to}
+                onFocus={() => setLastFocusedDateField("to")}
+                error={displayedValidationErrors.to}
                 type="date"
                 id="to"
               />
@@ -200,7 +227,8 @@ const TransactionFilters: React.FC<Props> = ({
                 label="Min"
                 value={minAmount}
                 onChange={(value) => updateAmountRange("min", value)}
-                error={validationErrors.minAmount}
+                onFocus={() => setLastFocusedAmountField("minAmount")}
+                error={displayedValidationErrors.minAmount}
                 placeholder="0"
                 type="number"
                 id="minAmount"
@@ -209,7 +237,8 @@ const TransactionFilters: React.FC<Props> = ({
                 label="Max"
                 value={maxAmount}
                 onChange={(value) => updateAmountRange("max", value)}
-                error={validationErrors.maxAmount}
+                onFocus={() => setLastFocusedAmountField("maxAmount")}
+                error={displayedValidationErrors.maxAmount}
                 placeholder="0"
                 type="number"
                 id="maxAmount"

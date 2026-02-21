@@ -2,6 +2,8 @@ interface FilterFieldRowProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
   error?: string;
   placeholder?: string;
   type?: "date" | "number";
@@ -12,6 +14,8 @@ export const FilterFieldRow: React.FC<FilterFieldRowProps> = ({
   label,
   value,
   onChange,
+  onFocus,
+  onBlur,
   error,
   placeholder,
   type = "text",
@@ -30,6 +34,8 @@ export const FilterFieldRow: React.FC<FilterFieldRowProps> = ({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onFocus={onFocus}
+        onBlur={onBlur}
         placeholder={placeholder}
         className={`w-full border rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 ${
           error

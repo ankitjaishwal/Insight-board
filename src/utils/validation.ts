@@ -1,4 +1,5 @@
 import type { TransactionFilters } from "../types/transactionFilters";
+import { transactionFiltersSchema } from "../forms/transactionFilters.schema";
 
 export type ValidationResult = {
   valid: boolean;
@@ -11,34 +12,16 @@ export type ValidationResult = {
  * Single source of truth for validation rules.
  */
 export function validateFilters(filters: TransactionFilters): ValidationResult {
+  const parsed = transactionFiltersSchema.safeParse(filters);
   const errors: ValidationResult["errors"] = {};
 
-  // Date validation
-  if (filters.from && filters.to) {
-    const from = new Date(filters.from);
-    const to = new Date(filters.to);
-
-    if (from > to) {
-      errors.to = "To date must be after From date";
+  if (!parsed.success) {
+    for (const issue of parsed.error.issues) {
+      const path = issue.path[0];
+      if (typeof path === "string" && !errors[path as keyof TransactionFilters]) {
+        errors[path as keyof TransactionFilters] = issue.message;
+      }
     }
-  }
-
-  // Amount validation
-  if (
-    filters.minAmount != null &&
-    filters.maxAmount != null &&
-    filters.minAmount > filters.maxAmount
-  ) {
-    errors.maxAmount = "Max must be ≥ Min";
-  }
-
-  // Negative amount validation
-  if (filters.minAmount != null && filters.minAmount < 0) {
-    errors.minAmount = "Amount cannot be negative";
-  }
-
-  if (filters.maxAmount != null && filters.maxAmount < 0) {
-    errors.maxAmount = "Amount cannot be negative";
   }
 
   return {
