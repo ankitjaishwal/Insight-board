@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Status } from "../types/transaction";
+import PresetDropdown from "./PresetDropdown";
+import type { FilterPreset } from "../types/preset";
 
 type Props = {
   searchParams: URLSearchParams;
@@ -7,12 +9,24 @@ type Props = {
     nextInit: URLSearchParams | ((prev: URLSearchParams) => URLSearchParams),
   ) => void;
   validationErrors?: Record<string, string>;
+  presets?: FilterPreset[];
+  activePresetId?: string | null;
+  onSelectPreset?: (preset: FilterPreset) => void;
+  onSelectCustom?: () => void;
+  onSavePreset?: () => void;
+  hasActiveFilters?: boolean;
 };
 
 const TransactionFilters: React.FC<Props> = ({
   searchParams,
   setSearchParams,
   validationErrors = {},
+  presets = [],
+  activePresetId = null,
+  onSelectPreset = () => {},
+  onSelectCustom = () => {},
+  onSavePreset = () => {},
+  hasActiveFilters = false,
 }) => {
   const search = searchParams.get("search") || "";
   const statusParam = searchParams.get("status") || "";
@@ -141,6 +155,32 @@ const TransactionFilters: React.FC<Props> = ({
           {hasValidationErrors && <span className="text-lg">⚠</span>}
           Advanced {shouldShowAdvanced ? "▴" : "▾"}
         </button>
+
+        {presets.length > 0 && (
+          <PresetDropdown
+            presets={presets}
+            activePresetId={activePresetId}
+            onSelectPreset={onSelectPreset}
+            onSelectCustom={onSelectCustom}
+          />
+        )}
+
+        {onSavePreset && (
+          <button
+            onClick={onSavePreset}
+            disabled={!hasActiveFilters}
+            className={`px-3 py-2 text-sm font-medium rounded transition ${
+              hasActiveFilters
+                ? "bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200"
+                : "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
+            }`}
+            title={
+              hasActiveFilters ? "Save current filters" : "Add filters to save"
+            }
+          >
+            ★ Save
+          </button>
+        )}
         <button
           onClick={clearAllFilters}
           className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded text-sm transition whitespace-nowrap"

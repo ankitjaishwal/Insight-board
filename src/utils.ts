@@ -1,5 +1,6 @@
 import type { Sorting } from "./types/table";
 import { Status, type Transaction } from "./types/transaction";
+import type { TransactionFilters } from "./types/transactionFilters";
 
 export type Filters = {
   search: string;
@@ -103,4 +104,70 @@ export function formatDateTime(iso: string) {
     minute: "2-digit",
     hour12: true,
   });
+}
+
+export function deepEqual(a: any, b: any): boolean {
+  if (a === b) return true;
+
+  if (typeof a !== "object" || typeof b !== "object" || !a || !b) {
+    return false;
+  }
+
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+
+  if (keysA.length !== keysB.length) return false;
+
+  for (const key of keysA) {
+    if (!deepEqual(a[key], b[key])) return false;
+  }
+
+  return true;
+}
+
+export type ValidationResult = {
+  valid: boolean;
+  errors: Partial<Record<keyof TransactionFilters, string>>;
+};
+
+/**
+ * Central validator for transaction filters.
+ * Pure function - no side effects.
+ * Single source of truth for validation rules.
+ */
+export function validateFilters(filters: TransactionFilters): ValidationResult {
+  const errors: ValidationResult["errors"] = {};
+
+  // Date validation
+  if (filters.from && filters.to) {
+    const from = new Date(filters.from);
+    const to = new Date(filters.to);
+
+    if (from > to) {
+      errors.to = "To date must be after From date";
+    }
+  }
+
+  // Amount validation
+  if (
+    filters.minAmount != null &&
+    filters.maxAmount != null &&
+    filters.minAmount > filters.maxAmount
+  ) {
+    errors.maxAmount = "Max must be ≥ Min";
+  }
+
+  // Negative amount validation
+  if (filters.minAmount != null && filters.minAmount < 0) {
+    errors.minAmount = "Amount cannot be negative";
+  }
+
+  if (filters.maxAmount != null && filters.maxAmount < 0) {
+    errors.maxAmount = "Amount cannot be negative";
+  }
+
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors,
+  };
 }

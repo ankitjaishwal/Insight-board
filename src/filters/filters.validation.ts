@@ -1,4 +1,4 @@
-import type { TransactionFilters } from "./filters.types";
+import type { TransactionFilters } from "../types/transactionFilters";
 
 export type ValidationResult = {
   isValid: boolean;

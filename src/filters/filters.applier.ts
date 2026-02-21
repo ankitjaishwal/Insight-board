@@ -1,5 +1,5 @@
 import type { Transaction } from "../types/transaction";
-import type { TransactionFilters } from "./filters.types";
+import type { TransactionFilters } from "../types/transactionFilters";
 
 export function applyFilters(
   transactions: Transaction[],

@@ -1,5 +1,5 @@
-import type { TransactionFilters } from "../filters/filters.types";
 import { formatDate } from "../utils";
+import type { TransactionFilters } from "../types/transactionFilters";
 
 type Props = {
   filters: TransactionFilters;

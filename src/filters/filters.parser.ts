@@ -1,5 +1,5 @@
-import type { TransactionFilters } from "./filters.types";
 import { Status } from "../types/transaction";
+import type { TransactionFilters } from "../types/transactionFilters";
 
 /**
  * Parse URL search params into typed filter object.
