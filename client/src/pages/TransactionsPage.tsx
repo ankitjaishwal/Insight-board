@@ -108,7 +108,7 @@ const TransactionsPage = () => {
   const filename = `transactions-${Date.now()}.csv`;
 
   return (
-    <>
+    <div className="h-full min-h-0 flex flex-col">
       <div className="flex justify-between items-center mb-3">
         <h1 className="text-xl text-gray-900 font-semibold">
           {activeRoute.label}
@@ -145,13 +145,16 @@ const TransactionsPage = () => {
         onClearFilters={handleClearFilters}
       />
 
-      <DataTable<Transaction>
-        columns={columns}
-        data={data}
-        sorting={sorting}
-        onSort={handleSorting}
-        getRowId={(row) => row.transactionId}
-      />
+      <div className="flex-1 min-h-0">
+        <DataTable<Transaction>
+          columns={columns}
+          data={data}
+          sorting={sorting}
+          onSort={handleSorting}
+          getRowId={(row) => row.transactionId}
+          maxHeightClassName="max-h-full"
+        />
+      </div>
 
       {showSaveModal && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
@@ -192,7 +195,7 @@ const TransactionsPage = () => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

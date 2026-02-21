@@ -6,7 +6,7 @@ import { applyRoleVisibility } from "../config/applyRoleVisibility";
 
 const Header = ({ config }: { config: DashboardConfig }) => {
   return (
-    <header className="h-16 px-6 border-b border-gray-200 text-gray-900 flex items-center justify-between bg-white text-sm font-semibold">
+    <header className="h-16 shrink-0 px-6 border-b border-gray-200 text-gray-900 flex items-center justify-between bg-white text-sm font-semibold">
       <strong>{config.appName}</strong>
     </header>
   );
@@ -14,7 +14,7 @@ const Header = ({ config }: { config: DashboardConfig }) => {
 
 const SideNav = ({ config }: { config: DashboardConfig }) => {
   return (
-    <aside className="w-60 border-r border-gray-200 bg-white p-4">
+    <aside className="w-60 shrink-0 border-r border-gray-200 bg-white p-4">
       <nav className="flex flex-col gap-2">
         {config.routes.map((navItem) => (
           <NavLink
@@ -48,13 +48,13 @@ const Layout = () => {
   );
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen overflow-hidden">
       <Header config={config} />
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-0">
         {/* Sidebar */}
         <SideNav config={config} />
         {/* Main */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 min-h-0 overflow-auto p-6">
           <Outlet context={{ config, activeRoute }} />
         </main>
       </div>

@@ -1,22 +1,24 @@
 import { useNavigate } from "react-router-dom";
 import MetricCard from "./MetricCard";
 import { type DashboardConfig } from "../config/app.config";
-import { metricRegistry, type Metrics } from "../registry/metricRegistry";
+import { metricRegistry } from "../registry/metricRegistry";
 import { chartRegistry } from "../registry/chartRegistry";
-import { transactions } from "../mocks/transactions.mock";
+import type { OverviewResponse } from "../api/overviewApi";
+
+type OverviewMetricKey = Exclude<keyof OverviewResponse, "statusBreakdown">;
 
 const Overview = ({
-  metrics,
+  overview,
   config,
 }: {
-  metrics: Metrics;
+  overview: OverviewResponse;
   config: DashboardConfig;
 }) => {
   const navigate = useNavigate();
 
   const chartConfig = chartRegistry[config.overview.chart];
   const ChartComponent = chartConfig.component;
-  const chartData = chartConfig.deriveData(transactions);
+  const chartData = chartConfig.deriveData(overview);
 
   return (
     <div className="mt-6">
@@ -24,15 +26,19 @@ const Overview = ({
       <div className="grid grid-cols-4 gap-4">
         {config.overview.kpis.map(({ key: metricKey }) => {
           const metric = metricRegistry[metricKey];
-          const key = metricKey as keyof Metrics;
-          const metricVal = metrics[key];
+          const key = metricKey as OverviewMetricKey;
+          const metricVal = overview[key];
+          const numericValue =
+            typeof metricVal === "number" && Number.isFinite(metricVal)
+              ? metricVal
+              : 0;
 
           const value =
             metricKey === "totalRevenue"
-              ? `₹${metricVal.toLocaleString()}`
+              ? `₹${numericValue.toLocaleString()}`
               : metricKey === "successRate"
-                ? `${metricVal.toFixed(1)}%`
-                : metricVal;
+                ? `${numericValue.toFixed(1)}%`
+                : numericValue;
 
           return (
             <MetricCard
@@ -41,7 +47,7 @@ const Overview = ({
               value={value}
               onClick={
                 metricKey === "totalRevenue" || metricKey === "successRate"
-                  ? () => navigate("/transactions?status=completed")
+                  ? () => navigate("/transactions?status=COMPLETED")
                   : () => navigate("/transactions")
               }
             />
@@ -49,8 +55,9 @@ const Overview = ({
         })}
       </div>
 
+      {/* Chart */}
       <div className="bg-white border mt-6 border-gray-200 rounded-md h-64 p-4">
-        <ChartComponent statusBreakdown={chartData} />
+        <ChartComponent data={chartData} />
       </div>
     </div>
   );

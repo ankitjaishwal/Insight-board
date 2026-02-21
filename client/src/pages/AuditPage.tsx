@@ -1,12 +1,11 @@
 import DataTable from "../components/DataTable";
-import { auditLogs } from "../mocks/audit.mock";
 import type { AuditLog } from "../types/audit";
 import type { Column } from "../types/table";
-import { applySorting, formatDateTime } from "../utils";
+import { formatDateTime } from "../utils";
 import type { AuditAction } from "../types/audit";
-import { useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useSearchParams } from "react-router-dom";
 import type { RouteConfig } from "../config/app.config";
+import { useAuditQuery } from "../hooks/useAuditQuery";
 
 export const auditActionLabels: Record<AuditAction, string> = {
   LOGIN: "Logged in",
@@ -44,26 +43,33 @@ const columns: Column<AuditLog>[] = [
 ];
 
 const AuditPage = () => {
-  const [sorting, setSorting] = useState<{
-    key: keyof AuditLog;
-    direction: "asc" | "desc";
-  } | null>(null);
-
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { data, loading, error, sorting } = useAuditQuery(searchParams);
   const { activeRoute } = useOutletContext<{ activeRoute: RouteConfig }>();
 
-  const sortedAuditLogs = applySorting(auditLogs, sorting);
-
   const handleSort = (key: keyof AuditLog) => {
-    setSorting((prev) => {
-      if (!prev || prev.key !== key) {
-        return { key, direction: "asc" };
+    if (key !== "timestamp" && key !== "action") return;
+
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      const mappedKey = key === "timestamp" ? "createdAt" : "action";
+      const currentSort = prev.get("sort");
+      const currentDir = prev.get("dir") as "asc" | "desc" | null;
+
+      if (currentSort !== mappedKey) {
+        next.set("sort", mappedKey);
+        next.set("dir", "asc");
+        return next;
       }
 
-      if (prev.direction === "asc") {
-        return { key, direction: "desc" };
+      if (currentDir === "asc") {
+        next.set("dir", "desc");
+        return next;
       }
 
-      return null;
+      next.delete("sort");
+      next.delete("dir");
+      return next;
     });
   };
 
@@ -75,11 +81,13 @@ const AuditPage = () => {
 
       <DataTable<AuditLog>
         columns={columns}
-        data={sortedAuditLogs}
+        data={data}
         sorting={sorting}
         onSort={handleSort}
         getRowId={(row) => row.id}
       />
+      {loading && <p className="text-sm text-gray-500 mt-3">Loading audit logs...</p>}
+      {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
     </>
   );
 };

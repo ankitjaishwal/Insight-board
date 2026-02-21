@@ -11,6 +11,7 @@ type DataTableProps<T> = {
   sorting?: Sorting<T>;
   onSort?: (key: keyof T) => void;
   getRowId?: (row: T) => string;
+  maxHeightClassName?: string;
 };
 
 function DataTable<T>({
@@ -19,9 +20,12 @@ function DataTable<T>({
   sorting,
   onSort,
   getRowId,
+  maxHeightClassName = "max-h-[calc(100vh-140px)]",
 }: DataTableProps<T>) {
   return (
-    <div className="w-full border border-gray-200 rounded-md max-h-[calc(100vh-140px)] overflow-auto">
+    <div
+      className={`w-full border border-gray-200 rounded-md overflow-auto ${maxHeightClassName}`}
+    >
       <table className="w-full border-collapse">
         {/* Header */}
         <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">

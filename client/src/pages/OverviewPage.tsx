@@ -1,8 +1,7 @@
 import Overview from "../components/Overview";
-import { transactions } from "../mocks/transactions.mock";
-import { metricRegistry, type Metrics } from "../registry/metricRegistry";
-import { type DashboardConfig, type RouteConfig } from "../config/app.config";
 import { useOutletContext } from "react-router-dom";
+import { useOverviewQuery } from "../hooks/useOverviewQuery";
+import type { DashboardConfig, RouteConfig } from "../config/app.config";
 
 const OverviewPage = () => {
   const { config, activeRoute } = useOutletContext<{
@@ -10,19 +9,25 @@ const OverviewPage = () => {
     activeRoute: RouteConfig;
   }>();
 
-  const metrics = Object.fromEntries(
-    config.overview.kpis.map(({ key }) => [
-      key,
-      metricRegistry[key].derive(transactions),
-    ]),
-  ) as Metrics;
+  const { data, loading, error } = useOverviewQuery();
+
+  if (loading) {
+    return <p className="text-gray-500">Loading overview...</p>;
+  }
+
+  if (error) {
+    return <p className="text-red-600">{error}</p>;
+  }
+
+  if (!data) return null;
 
   return (
     <>
       <h1 className="text-xl text-gray-900 font-semibold pb-6">
         {activeRoute.label}
       </h1>
-      <Overview metrics={metrics} config={config} />
+
+      <Overview overview={data} config={config} />
     </>
   );
 };

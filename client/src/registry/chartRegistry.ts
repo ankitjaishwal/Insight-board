@@ -1,9 +1,16 @@
+import type { OverviewResponse } from "../api/overviewApi";
 import Chart from "../components/Chart";
-import { deriveStatusBreakdown } from "../utils";
 
 export const chartRegistry = {
   statusBreakdown: {
     component: Chart,
-    deriveData: deriveStatusBreakdown,
+    deriveData: (overview: OverviewResponse) => {
+      return Object.entries(overview.statusBreakdown).map(
+        ([status, count]) => ({
+          status,
+          count,
+        }),
+      );
+    },
   },
 };

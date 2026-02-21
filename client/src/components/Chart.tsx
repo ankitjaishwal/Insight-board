@@ -1,29 +1,19 @@
-import {
-  Bar,
-  BarChart,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-} from "recharts";
+import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer } from "recharts";
 
-const Chart = ({
-  statusBreakdown,
-}: {
-  statusBreakdown: Record<string, number>;
-}) => {
-  const data = Object.entries(statusBreakdown).map(
-    ([status, count]) => ({
-      status,
-      count,
-    })
-  );
+type Props = {
+  data: {
+    status: string;
+    count: number;
+  }[];
+};
 
+const Chart = ({ data }: Props) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
-				barSize={40}
-				barCategoryGap="30%"
         data={data}
+        barSize={40}
+        barCategoryGap="30%"
         margin={{ top: 16, right: 16, left: 8, bottom: 8 }}
       >
         <XAxis dataKey="status" />
