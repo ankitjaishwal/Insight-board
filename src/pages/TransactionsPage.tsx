@@ -10,6 +10,7 @@ import DataTable from "../components/DataTable";
 import type { Column } from "../types/table";
 import { usePresets } from "../hooks/usePresets";
 import { useTransactionFiltering } from "../hooks/useTransactionFiltering";
+import { exportToCSV } from "../utils/exportCsv";
 
 const columns: Column<Transaction>[] = [
   { key: "transactionId", header: "Transaction ID", sortable: true },
@@ -109,11 +110,23 @@ const TransactionsPage = () => {
 
   const { activeRoute } = useOutletContext<{ activeRoute: RouteConfig }>();
 
+  const filename = `transactions-${Date.now()}.csv`;
+
   return (
     <>
-      <h1 className="text-xl text-gray-900 font-semibold pb-6">
-        {activeRoute.label}
-      </h1>
+      <div className="flex justify-between items-center mb-3">
+        <h1 className="text-xl text-gray-900 font-semibold">
+          {activeRoute.label}
+        </h1>
+
+        <button
+          onClick={() => exportToCSV(sortedTransactions, columns, filename)}
+          disabled={!sortedTransactions.length}
+          className="px-3 py-2 text-sm border rounded-md bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          ⬇ Export CSV
+        </button>
+      </div>
 
       <ActiveFiltersSummary
         filters={filters}
