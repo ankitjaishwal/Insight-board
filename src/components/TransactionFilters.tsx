@@ -16,6 +16,8 @@ type Props = {
   onSelectPreset?: (preset: FilterPreset) => void;
   onSelectCustom?: () => void;
   onSavePreset?: () => void;
+  onDeletePreset?: () => void;
+  onRenamePreset?: (renameValue: string, closeModal: () => void) => void;
   hasActiveFilters?: boolean;
   isPresetDirty?: boolean;
   hasActivePreset?: boolean;
@@ -31,6 +33,8 @@ const TransactionFilters: React.FC<Props> = ({
   onSelectPreset = () => {},
   onSelectCustom = () => {},
   onSavePreset = () => {},
+  onDeletePreset = () => {},
+  onRenamePreset = () => {},
   hasActiveFilters = false,
   isPresetDirty = false,
   hasActivePreset = false,
@@ -159,6 +163,8 @@ const TransactionFilters: React.FC<Props> = ({
           onSelectPreset={onSelectPreset}
           onSelectCustom={onSelectCustom}
           onSavePreset={onSavePreset}
+          onDeletePreset={onDeletePreset}
+          onRenamePreset={onRenamePreset}
           onClearFilters={clearAllFilters}
           hasActiveFilters={hasActiveFilters}
           isPresetDirty={isPresetDirty}

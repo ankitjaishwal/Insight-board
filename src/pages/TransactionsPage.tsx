@@ -52,6 +52,8 @@ const TransactionsPage = () => {
     handlePresetAction,
     handleApplyPreset,
     handleSelectCustom,
+    handleDeletePreset,
+    handleRenamePreset,
   } = usePresets(filters);
 
   const handleSorting = (key: keyof Transaction) => {
@@ -127,6 +129,8 @@ const TransactionsPage = () => {
         onSelectPreset={(preset) => handleApplyPreset(preset, setSearchParams)}
         onSelectCustom={handleSelectCustom}
         onSavePreset={handlePresetAction}
+        onDeletePreset={handleDeletePreset}
+        onRenamePreset={handleRenamePreset}
         hasActiveFilters={hasActiveFilters}
         isPresetDirty={isPresetDirty}
         hasActivePreset={!!activePreset}

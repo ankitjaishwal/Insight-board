@@ -21,7 +21,8 @@ interface UsePresetsReturn {
     setSearchParams: (params: URLSearchParams) => void,
   ) => void;
   handleSelectCustom: () => void;
-  handleDeletePreset: (id: string) => void;
+  handleDeletePreset: () => void;
+  handleRenamePreset: (renameValue: string, closeModal: () => void) => void;
 }
 
 export const usePresets = (
@@ -149,14 +150,24 @@ export const usePresets = (
     setActivePresetId(null);
   };
 
-  const handleDeletePreset = (id: string) => {
-    presetService.delete(id);
-    setPresets(presetService.getAll());
+  const handleDeletePreset = () => {
+    if (!activePresetId) return;
 
-    if (activePresetId === id) {
-      setActivePresetId(null);
-      presetIdRef.current = null;
-    }
+    const confirmDelete = confirm("Delete this preset?");
+    if (!confirmDelete) return;
+
+    presetService.delete(activePresetId);
+    setPresets(presetService.getAll());
+    setActivePresetId(null);
+    presetIdRef.current = null;
+  };
+
+  const handleRenamePreset = (renameValue: string, closeModal: () => void) => {
+    if (!activePresetId || !renameValue.trim()) return;
+
+    presetService.rename(activePresetId, renameValue.trim());
+    setPresets(presetService.getAll());
+    closeModal();
   };
 
   return {
@@ -174,5 +185,6 @@ export const usePresets = (
     handleApplyPreset,
     handleSelectCustom,
     handleDeletePreset,
+    handleRenamePreset,
   };
 };

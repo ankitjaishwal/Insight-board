@@ -41,6 +41,12 @@ export const presetService = {
     writeStorage(updated);
   },
 
+  rename(id: string, name: string): void {
+    const presets = readStorage();
+    const updated = presets.map((p) => (p.id === id ? { ...p, name } : p));
+    writeStorage(updated);
+  },
+  
   clearAll(): void {
     localStorage.removeItem(STORAGE_KEY);
   },
