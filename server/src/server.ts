@@ -39,20 +39,20 @@ app.get("/api/transactions", async (req, res) => {
         {
           transactionId: {
             contains: String(search),
-            mode: "insensitive",
           },
         },
         {
           userName: {
             contains: String(search),
-            mode: "insensitive",
           },
         },
       ];
     }
 
-    if (status && status !== "All") {
-      where.status = status;
+    if (status?.length) {
+      where.status = {
+        in: status,
+      };
     }
 
     if (from || to) {

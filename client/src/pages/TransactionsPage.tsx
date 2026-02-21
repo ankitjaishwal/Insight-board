@@ -1,7 +1,6 @@
 import { useOutletContext, useSearchParams } from "react-router-dom";
 import TransactionFilters from "../components/TransactionFilters";
 import ActiveFiltersSummary from "../components/ActiveFiltersSummary";
-import { transactions } from "../mocks/transactions.mock";
 import type { Transaction } from "../types/transaction";
 import { formatDate } from "../utils";
 import type { RouteConfig } from "../config/app.config";
@@ -9,12 +8,12 @@ import type { TransactionFilters as TransactionFiltersType } from "../types/tran
 import DataTable from "../components/DataTable";
 import type { Column } from "../types/table";
 import { usePresets } from "../hooks/usePresets";
-import { useTransactionFiltering } from "../hooks/useTransactionFiltering";
 import { exportToCSV } from "../utils/exportCsv";
+import { useTransactionQuery } from "../hooks/useTransactionQuery";
 
 const columns: Column<Transaction>[] = [
   { key: "transactionId", header: "Transaction ID", sortable: true },
-  { key: "user", header: "User" },
+  { key: "userName", header: "User" },
   { key: "status", header: "Status" },
   {
     key: "amount",
@@ -33,12 +32,8 @@ const columns: Column<Transaction>[] = [
 
 const TransactionsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const { filters, validation, hasActiveFilters, sortedTransactions, sorting } =
-    useTransactionFiltering({
-      searchParams,
-      data: transactions,
-    });
+  const { data, filters, validation, hasActiveFilters, sorting } =
+    useTransactionQuery(searchParams);
 
   const {
     presets,
@@ -120,8 +115,8 @@ const TransactionsPage = () => {
         </h1>
 
         <button
-          onClick={() => exportToCSV(sortedTransactions, columns, filename)}
-          disabled={!sortedTransactions.length}
+          onClick={() => exportToCSV(data, columns, filename)}
+          disabled={!data.length}
           className="px-3 py-2 text-sm border rounded-md bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           ⬇ Export CSV
@@ -152,7 +147,7 @@ const TransactionsPage = () => {
 
       <DataTable<Transaction>
         columns={columns}
-        data={sortedTransactions}
+        data={data}
         sorting={sorting}
         onSort={handleSorting}
         getRowId={(row) => row.transactionId}

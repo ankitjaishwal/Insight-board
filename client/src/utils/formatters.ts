@@ -1,6 +1,16 @@
 export const formatDate = (dateStr: string) => {
-  const [year, month, day] = dateStr.split("-").map(Number);
-  const date = new Date(year, month - 1, day);
+  if (!dateStr) return "-";
+
+  let date: Date;
+
+  if (dateStr.includes("T")) {
+    date = new Date(dateStr);
+  } else {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    date = new Date(year, month - 1, day);
+  }
+
+  if (Number.isNaN(date.getTime())) return "-";
 
   const dayNum = date.getDate();
   const monthName = date.toLocaleString("en-US", { month: "short" });

@@ -8,7 +8,7 @@ export type Status = (typeof Status)[keyof typeof Status];
 
 export type Transaction = {
   transactionId: string;
-  user: string;
+  userName: string;
   status: Status;
   amount: number;
   date: string;

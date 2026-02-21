@@ -64,7 +64,7 @@ const TransactionFilters: React.FC<Props> = ({
   const updateSearch = (value: string) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
-      if (value.trim()) next.set("search", value.trim());
+      if (value.length > 0) next.set("search", value);
       else next.delete("search");
       return next;
     });
