@@ -4,6 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderApp } from "./renderApp";
 
 describe("Presets integration", () => {
+  const getPresetDropdown = () => screen.getAllByRole("combobox")[0];
+
   beforeEach(() => {
     localStorage.clear();
     vi.restoreAllMocks();
@@ -20,7 +22,8 @@ describe("Presets integration", () => {
     await user.type(screen.getByPlaceholderText(/e\.g\./i), "My Preset");
     await user.click(screen.getByRole("button", { name: /save preset/i }));
 
-    const presetDropdown = await screen.findByRole("combobox");
+    await screen.findByRole("option", { name: "My Preset" });
+    const presetDropdown = getPresetDropdown();
 
     await user.click(screen.getByRole("button", { name: "Clear" }));
     expect(screen.getByPlaceholderText(/search/i)).toHaveValue("");
@@ -40,7 +43,8 @@ describe("Presets integration", () => {
     await user.type(screen.getByPlaceholderText(/e\.g\./i), "My Preset");
     await user.click(screen.getByRole("button", { name: /save preset/i }));
 
-    const presetDropdown = await screen.findByRole("combobox");
+    await screen.findByRole("option", { name: "My Preset" });
+    const presetDropdown = getPresetDropdown();
 
     await user.clear(screen.getByPlaceholderText(/search/i));
     await user.type(screen.getByPlaceholderText(/search/i), "Bob");
@@ -65,11 +69,13 @@ describe("Presets integration", () => {
     await user.type(screen.getByPlaceholderText(/e\.g\./i), "To Delete");
     await user.click(screen.getByRole("button", { name: /save preset/i }));
 
-    await screen.findByRole("combobox");
+    await screen.findByRole("option", { name: "To Delete" });
 
     await user.click(screen.getByRole("button", { name: "⋮" }));
     await user.click(screen.getByRole("button", { name: /delete/i }));
 
-    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("option", { name: "Select preset" }),
+    ).not.toBeInTheDocument();
   });
 });

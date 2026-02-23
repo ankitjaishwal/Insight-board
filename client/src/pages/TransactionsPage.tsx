@@ -1,5 +1,5 @@
 import { useOutletContext, useSearchParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TransactionFilters from "../components/TransactionFilters";
 import ActiveFiltersSummary from "../components/ActiveFiltersSummary";
 import type { Transaction } from "../types/transaction";
@@ -17,6 +17,7 @@ import TransactionEditModal from "../components/transactions/TransactionEditModa
 import TransactionDeleteDialog from "../components/transactions/TransactionDeleteDialog";
 import TransactionRowActions from "../components/transactions/TransactionRowActions";
 import { ErrorBoundary } from "../components/errors/ErrorBoundary";
+import Pagination from "../components/Pagination";
 
 const columns: Column<Transaction>[] = [
   { key: "transactionId", header: "Transaction ID", sortable: true },
@@ -43,8 +44,19 @@ const TransactionsPage = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editTarget, setEditTarget] = useState<Transaction | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null);
-  const { data, isLoading, isError, filters, validation, hasActiveFilters, sorting } =
-    useTransactionQuery(searchParams);
+  const {
+    data,
+    meta,
+    page,
+    limit,
+    isLoading,
+    isFetching,
+    isError,
+    filters,
+    validation,
+    hasActiveFilters,
+    sorting,
+  } = useTransactionQuery(searchParams);
 
   const {
     presets,
@@ -120,6 +132,20 @@ const TransactionsPage = () => {
   const { activeRoute } = useOutletContext<{ activeRoute: RouteConfig }>();
   const canCreate = user?.role === "ADMIN" || user?.role === "OPS";
   const canUseRowActions = user?.role === "ADMIN" || user?.role === "OPS";
+  const total = meta?.total ?? 0;
+  const pages = meta?.pages ?? 0;
+
+  useEffect(() => {
+    // If filters/page-size reduce the total number of pages, clamp page to the
+    // new last page. Guard clauses prevent a setSearchParams loop.
+    if (pages > 0 && page > pages) {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("page", String(pages));
+        return next;
+      });
+    }
+  }, [page, pages, setSearchParams]);
 
   const filename = `transactions-${Date.now()}.csv`;
 
@@ -175,31 +201,67 @@ const TransactionsPage = () => {
       />
 
       <ErrorBoundary fallbackMessage="Failed to render transactions table.">
-        <div className="flex-1 min-h-0">
-          <DataTable<Transaction>
-            columns={columns}
-            data={data}
-            sorting={sorting}
-            onSort={handleSorting}
-            getRowId={(row) => row.id ?? row.transactionId}
-            maxHeightClassName="max-h-full"
-            rowActions={
-              canUseRowActions
-                ? (row) => (
-                    <TransactionRowActions
-                      transaction={row}
-                      onEdit={setEditTarget}
-                      onDelete={setDeleteTarget}
-                    />
-                  )
-                : undefined
-            }
+        <div className="flex-1 min-h-0 flex flex-col">
+          {/* Loading means query is still in-flight. Empty means request finished but no matches. */}
+          {isLoading ? (
+            <div className="flex-1 min-h-0 flex items-center justify-center">
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <span className="h-4 w-4 rounded-full border-2 border-gray-300 border-t-blue-600 animate-spin" />
+                Loading transactions...
+              </div>
+            </div>
+          ) : data.length === 0 ? (
+            <div className="flex-1 min-h-0 flex items-center justify-center text-sm text-gray-500 border border-gray-200 rounded-md bg-white">
+              No transactions found
+            </div>
+          ) : (
+            <DataTable<Transaction>
+              columns={columns}
+              data={data}
+              sorting={sorting}
+              onSort={handleSorting}
+              getRowId={(row) => row.id ?? row.transactionId}
+              maxHeightClassName="max-h-full"
+              rowActions={
+                canUseRowActions
+                  ? (row) => (
+                      <TransactionRowActions
+                        transaction={row}
+                        onEdit={setEditTarget}
+                        onDelete={setDeleteTarget}
+                      />
+                    )
+                  : undefined
+              }
+            />
+          )}
+
+          <Pagination
+            page={page}
+            pages={pages}
+            total={total}
+            limit={limit}
+            onPageChange={(newPage) => {
+              setSearchParams((prev) => {
+                const next = new URLSearchParams(prev);
+                next.set("page", String(newPage));
+                return next;
+              });
+            }}
+            onLimitChange={(newLimit) => {
+              setSearchParams((prev) => {
+                const next = new URLSearchParams(prev);
+                next.set("limit", String(newLimit));
+                next.set("page", "1");
+                return next;
+              });
+            }}
           />
         </div>
       </ErrorBoundary>
 
-      {isLoading && (
-        <p className="text-sm text-gray-500 mt-3">Loading transactions...</p>
+      {isFetching && !isLoading && (
+        <p className="text-sm text-gray-500 mt-3">Refreshing transactions...</p>
       )}
       {isError && (
         <p className="text-sm text-red-600 mt-3">Failed to load transactions</p>

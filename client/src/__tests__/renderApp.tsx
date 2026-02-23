@@ -14,6 +14,8 @@ import type { FilterPreset } from "../types/preset";
 import { Status } from "../types/transaction";
 import type {
   CreateTransactionPayload,
+  FetchTransactionsParams,
+  TransactionListResponse,
   UpdateTransactionPayload,
 } from "../api/transactionApi";
 
@@ -42,6 +44,9 @@ const defaultUser = {
 
 type RenderAppOptions = {
   user?: typeof defaultUser;
+  fetchTransactionsMock?: (
+    params: FetchTransactionsParams,
+  ) => Promise<TransactionListResponse> | TransactionListResponse;
 };
 
 const transactionResponse = {
@@ -109,15 +114,23 @@ export async function renderApp(route = "/", options: RenderAppOptions = {}) {
   }
 
   vi.spyOn(authApi, "getMe").mockResolvedValue(activeUser);
-  vi.spyOn(transactionApi, "fetchTransactions").mockImplementation(async () => ({
-    data: [...transactionsStore],
-    meta: {
-      total: transactionsStore.length,
-      page: 1,
-      limit: 20,
-      pages: 1,
+  vi.spyOn(transactionApi, "fetchTransactions").mockImplementation(
+    async (params: FetchTransactionsParams) => {
+      if (options.fetchTransactionsMock) {
+        return options.fetchTransactionsMock(params);
+      }
+
+      return {
+        data: [...transactionsStore],
+        meta: {
+          total: transactionsStore.length,
+          page: params.page ?? 1,
+          limit: params.limit ?? 20,
+          pages: 1,
+        },
+      };
     },
-  }));
+  );
   vi.spyOn(transactionApi, "createTransaction").mockImplementation(
     async (payload: CreateTransactionPayload) => {
       const created = {

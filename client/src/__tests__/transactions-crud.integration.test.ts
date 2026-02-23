@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderApp } from "./renderApp";
@@ -86,6 +86,10 @@ describe("Transactions CRUD integration", () => {
     expect(
       screen.queryByRole("button", { name: /add transaction/i }),
     ).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByText(/loading transactions/i)).not.toBeInTheDocument();
+    });
 
     const table = screen.getByRole("table");
     expect(within(table).queryByText("Actions")).not.toBeInTheDocument();

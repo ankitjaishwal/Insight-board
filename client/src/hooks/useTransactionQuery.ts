@@ -8,6 +8,7 @@ import { validateFilters } from "../utils/validation";
 
 type SortDirection = "asc" | "desc";
 export const transactionsQueryKey = ["transactions"] as const;
+const ALLOWED_PAGE_LIMITS = [20, 50, 100] as const;
 
 function mapSortParam(sortParam: string | null): string | undefined {
   if (sortParam === "user") return "userName";
@@ -45,6 +46,24 @@ function normalizeStatusParam(statusParam: string | null): string | undefined {
 }
 
 export function useTransactionQuery(searchParams: URLSearchParams) {
+  const page = useMemo(() => {
+    const rawPage = Number(searchParams.get("page"));
+    return Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
+  }, [searchParams]);
+
+  const limit = useMemo(() => {
+    const rawLimit = Number(searchParams.get("limit"));
+
+    if (
+      Number.isInteger(rawLimit) &&
+      ALLOWED_PAGE_LIMITS.includes(rawLimit as (typeof ALLOWED_PAGE_LIMITS)[number])
+    ) {
+      return rawLimit;
+    }
+
+    return 20;
+  }, [searchParams]);
+
   const filters = useMemo(() => parseFilters(searchParams), [searchParams]);
 
   const validation = useMemo(() => validateFilters(filters), [filters]);
@@ -72,8 +91,8 @@ export function useTransactionQuery(searchParams: URLSearchParams) {
         to: filters.to,
         min: filters.minAmount,
         max: filters.maxAmount,
-        page: Number(searchParams.get("page") || 1),
-        limit: 20,
+        page,
+        limit,
         sort: sortKey,
         dir: direction || undefined,
       }),
@@ -81,7 +100,11 @@ export function useTransactionQuery(searchParams: URLSearchParams) {
 
   return {
     data: query.data?.data ?? [],
+    meta: query.data?.meta,
+    page,
+    limit,
     isLoading: query.isLoading,
+    isFetching: query.isFetching,
     isError: query.isError,
     filters,
     validation,

@@ -1,0 +1,101 @@
+import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
+import type {
+  FetchTransactionsParams,
+  TransactionListResponse,
+} from "../api/transactionApi";
+import { renderApp } from "./renderApp";
+
+describe("Transactions pagination integration", () => {
+  it("uses page and limit from URL params", async () => {
+    const fetchTransactionsMock = vi.fn(
+      async (params: FetchTransactionsParams): Promise<TransactionListResponse> => ({
+        data: [
+          {
+            id: "tx-1",
+            transactionId: "txn-1",
+            userName: "Alice",
+            status: "Completed",
+            amount: 120,
+            date: "2026-01-15T00:00:00.000Z",
+          },
+        ],
+        meta: {
+          total: 120,
+          page: params.page ?? 1,
+          limit: params.limit ?? 20,
+          pages: 3,
+        },
+      }),
+    );
+
+    await renderApp("/ops/transactions?page=2&limit=50", {
+      fetchTransactionsMock,
+    });
+
+    await waitFor(() => {
+      expect(fetchTransactionsMock).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 2, limit: 50 }),
+      );
+    });
+
+    expect(screen.getByText("Page 2 of 3")).toBeInTheDocument();
+    expect(screen.getByText("Total: 120")).toBeInTheDocument();
+    expect(screen.getByLabelText(/rows per page/i)).toHaveValue("50");
+  });
+
+  it("updates URL on page and limit changes while preserving existing params", async () => {
+    const user = userEvent.setup();
+
+    const { router } = await renderApp(
+      "/ops/transactions?search=Alice&status=Completed&sort=amount&dir=asc&page=1&limit=20",
+      {
+        fetchTransactionsMock: async (
+          params: FetchTransactionsParams,
+        ): Promise<TransactionListResponse> => ({
+          data: [
+            {
+              id: "tx-1",
+              transactionId: "txn-1",
+              userName: "Alice",
+              status: "Completed",
+              amount: 120,
+              date: "2026-01-15T00:00:00.000Z",
+            },
+          ],
+          meta: {
+            total: 120,
+            page: params.page ?? 1,
+            limit: params.limit ?? 20,
+            pages: 6,
+          },
+        }),
+      },
+    );
+
+    await user.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      const search = router.state.location.search;
+      expect(search).toContain("search=Alice");
+      expect(search).toContain("status=Completed");
+      expect(search).toContain("sort=amount");
+      expect(search).toContain("dir=asc");
+      expect(search).toContain("page=2");
+      expect(search).toContain("limit=20");
+    });
+
+    await user.selectOptions(screen.getByLabelText(/rows per page/i), "100");
+
+    await waitFor(() => {
+      const search = router.state.location.search;
+      expect(search).toContain("search=Alice");
+      expect(search).toContain("status=Completed");
+      expect(search).toContain("sort=amount");
+      expect(search).toContain("dir=asc");
+      expect(search).toContain("page=1");
+      expect(search).toContain("limit=100");
+    });
+  });
+});
