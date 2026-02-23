@@ -3,9 +3,10 @@ import type { AuditLog } from "../types/audit";
 import type { Column } from "../types/table";
 import { formatDateTime } from "../utils";
 import type { AuditAction } from "../types/audit";
-import { useOutletContext, useSearchParams } from "react-router-dom";
+import { Navigate, useOutletContext, useSearchParams } from "react-router-dom";
 import type { RouteConfig } from "../config/app.config";
 import { useAuditQuery } from "../hooks/useAuditQuery";
+import { usePermission } from "../hooks/usePermission";
 
 export const auditActionLabels: Record<AuditAction, string> = {
   LOGIN: "Logged in",
@@ -45,8 +46,9 @@ const columns: Column<AuditLog>[] = [
 const AuditPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { data, loading, error, sorting } = useAuditQuery(searchParams);
-  const outletContext =
-    useOutletContext<{ activeRoute?: RouteConfig } | undefined>();
+  const outletContext = useOutletContext<
+    { activeRoute?: RouteConfig } | undefined
+  >();
   const pageTitle = outletContext?.activeRoute?.label ?? "Audit Logs";
 
   const handleSort = (key: keyof AuditLog) => {
@@ -75,11 +77,15 @@ const AuditPage = () => {
     });
   };
 
+  const canViewAudit = usePermission("audit");
+
+  if (!canViewAudit) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
   return (
     <>
-      <h1 className="text-xl text-gray-900 font-semibold pb-6">
-        {pageTitle}
-      </h1>
+      <h1 className="text-xl text-gray-900 font-semibold pb-6">{pageTitle}</h1>
 
       <DataTable<AuditLog>
         columns={columns}
@@ -88,7 +94,9 @@ const AuditPage = () => {
         onSort={handleSort}
         getRowId={(row) => row.id}
       />
-      {loading && <p className="text-sm text-gray-500 mt-3">Loading audit logs...</p>}
+      {loading && (
+        <p className="text-sm text-gray-500 mt-3">Loading audit logs...</p>
+      )}
       {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
     </>
   );

@@ -10,6 +10,7 @@ import { resolveClientConfig } from "../config/clients/clientResolver";
 import { applyRoleVisibility } from "../config/applyRoleVisibility";
 import { useAuth } from "../context/AuthContext";
 import type { Role } from "../types/role";
+import { usePermission } from "../hooks/usePermission";
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -46,24 +47,32 @@ const Header = () => {
 };
 
 const SideNav = ({ config }: { config: DashboardConfig }) => {
+  const canViewAudit = usePermission("audit");
+
   return (
     <aside className="w-60 shrink-0 border-r border-gray-200 bg-white p-4">
       <nav className="flex flex-col gap-2">
-        {config.routes.map((navItem) => (
-          <NavLink
-            key={navItem.key}
-            to={navItem.path}
-            className={({ isActive }) =>
-              `px-3 py-2 rounded-md text-md ${
-                isActive
-                  ? "bg-blue-50 text-blue-500 font-medium"
-                  : "text-gray-700 bg-transparent"
-              }`
-            }
-          >
-            {navItem.label}
-          </NavLink>
-        ))}
+        {config.routes.map((navItem) => {
+          if (navItem.key === "audit" && !canViewAudit) {
+            return null;
+          }
+
+          return (
+            <NavLink
+              key={navItem.key}
+              to={navItem.path}
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-md text-md ${
+                  isActive
+                    ? "bg-blue-50 text-blue-500 font-medium"
+                    : "text-gray-700 bg-transparent"
+                }`
+              }
+            >
+              {navItem.label}
+            </NavLink>
+          );
+        })}
       </nav>
     </aside>
   );
