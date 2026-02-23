@@ -4,17 +4,26 @@ import Layout from "./components/Layout";
 import OverviewPage from "./pages/OverviewPage";
 import TransactionsPage from "./pages/TransactionsPage";
 import AuditPage from "./pages/AuditPage";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 export const routes = [
   {
-    path: "/:clientId",
-    element: <Layout />,
+    element: <ProtectedRoute />,
     children: [
-      { index: true, element: <Navigate to="overview" replace /> },
-      { path: "overview", element: <OverviewPage /> },
-      { path: "transactions", element: <TransactionsPage /> },
-      { path: "audit", element: <AuditPage /> },
+      {
+        path: "/:clientId",
+        element: <Layout />,
+        children: [
+          { index: true, element: <Navigate to="overview" replace /> },
+          { path: "overview", element: <OverviewPage /> },
+          { path: "transactions", element: <TransactionsPage /> },
+          { path: "audit", element: <AuditPage /> },
+        ],
+      },
     ],
   },
+
+  // { path: "/login", element: <LoginPage /> },
+
   { path: "*", element: <Navigate to="/ops" replace /> },
 ];

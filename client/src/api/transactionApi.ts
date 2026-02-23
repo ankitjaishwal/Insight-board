@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "./fetchWithAuth";
+
 export type FetchTransactionsParams = {
   search?: string;
   status?: string;
@@ -20,7 +22,9 @@ export async function fetchTransactions(params: FetchTransactionsParams) {
     }
   });
 
-  const res = await fetch(`http://localhost:4000/api/transactions?${qs}`);
+  const res = await fetchWithAuth(
+    `http://localhost:4000/api/transactions?${qs}`,
+  );
 
   if (!res.ok) {
     const err = await res.json();

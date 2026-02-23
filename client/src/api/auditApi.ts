@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "./fetchWithAuth";
+
 export type FetchAuditLogsParams = {
   search?: string;
   action?: string;
@@ -42,7 +44,7 @@ export async function fetchAuditLogs(
     }
   });
 
-  const res = await fetch(`http://localhost:4000/api/audit-logs?${qs}`);
+  const res = await fetchWithAuth(`http://localhost:4000/api/audit-logs?${qs}`);
 
   if (!res.ok) {
     const err = await res.json();
