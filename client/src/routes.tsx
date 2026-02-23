@@ -6,11 +6,13 @@ import AuditPage from "./pages/AuditPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 
 export const routes = [
   /* ---------- PUBLIC ---------- */
 
   { path: "/login", element: <LoginPage /> },
+  { path: "/register", element: <RegisterPage /> },
 
   {
     path: "/unauthorized",

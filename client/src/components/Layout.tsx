@@ -1,13 +1,46 @@
-import { NavLink, Outlet, useLocation, useParams } from "react-router-dom";
+import {
+  NavLink,
+  Outlet,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { type DashboardConfig } from "../config/app.config";
 import { resolveClientConfig } from "../config/clients/clientResolver";
-import { userContext } from "../context/userContext";
 import { applyRoleVisibility } from "../config/applyRoleVisibility";
+import { useAuth } from "../context/AuthContext";
+import type { Role } from "../types/role";
 
-const Header = ({ config }: { config: DashboardConfig }) => {
+const Header = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  if (!user) return null;
+
   return (
-    <header className="h-16 shrink-0 px-6 border-b border-gray-200 text-gray-900 flex items-center justify-between bg-white text-sm font-semibold">
-      <strong>{config.appName}</strong>
+    <header className="h-14 bg-white border-b flex items-center justify-between px-6">
+      {/* Left */}
+      <div className="text-lg font-semibold text-gray-800">Insight Board</div>
+
+      {/* Right */}
+      <div className="flex items-center gap-4">
+        <div className="text-sm text-gray-700">
+          <span className="font-medium">{user.name}</span>
+          <span className="ml-1 text-gray-400">({user.role})</span>
+        </div>
+
+        <button
+          onClick={handleLogout}
+          className="text-sm px-3 py-1.5 rounded border hover:bg-gray-100"
+        >
+          Logout
+        </button>
+      </div>
     </header>
   );
 };
@@ -37,9 +70,13 @@ const SideNav = ({ config }: { config: DashboardConfig }) => {
 };
 
 const Layout = () => {
+  const { user } = useAuth();
   const { clientId } = useParams();
   const rawConfig = resolveClientConfig(clientId);
-  const config = applyRoleVisibility(rawConfig, userContext.role);
+
+  const normalizedRole =
+    (user?.role?.toLowerCase() as Role | undefined) ?? "ops";
+  const config = applyRoleVisibility(rawConfig, normalizedRole);
 
   const location = useLocation();
 
@@ -49,7 +86,7 @@ const Layout = () => {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
-      <Header config={config} />
+      <Header />
       <div className="flex flex-1 min-h-0">
         {/* Sidebar */}
         <SideNav config={config} />

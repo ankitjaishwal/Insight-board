@@ -21,6 +21,13 @@ type AuthResponse = {
   };
 };
 
+type RegisterResponse = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+};
+
 /* ---------- LOGIN ---------- */
 export async function login(payload: LoginPayload): Promise<AuthResponse> {
   const res = await fetch(`${API_URL}/login`, {
@@ -42,7 +49,7 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
 /* ---------- REGISTER ---------- */
 export async function register(
   payload: RegisterPayload,
-): Promise<AuthResponse> {
+): Promise<RegisterResponse> {
   const res = await fetch(`${API_URL}/register`, {
     method: "POST",
     headers: {
