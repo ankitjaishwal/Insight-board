@@ -1,10 +1,11 @@
 import { Router } from "express";
 import { prisma } from "../db";
 import { transactionQuerySchema } from "../validators/transactionQuery";
+import { requireAuth } from "../middleware/auth";
 
 const router = Router();
 
-router.get("/", async (req, res) => {
+router.get("/", requireAuth, async (req, res) => {
   try {
     const parsed = transactionQuerySchema.safeParse(req.query);
 

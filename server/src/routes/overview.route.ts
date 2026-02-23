@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { prisma } from "../db";
+import { requireAuth } from "../middleware/auth";
 
 const router = Router();
 
-router.get("/", async (_req, res) => {
+router.get("/", requireAuth, async (_req, res) => {
   try {
     const [totalTransactions, totalUsers, revenueAgg, statusBreakdown] =
       await Promise.all([

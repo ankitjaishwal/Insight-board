@@ -1,10 +1,11 @@
 import { Router } from "express";
 import { prisma } from "../db";
 import { auditQuerySchema } from "../validators/auditQuery";
+import { requireAuth, requireRole } from "../middleware/auth";
 
 const router = Router();
 
-router.get("/", async (req, res) => {
+router.get("/", requireAuth, requireRole(["ADMIN"]), async (req, res) => {
   try {
     const parsed = auditQuerySchema.parse(req.query);
 
