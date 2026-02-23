@@ -12,7 +12,7 @@ describe("Presets integration", () => {
   it("creates and reapplies a saved preset", async () => {
     const user = userEvent.setup();
 
-    renderApp("/ops/transactions");
+    await renderApp("/ops/transactions");
 
     await user.type(screen.getByPlaceholderText(/search/i), "Alice");
     await user.click(screen.getByRole("button", { name: /save/i }));
@@ -32,7 +32,7 @@ describe("Presets integration", () => {
   it("updates preset after modifying filters", async () => {
     const user = userEvent.setup();
 
-    renderApp("/ops/transactions");
+    await renderApp("/ops/transactions");
 
     await user.type(screen.getByPlaceholderText(/search/i), "Alice");
     await user.click(screen.getByRole("button", { name: /save/i }));
@@ -58,7 +58,7 @@ describe("Presets integration", () => {
     const user = userEvent.setup();
     vi.spyOn(globalThis, "confirm").mockReturnValue(true);
 
-    renderApp("/ops/transactions");
+    await renderApp("/ops/transactions");
 
     await user.type(screen.getByPlaceholderText(/search/i), "Alice");
     await user.click(screen.getByRole("button", { name: /save/i }));
