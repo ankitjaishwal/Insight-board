@@ -8,6 +8,8 @@ import * as authApi from "../api/authApi";
 import * as transactionApi from "../api/transactionApi";
 import * as overviewApi from "../api/overviewApi";
 import * as auditApi from "../api/auditApi";
+import * as presetsApi from "../api/presetsApi";
+import type { FilterPreset } from "../types/preset";
 
 function encodeBase64Url(value: string): string {
   return btoa(value).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
@@ -76,6 +78,8 @@ const auditResponse = {
 };
 
 export async function renderApp(route = "/") {
+  const presetsStore: FilterPreset[] = [];
+
   if (!localStorage.getItem("token")) {
     localStorage.setItem("token", makeToken());
   }
@@ -86,6 +90,30 @@ export async function renderApp(route = "/") {
   );
   vi.spyOn(overviewApi, "fetchOverview").mockResolvedValue(overviewResponse);
   vi.spyOn(auditApi, "fetchAuditLogs").mockResolvedValue(auditResponse);
+  vi.spyOn(presetsApi, "fetchPresets").mockImplementation(async () => [
+    ...presetsStore,
+  ]);
+  vi.spyOn(presetsApi, "createPreset").mockImplementation(async (newPreset) => {
+    presetsStore.push(newPreset);
+    return newPreset;
+  });
+  vi.spyOn(presetsApi, "updatePreset").mockImplementation(async (nextPreset) => {
+    const index = presetsStore.findIndex((preset) => preset.id === nextPreset.id);
+    if (index === -1) {
+      throw new Error("Preset not found");
+    }
+
+    presetsStore[index] = nextPreset;
+    return nextPreset;
+  });
+  vi.spyOn(presetsApi, "deletePreset").mockImplementation(async (presetId) => {
+    const index = presetsStore.findIndex((preset) => preset.id === presetId);
+    if (index >= 0) {
+      presetsStore.splice(index, 1);
+    }
+
+    return presetId;
+  });
 
   const router = createMemoryRouter(routes, {
     initialEntries: [route],

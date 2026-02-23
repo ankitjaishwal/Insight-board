@@ -15,6 +15,9 @@ interface PresetToolbarProps {
   isPresetDirty: boolean;
   hasActivePreset: boolean;
   validationErrors: Record<string, string>;
+  isCreatingPreset: boolean;
+  isUpdatingPreset: boolean;
+  isDeletingPreset: boolean;
 }
 
 export const PresetToolbar: React.FC<PresetToolbarProps> = ({
@@ -29,6 +32,9 @@ export const PresetToolbar: React.FC<PresetToolbarProps> = ({
   hasActiveFilters,
   isPresetDirty,
   hasActivePreset,
+  isCreatingPreset,
+  isUpdatingPreset,
+  isDeletingPreset,
 }) => {
   const [showPresetMenu, setShowPresetMenu] = useState(false);
   const [showRenameModal, setShowRenameModal] = useState(false);
@@ -69,6 +75,7 @@ export const PresetToolbar: React.FC<PresetToolbarProps> = ({
         <div className="relative">
           <button
             onClick={() => setShowPresetMenu(!showPresetMenu)}
+            disabled={isDeletingPreset || isUpdatingPreset}
             className="px-2 py-2 text-sm border rounded hover:bg-gray-100"
           >
             ⋮
@@ -77,15 +84,17 @@ export const PresetToolbar: React.FC<PresetToolbarProps> = ({
             <div className="absolute right-0 top-full mt-1 bg-white border rounded shadow-md text-sm z-50">
               <button
                 onClick={handleRenameClick}
+                disabled={isUpdatingPreset}
                 className="block w-full text-left px-3 py-2 hover:bg-gray-100 border-b"
               >
                 Rename
               </button>
               <button
                 onClick={handleDeleteClick}
+                disabled={isDeletingPreset}
                 className="block w-full text-left px-3 py-2 hover:bg-red-50 text-red-600"
               >
-                Delete
+                {isDeletingPreset ? "Deleting..." : "Delete"}
               </button>
             </div>
           )}
@@ -122,10 +131,10 @@ export const PresetToolbar: React.FC<PresetToolbarProps> = ({
 
               <button
                 onClick={handleRenameSubmit}
-                disabled={!renameValue.trim()}
+                disabled={!renameValue.trim() || isUpdatingPreset}
                 className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                Rename
+                {isUpdatingPreset ? "Renaming..." : "Rename"}
               </button>
             </div>
           </div>
@@ -135,18 +144,20 @@ export const PresetToolbar: React.FC<PresetToolbarProps> = ({
       {!hasActivePreset && hasActiveFilters && (
         <button
           onClick={onSavePreset}
+          disabled={isCreatingPreset}
           className="px-3 py-2 text-sm font-medium rounded bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200"
         >
-          ★ Save
+          {isCreatingPreset ? "Saving..." : "★ Save"}
         </button>
       )}
 
       {hasActivePreset && isPresetDirty && (
         <button
           onClick={onSavePreset}
+          disabled={isUpdatingPreset}
           className="px-3 py-2 text-sm font-medium rounded bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200"
         >
-          ⟳ Update
+          {isUpdatingPreset ? "Updating..." : "⟳ Update"}
         </button>
       )}
 

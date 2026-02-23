@@ -50,6 +50,9 @@ const TransactionsPage = () => {
     handleSelectCustom,
     handleDeletePreset,
     handleRenamePreset,
+    isCreatingPreset,
+    isUpdatingPreset,
+    isDeletingPreset,
   } = usePresets(filters);
 
   const handleSorting = (key: keyof Transaction) => {
@@ -143,6 +146,9 @@ const TransactionsPage = () => {
         isPresetDirty={isPresetDirty}
         hasActivePreset={!!activePreset}
         onClearFilters={handleClearFilters}
+        isCreatingPreset={isCreatingPreset}
+        isUpdatingPreset={isUpdatingPreset}
+        isDeletingPreset={isDeletingPreset}
       />
 
       <div className="flex-1 min-h-0">
@@ -193,10 +199,10 @@ const TransactionsPage = () => {
 
               <button
                 onClick={() => handleSavePreset(presetName)}
-                disabled={!presetName.trim()}
+                disabled={!presetName.trim() || isCreatingPreset}
                 className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                Save Preset
+                {isCreatingPreset ? "Saving..." : "Save Preset"}
               </button>
             </div>
           </div>

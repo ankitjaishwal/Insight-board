@@ -22,6 +22,9 @@ type Props = {
   isPresetDirty?: boolean;
   hasActivePreset?: boolean;
   onClearFilters?: () => void;
+  isCreatingPreset?: boolean;
+  isUpdatingPreset?: boolean;
+  isDeletingPreset?: boolean;
 };
 
 type FocusedDateField = "from" | "to" | null;
@@ -42,6 +45,9 @@ const TransactionFilters: React.FC<Props> = ({
   isPresetDirty = false,
   hasActivePreset = false,
   onClearFilters = () => {},
+  isCreatingPreset = false,
+  isUpdatingPreset = false,
+  isDeletingPreset = false,
 }) => {
   const { isAdvancedExpanded, setIsAdvancedExpanded, shouldShowAdvanced } =
     useFilterUI();
@@ -195,6 +201,9 @@ const TransactionFilters: React.FC<Props> = ({
           isPresetDirty={isPresetDirty}
           hasActivePreset={hasActivePreset}
           validationErrors={displayedValidationErrors}
+          isCreatingPreset={isCreatingPreset}
+          isUpdatingPreset={isUpdatingPreset}
+          isDeletingPreset={isDeletingPreset}
         />
       </div>
 

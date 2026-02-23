@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useState, useRef } from "react";
-import { presetService } from "../services/presetService";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FilterPreset } from "../types/preset";
 import type { TransactionFilters as TransactionFiltersType } from "../types/transactionFilters";
 import { deepEqual } from "../utils";
+import { useCreatePreset } from "./useCreatePreset";
+import { useDeletePreset } from "./useDeletePreset";
+import { usePresetsQuery } from "./usePresetsQuery";
+import { useUpdatePreset } from "./useUpdatePreset";
 
 interface UsePresetsReturn {
   presets: FilterPreset[];
@@ -23,21 +26,22 @@ interface UsePresetsReturn {
   handleSelectCustom: () => void;
   handleDeletePreset: () => void;
   handleRenamePreset: (renameValue: string, closeModal: () => void) => void;
+  isCreatingPreset: boolean;
+  isUpdatingPreset: boolean;
+  isDeletingPreset: boolean;
 }
 
 export const usePresets = (
   filters: TransactionFiltersType,
 ): UsePresetsReturn => {
-  const [presets, setPresets] = useState<FilterPreset[]>([]);
+  const { data: presets = [] } = usePresetsQuery();
+  const createPresetMutation = useCreatePreset();
+  const updatePresetMutation = useUpdatePreset();
+  const deletePresetMutation = useDeletePreset();
   const [activePresetId, setActivePresetId] = useState<string | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [presetName, setPresetName] = useState("");
   const presetIdRef = useRef<string | null>(null);
-
-  // Initialize presets on mount
-  useEffect(() => {
-    setPresets(presetService.getAll());
-  }, []);
 
   // Find current active preset
   const activePreset = useMemo(() => {
@@ -90,8 +94,12 @@ export const usePresets = (
       createdAt: Date.now(),
     };
 
-    presetService.save(newPreset);
-    setPresets(presetService.getAll());
+    createPresetMutation.mutate(newPreset, {
+      onError: () => {
+        setActivePresetId(null);
+        presetIdRef.current = null;
+      },
+    });
     setActivePresetId(newPreset.id);
     presetIdRef.current = newPreset.id;
 
@@ -106,8 +114,7 @@ export const usePresets = (
         ...activePreset,
         filters,
       };
-      presetService.update(updatedPreset);
-      setPresets(presetService.getAll());
+      updatePresetMutation.mutate(updatedPreset);
       presetIdRef.current = activePreset.id;
       return;
     }
@@ -156,8 +163,13 @@ export const usePresets = (
     const confirmDelete = confirm("Delete this preset?");
     if (!confirmDelete) return;
 
-    presetService.delete(activePresetId);
-    setPresets(presetService.getAll());
+    const previousActivePresetId = activePresetId;
+    deletePresetMutation.mutate(activePresetId, {
+      onError: () => {
+        setActivePresetId(previousActivePresetId);
+        presetIdRef.current = previousActivePresetId;
+      },
+    });
     setActivePresetId(null);
     presetIdRef.current = null;
   };
@@ -165,8 +177,13 @@ export const usePresets = (
   const handleRenamePreset = (renameValue: string, closeModal: () => void) => {
     if (!activePresetId || !renameValue.trim()) return;
 
-    presetService.rename(activePresetId, renameValue.trim());
-    setPresets(presetService.getAll());
+    const presetToRename = presets.find((preset) => preset.id === activePresetId);
+    if (!presetToRename) return;
+
+    updatePresetMutation.mutate({
+      ...presetToRename,
+      name: renameValue.trim(),
+    });
     closeModal();
   };
 
@@ -186,5 +203,8 @@ export const usePresets = (
     handleSelectCustom,
     handleDeletePreset,
     handleRenamePreset,
+    isCreatingPreset: createPresetMutation.isPending,
+    isUpdatingPreset: updatePresetMutation.isPending,
+    isDeletingPreset: deletePresetMutation.isPending,
   };
 };
