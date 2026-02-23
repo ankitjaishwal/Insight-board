@@ -16,7 +16,7 @@ import TransactionCreateModal from "../components/transactions/TransactionCreate
 import TransactionEditModal from "../components/transactions/TransactionEditModal";
 import TransactionDeleteDialog from "../components/transactions/TransactionDeleteDialog";
 import TransactionRowActions from "../components/transactions/TransactionRowActions";
-import { ErrorBoundary } from "../components/ErrorBoundary";
+import { ErrorBoundary } from "../components/errors/ErrorBoundary";
 
 const columns: Column<Transaction>[] = [
   { key: "transactionId", header: "Transaction ID", sortable: true },
