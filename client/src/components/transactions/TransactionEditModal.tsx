@@ -98,10 +98,14 @@ export default function TransactionEditModal({
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-700 mb-1">
+            <label
+              htmlFor="edit-user-name"
+              className="block text-sm text-gray-700 mb-1"
+            >
               User Name
             </label>
             <input
+              id="edit-user-name"
               {...register("userName")}
               className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -113,8 +117,14 @@ export default function TransactionEditModal({
           </div>
 
           <div>
-            <label className="block text-sm text-gray-700 mb-1">Amount</label>
+            <label
+              htmlFor="edit-amount"
+              className="block text-sm text-gray-700 mb-1"
+            >
+              Amount
+            </label>
             <input
+              id="edit-amount"
               type="number"
               step="0.01"
               {...register("amount", { valueAsNumber: true })}
@@ -128,10 +138,14 @@ export default function TransactionEditModal({
           </div>
 
           <div>
-            <label className="block text-sm text-gray-700 mb-1">
+            <label
+              htmlFor="edit-date"
+              className="block text-sm text-gray-700 mb-1"
+            >
               Date (ISO)
             </label>
             <input
+              id="edit-date"
               {...register("date")}
               className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -141,8 +155,14 @@ export default function TransactionEditModal({
           </div>
 
           <div>
-            <label className="block text-sm text-gray-700 mb-1">Status</label>
+            <label
+              htmlFor="edit-status"
+              className="block text-sm text-gray-700 mb-1"
+            >
+              Status
+            </label>
             <select
+              id="edit-status"
               {...register("status")}
               className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >

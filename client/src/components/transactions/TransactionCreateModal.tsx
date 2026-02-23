@@ -59,10 +59,14 @@ export default function TransactionCreateModal({
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-700 mb-1">
+            <label
+              htmlFor="create-user-name"
+              className="block text-sm text-gray-700 mb-1"
+            >
               User Name
             </label>
             <input
+              id="create-user-name"
               {...register("userName")}
               className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -74,8 +78,14 @@ export default function TransactionCreateModal({
           </div>
 
           <div>
-            <label className="block text-sm text-gray-700 mb-1">Amount</label>
+            <label
+              htmlFor="create-amount"
+              className="block text-sm text-gray-700 mb-1"
+            >
+              Amount
+            </label>
             <input
+              id="create-amount"
               type="number"
               step="0.01"
               {...register("amount", { valueAsNumber: true })}
@@ -89,10 +99,14 @@ export default function TransactionCreateModal({
           </div>
 
           <div>
-            <label className="block text-sm text-gray-700 mb-1">
+            <label
+              htmlFor="create-date"
+              className="block text-sm text-gray-700 mb-1"
+            >
               Date (ISO)
             </label>
             <input
+              id="create-date"
               {...register("date")}
               placeholder="2026-01-15T10:00:00.000Z"
               className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -103,8 +117,14 @@ export default function TransactionCreateModal({
           </div>
 
           <div>
-            <label className="block text-sm text-gray-700 mb-1">Status</label>
+            <label
+              htmlFor="create-status"
+              className="block text-sm text-gray-700 mb-1"
+            >
+              Status
+            </label>
             <select
+              id="create-status"
               {...register("status")}
               className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >

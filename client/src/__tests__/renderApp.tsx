@@ -12,6 +12,10 @@ import * as auditApi from "../api/auditApi";
 import * as presetsApi from "../api/presetsApi";
 import type { FilterPreset } from "../types/preset";
 import { Status } from "../types/transaction";
+import type {
+  CreateTransactionPayload,
+  UpdateTransactionPayload,
+} from "../api/transactionApi";
 
 function encodeBase64Url(value: string): string {
   return btoa(value)
@@ -34,6 +38,10 @@ const defaultUser = {
   name: "Test User",
   email: "test@example.com",
   role: "ADMIN",
+};
+
+type RenderAppOptions = {
+  user?: typeof defaultUser;
 };
 
 const transactionResponse = {
@@ -88,16 +96,64 @@ const auditResponse = {
   },
 };
 
-export async function renderApp(route = "/") {
+export async function renderApp(route = "/", options: RenderAppOptions = {}) {
   const presetsStore: FilterPreset[] = [];
+  const activeUser = options.user ?? defaultUser;
+  const transactionsStore = [...transactionResponse.data].map((tx) => ({
+    ...tx,
+    id: tx.id ?? crypto.randomUUID(),
+  }));
 
   if (!localStorage.getItem("token")) {
     localStorage.setItem("token", makeToken());
   }
 
-  vi.spyOn(authApi, "getMe").mockResolvedValue(defaultUser);
-  vi.spyOn(transactionApi, "fetchTransactions").mockResolvedValue(
-    transactionResponse,
+  vi.spyOn(authApi, "getMe").mockResolvedValue(activeUser);
+  vi.spyOn(transactionApi, "fetchTransactions").mockImplementation(async () => ({
+    data: [...transactionsStore],
+    meta: {
+      total: transactionsStore.length,
+      page: 1,
+      limit: 20,
+      pages: 1,
+    },
+  }));
+  vi.spyOn(transactionApi, "createTransaction").mockImplementation(
+    async (payload: CreateTransactionPayload) => {
+      const created = {
+        id: crypto.randomUUID(),
+        transactionId: `txn-${transactionsStore.length + 1}`,
+        userName: payload.userName,
+        amount: payload.amount,
+        date: payload.date,
+        status: payload.status,
+      };
+      transactionsStore.unshift(created);
+      return created;
+    },
+  );
+  vi.spyOn(transactionApi, "updateTransaction").mockImplementation(
+    async (id: string, payload: UpdateTransactionPayload) => {
+      const index = transactionsStore.findIndex((tx) => tx.id === id);
+      if (index === -1) throw new Error("Transaction not found");
+
+      transactionsStore[index] = {
+        ...transactionsStore[index],
+        ...payload,
+      };
+
+      return transactionsStore[index];
+    },
+  );
+  vi.spyOn(transactionApi, "deleteTransaction").mockImplementation(
+    async (id: string) => {
+      const index = transactionsStore.findIndex((tx) => tx.id === id);
+      if (index >= 0) {
+        transactionsStore.splice(index, 1);
+      }
+
+      return { message: "Transaction deleted successfully" };
+    },
   );
   vi.spyOn(overviewApi, "fetchOverview").mockResolvedValue(overviewResponse);
   vi.spyOn(auditApi, "fetchAuditLogs").mockResolvedValue(auditResponse);
