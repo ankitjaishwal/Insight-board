@@ -79,7 +79,7 @@ const SideNav = ({ config }: { config: DashboardConfig }) => {
 };
 
 const Layout = () => {
-  const { user } = useAuth();
+  const { user, sessionMessage, clearSessionMessage } = useAuth();
   const { clientId } = useParams();
   const rawConfig = resolveClientConfig(clientId);
 
@@ -95,6 +95,18 @@ const Layout = () => {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
+      {sessionMessage && (
+        <div className="bg-amber-100 text-amber-800 px-4 py-2 text-sm flex justify-between items-center">
+          <span>{sessionMessage}</span>
+
+          <button
+            onClick={clearSessionMessage}
+            className="text-xs font-medium underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       <Header />
       <div className="flex flex-1 min-h-0">
         {/* Sidebar */}

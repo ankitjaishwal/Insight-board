@@ -9,11 +9,13 @@ import { loginSchema, type LoginFormValues } from "../forms/auth.schema";
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, sessionMessage, clearSessionMessage } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const registrationSuccess = Boolean((location.state as any)?.registered);
+  // One-shot auth notice (e.g., token expiry) managed centrally by AuthContext.
+  const sessionExpired = sessionMessage ?? null;
 
   const {
     register,
@@ -69,6 +71,12 @@ const LoginPage = () => {
           </div>
         )}
 
+        {sessionExpired && (
+          <div className="mb-4 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+            {sessionExpired}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Email */}
           <div>
@@ -105,6 +113,7 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={loading}
+            onClick={() => clearSessionMessage()}
             className="w-full py-2 rounded bg-blue-600 text-white font-medium hover:bg-blue-700 transition disabled:bg-gray-400"
           >
             {loading ? "Signing in..." : "Sign In"}
