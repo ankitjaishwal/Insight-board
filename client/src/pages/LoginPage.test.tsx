@@ -4,6 +4,7 @@ import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import LoginPage from "./LoginPage";
 import type { ReactNode } from "react";
+import { DEMO_EMAIL, DEMO_PASSWORD } from "../config/demo";
 
 const loginApiMock = vi.fn();
 const loginContextMock = vi.fn();
@@ -87,6 +88,37 @@ describe("LoginPage", () => {
         id: "1",
         name: "Alice",
         email: "alice@example.com",
+        role: "ADMIN",
+      });
+      expect(router.state.location.pathname).toBe("/ops/overview");
+    });
+  });
+
+  it("logs in with demo credentials from one-click button", async () => {
+    const user = userEvent.setup();
+    const { router } = renderWithRouter();
+
+    loginApiMock.mockResolvedValue({
+      token: "demo-token",
+      user: {
+        id: "demo-id",
+        name: "Demo Admin",
+        email: DEMO_EMAIL,
+        role: "ADMIN",
+      },
+    });
+
+    await user.click(screen.getByRole("button", { name: /try demo account/i }));
+
+    await waitFor(() => {
+      expect(loginApiMock).toHaveBeenCalledWith({
+        email: DEMO_EMAIL,
+        password: DEMO_PASSWORD,
+      });
+      expect(loginContextMock).toHaveBeenCalledWith("demo-token", {
+        id: "demo-id",
+        name: "Demo Admin",
+        email: DEMO_EMAIL,
         role: "ADMIN",
       });
       expect(router.state.location.pathname).toBe("/ops/overview");

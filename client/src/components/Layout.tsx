@@ -5,20 +5,44 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
+import { useState } from "react";
 import { type DashboardConfig } from "../config/app.config";
 import { resolveClientConfig } from "../config/clients/clientResolver";
 import { applyRoleVisibility } from "../config/applyRoleVisibility";
 import { useAuth } from "../context/AuthContext";
 import type { Role } from "../types/role";
 import { usePermission } from "../hooks/usePermission";
+import { DEMO_EMAIL } from "../config/demo";
+import { resetDemoData } from "../api/adminApi";
+import { useToast } from "../context/ToastContext";
+import { reloadPage } from "../utils/browser";
 
 const Header = () => {
   const { user, logout } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
+  const isDemoAdmin = user?.email === DEMO_EMAIL && user?.role === "ADMIN";
+  const [isResettingDemo, setIsResettingDemo] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  const handleResetDemo = async () => {
+    try {
+      setIsResettingDemo(true);
+      await resetDemoData();
+      showToast("Demo data reset successfully", "success");
+
+      setTimeout(() => {
+        reloadPage();
+      }, 600);
+    } catch (error: any) {
+      showToast(error?.message || "Failed to reset demo data", "error");
+    } finally {
+      setIsResettingDemo(false);
+    }
   };
 
   if (!user) return null;
@@ -30,6 +54,16 @@ const Header = () => {
 
       {/* Right */}
       <div className="flex items-center gap-4">
+        {isDemoAdmin && (
+          <button
+            onClick={handleResetDemo}
+            disabled={isResettingDemo}
+            className="text-sm px-3 py-1.5 rounded border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 disabled:opacity-60"
+          >
+            {isResettingDemo ? "Resetting..." : "Reset Demo"}
+          </button>
+        )}
+
         <div className="text-sm text-gray-700">
           <span className="font-medium">{user.name}</span>
           <span className="ml-1 text-gray-400">({user.role})</span>
@@ -80,6 +114,7 @@ const SideNav = ({ config }: { config: DashboardConfig }) => {
 
 const Layout = () => {
   const { user, sessionMessage, clearSessionMessage } = useAuth();
+  const isDemoUser = user?.email === DEMO_EMAIL;
   const { clientId } = useParams();
   const rawConfig = resolveClientConfig(clientId);
 
@@ -95,6 +130,11 @@ const Layout = () => {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
+      {isDemoUser && (
+        <div className="bg-yellow-100 text-yellow-900 px-4 py-2 text-sm border-b border-yellow-300">
+          🟡 Demo Mode — Data may reset anytime
+        </div>
+      )}
       {sessionMessage && (
         <div className="bg-amber-100 text-amber-800 px-4 py-2 text-sm flex justify-between items-center">
           <span>{sessionMessage}</span>

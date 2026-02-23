@@ -1,9 +1,13 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
+import { DEMO_EMAIL, DEMO_PASSWORD, DEMO_ROLE } from "../src/config/demo";
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log("🌱 Seeding database...");
+  const defaultPasswordHash = await bcrypt.hash("password123", 10);
+  const demoPasswordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
 
   // Clear existing data
   await prisma.filterPreset.deleteMany();
@@ -16,6 +20,7 @@ async function main() {
     data: {
       email: "admin@test.com",
       name: "Admin",
+      passwordHash: defaultPasswordHash,
       role: "ADMIN",
     },
   });
@@ -24,6 +29,7 @@ async function main() {
     data: {
       email: "ops@test.com",
       name: "Ops User",
+      passwordHash: defaultPasswordHash,
       role: "OPS",
     },
   });
@@ -32,7 +38,17 @@ async function main() {
     data: {
       email: "finance@test.com",
       name: "Finance User",
+      passwordHash: defaultPasswordHash,
       role: "FINANCE",
+    },
+  });
+
+  await prisma.user.create({
+    data: {
+      email: DEMO_EMAIL,
+      name: "Demo Admin",
+      passwordHash: demoPasswordHash,
+      role: DEMO_ROLE,
     },
   });
 

@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormValues } from "../forms/auth.schema";
+import { DEMO_EMAIL, DEMO_PASSWORD } from "../config/demo";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const LoginPage = () => {
   const { login, sessionMessage, clearSessionMessage } = useAuth();
 
   const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const registrationSuccess = Boolean((location.state as any)?.registered);
   // One-shot auth notice (e.g., token expiry) managed centrally by AuthContext.
@@ -51,6 +53,26 @@ const LoginPage = () => {
       setError(err.message || "Login failed");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    try {
+      setDemoLoading(true);
+      setError(null);
+      clearSessionMessage();
+
+      const res = await loginApi({
+        email: DEMO_EMAIL,
+        password: DEMO_PASSWORD,
+      });
+
+      login(res.token, res.user);
+      navigate("/ops/overview", { replace: true });
+    } catch (err: any) {
+      setError(err.message || "Demo login failed");
+    } finally {
+      setDemoLoading(false);
     }
   };
 
@@ -112,13 +134,22 @@ const LoginPage = () => {
           {/* Submit */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || demoLoading}
             onClick={() => clearSessionMessage()}
             className="w-full py-2 rounded bg-blue-600 text-white font-medium hover:bg-blue-700 transition disabled:bg-gray-400"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
+
+        <button
+          type="button"
+          onClick={handleDemoLogin}
+          disabled={loading || demoLoading}
+          className="w-full mt-3 py-2 rounded border border-amber-300 bg-amber-50 text-amber-800 font-medium hover:bg-amber-100 transition disabled:bg-gray-100 disabled:text-gray-500"
+        >
+          {demoLoading ? "Signing in demo..." : "🚀 Try Demo Account"}
+        </button>
 
         <p className="mt-4 text-sm text-gray-600 text-center">
           Don&apos;t have an account?{" "}
