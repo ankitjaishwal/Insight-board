@@ -7,6 +7,7 @@ export const Status = {
 export type Status = (typeof Status)[keyof typeof Status];
 
 export type Transaction = {
+  id?: string;
   transactionId: string;
   userName: string;
   status: Status;

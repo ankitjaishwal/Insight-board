@@ -7,6 +7,7 @@ import { hasActiveFilters as hasActiveFiltersUtil } from "../utils/presetUtils";
 import { validateFilters } from "../utils/validation";
 
 type SortDirection = "asc" | "desc";
+export const transactionsQueryKey = ["transactions"] as const;
 
 function mapSortParam(sortParam: string | null): string | undefined {
   if (sortParam === "user") return "userName";
@@ -62,7 +63,7 @@ export function useTransactionQuery(searchParams: URLSearchParams) {
   const sorting = sortKey && direction ? { key: sortKey, direction } : null;
 
   const query = useQuery({
-    queryKey: ["transactions", searchParams.toString()],
+    queryKey: [...transactionsQueryKey, searchParams.toString()],
     queryFn: () =>
       fetchTransactions({
         search: filters.search,

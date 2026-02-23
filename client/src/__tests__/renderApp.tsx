@@ -4,15 +4,20 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi } from "vitest";
 import { routes } from "../routes";
 import { AuthProvider } from "../context/AuthContext";
+import { ToastProvider } from "../context/ToastContext";
 import * as authApi from "../api/authApi";
 import * as transactionApi from "../api/transactionApi";
 import * as overviewApi from "../api/overviewApi";
 import * as auditApi from "../api/auditApi";
 import * as presetsApi from "../api/presetsApi";
 import type { FilterPreset } from "../types/preset";
+import { Status } from "../types/transaction";
 
 function encodeBase64Url(value: string): string {
-  return btoa(value).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  return btoa(value)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
 }
 
 function makeToken(expOffsetSeconds = 300): string {
@@ -36,11 +41,17 @@ const transactionResponse = {
     {
       transactionId: "txn-1",
       userName: "Alice",
-      status: "Completed",
+      status: Status.Completed,
       amount: 120,
       date: "2026-01-15T00:00:00.000Z",
     },
   ],
+  meta: {
+    total: 1,
+    page: 1,
+    limit: 20,
+    pages: 1,
+  },
 };
 
 const overviewResponse = {
@@ -97,15 +108,19 @@ export async function renderApp(route = "/") {
     presetsStore.push(newPreset);
     return newPreset;
   });
-  vi.spyOn(presetsApi, "updatePreset").mockImplementation(async (nextPreset) => {
-    const index = presetsStore.findIndex((preset) => preset.id === nextPreset.id);
-    if (index === -1) {
-      throw new Error("Preset not found");
-    }
+  vi.spyOn(presetsApi, "updatePreset").mockImplementation(
+    async (nextPreset) => {
+      const index = presetsStore.findIndex(
+        (preset) => preset.id === nextPreset.id,
+      );
+      if (index === -1) {
+        throw new Error("Preset not found");
+      }
 
-    presetsStore[index] = nextPreset;
-    return nextPreset;
-  });
+      presetsStore[index] = nextPreset;
+      return nextPreset;
+    },
+  );
   vi.spyOn(presetsApi, "deletePreset").mockImplementation(async (presetId) => {
     const index = presetsStore.findIndex((preset) => preset.id === presetId);
     if (index >= 0) {
@@ -130,9 +145,11 @@ export async function renderApp(route = "/") {
 
   const utils = render(
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
+      </ToastProvider>
     </QueryClientProvider>,
   );
 

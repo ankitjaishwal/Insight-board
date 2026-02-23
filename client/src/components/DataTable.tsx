@@ -1,4 +1,5 @@
 import type { Column } from "../types/table";
+import type { ReactNode } from "react";
 
 type Sorting<T> = {
   key: keyof T;
@@ -12,6 +13,7 @@ type DataTableProps<T> = {
   onSort?: (key: keyof T) => void;
   getRowId?: (row: T) => string;
   maxHeightClassName?: string;
+  rowActions?: (row: T) => ReactNode;
 };
 
 function DataTable<T>({
@@ -21,6 +23,7 @@ function DataTable<T>({
   onSort,
   getRowId,
   maxHeightClassName = "max-h-[calc(100vh-140px)]",
+  rowActions,
 }: DataTableProps<T>) {
   return (
     <div
@@ -35,10 +38,11 @@ function DataTable<T>({
                 key={String(column.key)}
                 className={`px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200 ${
                   column.align === "right" ? "text-right" : ""
+                } ${
+                  column.sortable && onSort
+                    ? "cursor-pointer"
+                    : "cursor-default"
                 }`}
-                style={{
-                  cursor: column.sortable && onSort ? "pointer" : "default",
-                }}
                 onClick={() => {
                   if (column.sortable && onSort) {
                     onSort(column.key);
@@ -52,6 +56,11 @@ function DataTable<T>({
                   (sorting.direction === "asc" ? " ▲" : " ▼")}
               </th>
             ))}
+            {rowActions && (
+              <th className="px-4 py-3 text-sm font-medium text-gray-700 border-b border-gray-200 text-right">
+                Actions
+              </th>
+            )}
           </tr>
         </thead>
 
@@ -60,7 +69,7 @@ function DataTable<T>({
           {data.length === 0 ? (
             <tr>
               <td
-                colSpan={columns.length}
+                colSpan={columns.length + (rowActions ? 1 : 0)}
                 className="text-sm text-gray-500 py-6 text-center"
               >
                 No data found.
@@ -82,7 +91,7 @@ function DataTable<T>({
                         col.align === "right" ? "text-right" : ""
                       }`}
                     >
-                      {value
+                      {value !== undefined && value !== null && value !== ""
                         ? col.render
                           ? col.render(value, row)
                           : String(value)
@@ -90,6 +99,11 @@ function DataTable<T>({
                     </td>
                   );
                 })}
+                {rowActions && (
+                  <td className="px-4 py-3 text-sm text-gray-700 text-right">
+                    {rowActions(row)}
+                  </td>
+                )}
               </tr>
             ))
           )}

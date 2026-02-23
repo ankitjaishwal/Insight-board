@@ -1,4 +1,5 @@
 import { useOutletContext, useSearchParams } from "react-router-dom";
+import { useState } from "react";
 import TransactionFilters from "../components/TransactionFilters";
 import ActiveFiltersSummary from "../components/ActiveFiltersSummary";
 import type { Transaction } from "../types/transaction";
@@ -10,6 +11,12 @@ import type { Column } from "../types/table";
 import { usePresets } from "../hooks/usePresets";
 import { exportToCSV } from "../utils/exportCsv";
 import { useTransactionQuery } from "../hooks/useTransactionQuery";
+import { useAuth } from "../context/AuthContext";
+import TransactionCreateModal from "../components/transactions/TransactionCreateModal";
+import TransactionEditModal from "../components/transactions/TransactionEditModal";
+import TransactionDeleteDialog from "../components/transactions/TransactionDeleteDialog";
+import TransactionRowActions from "../components/transactions/TransactionRowActions";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 
 const columns: Column<Transaction>[] = [
   { key: "transactionId", header: "Transaction ID", sortable: true },
@@ -31,7 +38,11 @@ const columns: Column<Transaction>[] = [
 ];
 
 const TransactionsPage = () => {
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editTarget, setEditTarget] = useState<Transaction | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null);
   const { data, isLoading, isError, filters, validation, hasActiveFilters, sorting } =
     useTransactionQuery(searchParams);
 
@@ -107,6 +118,8 @@ const TransactionsPage = () => {
   };
 
   const { activeRoute } = useOutletContext<{ activeRoute: RouteConfig }>();
+  const canCreate = user?.role === "ADMIN" || user?.role === "OPS";
+  const canUseRowActions = user?.role === "ADMIN" || user?.role === "OPS";
 
   const filename = `transactions-${Date.now()}.csv`;
 
@@ -117,13 +130,23 @@ const TransactionsPage = () => {
           {activeRoute.label}
         </h1>
 
-        <button
-          onClick={() => exportToCSV(data, columns, filename)}
-          disabled={!data.length}
-          className="px-3 py-2 text-sm border rounded-md bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          ⬇ Export CSV
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => exportToCSV(data, columns, filename)}
+            disabled={!data.length}
+            className="px-3 py-2 text-sm border rounded-md bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ⬇ Export CSV
+          </button>
+          {canCreate && (
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="px-3 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
+            >
+              + Add Transaction
+            </button>
+          )}
+        </div>
       </div>
 
       <ActiveFiltersSummary
@@ -151,16 +174,29 @@ const TransactionsPage = () => {
         isDeletingPreset={isDeletingPreset}
       />
 
-      <div className="flex-1 min-h-0">
-        <DataTable<Transaction>
-          columns={columns}
-          data={data}
-          sorting={sorting}
-          onSort={handleSorting}
-          getRowId={(row) => row.transactionId}
-          maxHeightClassName="max-h-full"
-        />
-      </div>
+      <ErrorBoundary fallbackMessage="Failed to render transactions table.">
+        <div className="flex-1 min-h-0">
+          <DataTable<Transaction>
+            columns={columns}
+            data={data}
+            sorting={sorting}
+            onSort={handleSorting}
+            getRowId={(row) => row.id ?? row.transactionId}
+            maxHeightClassName="max-h-full"
+            rowActions={
+              canUseRowActions
+                ? (row) => (
+                    <TransactionRowActions
+                      transaction={row}
+                      onEdit={setEditTarget}
+                      onDelete={setDeleteTarget}
+                    />
+                  )
+                : undefined
+            }
+          />
+        </div>
+      </ErrorBoundary>
 
       {isLoading && (
         <p className="text-sm text-gray-500 mt-3">Loading transactions...</p>
@@ -208,6 +244,29 @@ const TransactionsPage = () => {
           </div>
         </div>
       )}
+
+      <ErrorBoundary fallbackMessage="Failed to render transaction create modal.">
+        <TransactionCreateModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+        />
+      </ErrorBoundary>
+
+      <ErrorBoundary fallbackMessage="Failed to render transaction edit modal.">
+        <TransactionEditModal
+          isOpen={!!editTarget}
+          transaction={editTarget}
+          onClose={() => setEditTarget(null)}
+        />
+      </ErrorBoundary>
+
+      <ErrorBoundary fallbackMessage="Failed to render transaction delete dialog.">
+        <TransactionDeleteDialog
+          isOpen={!!deleteTarget}
+          transaction={deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+        />
+      </ErrorBoundary>
     </div>
   );
 };
