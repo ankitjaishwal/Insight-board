@@ -18,7 +18,7 @@ type User = {
 type AuthContextType = {
   user: User | null;
   token: string | null;
-  login: (token: string) => void;
+  login: (token: string, user?: User) => void;
   logout: () => void;
   loading: boolean;
 };
@@ -38,11 +38,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function loadUser() {
       if (!token) {
+        setUser(null);
         setLoading(false);
         return;
       }
 
       try {
+        setLoading(true);
         const me = await getMe(token);
         setUser(me);
       } catch {
@@ -57,9 +59,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [token]);
 
   /* ---------- LOGIN ---------- */
-  const login = (jwt: string) => {
+  const login = (jwt: string, nextUser?: User) => {
     localStorage.setItem("token", jwt);
     setToken(jwt);
+    if (nextUser) {
+      setUser(nextUser);
+    }
   };
 
   /* ---------- LOGOUT ---------- */

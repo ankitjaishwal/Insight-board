@@ -1,4 +1,4 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation, useOutletContext } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 type Props = {
@@ -8,6 +8,7 @@ type Props = {
 const ProtectedRoute = ({ roles }: Props) => {
   const { user, token, loading } = useAuth();
   const location = useLocation();
+  const outletContext = useOutletContext<unknown>();
 
   if (loading) {
     return (
@@ -27,7 +28,7 @@ const ProtectedRoute = ({ roles }: Props) => {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  return <Outlet />;
+  return <Outlet context={outletContext} />;
 };
 
 export default ProtectedRoute;

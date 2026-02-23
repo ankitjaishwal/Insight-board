@@ -45,7 +45,9 @@ const columns: Column<AuditLog>[] = [
 const AuditPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { data, loading, error, sorting } = useAuditQuery(searchParams);
-  const { activeRoute } = useOutletContext<{ activeRoute: RouteConfig }>();
+  const outletContext =
+    useOutletContext<{ activeRoute?: RouteConfig } | undefined>();
+  const pageTitle = outletContext?.activeRoute?.label ?? "Audit Logs";
 
   const handleSort = (key: keyof AuditLog) => {
     if (key !== "timestamp" && key !== "action") return;
@@ -76,7 +78,7 @@ const AuditPage = () => {
   return (
     <>
       <h1 className="text-xl text-gray-900 font-semibold pb-6">
-        {activeRoute.label}
+        {pageTitle}
       </h1>
 
       <DataTable<AuditLog>

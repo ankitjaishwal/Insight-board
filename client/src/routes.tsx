@@ -5,14 +5,12 @@ import TransactionsPage from "./pages/TransactionsPage";
 import AuditPage from "./pages/AuditPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
+import LoginPage from "./pages/LoginPage";
 
 export const routes = [
   /* ---------- PUBLIC ---------- */
 
-  {
-    path: "/login",
-    element: <> </>, // Todo add later
-  },
+  { path: "/login", element: <LoginPage /> },
 
   {
     path: "/unauthorized",

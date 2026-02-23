@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import auditRoutes from "./routes/audit.routes";
+import auditRoutes from "./routes/audit.router";
 import transactionRoutes from "./routes/transaction.routes";
 import overviewRoutes from "./routes/overview.route";
 import authRoutes from "./routes/auth.router";
