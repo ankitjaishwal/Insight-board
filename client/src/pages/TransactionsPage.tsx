@@ -32,7 +32,7 @@ const columns: Column<Transaction>[] = [
 
 const TransactionsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { data, filters, validation, hasActiveFilters, sorting } =
+  const { data, isLoading, isError, filters, validation, hasActiveFilters, sorting } =
     useTransactionQuery(searchParams);
 
   const {
@@ -155,6 +155,13 @@ const TransactionsPage = () => {
           maxHeightClassName="max-h-full"
         />
       </div>
+
+      {isLoading && (
+        <p className="text-sm text-gray-500 mt-3">Loading transactions...</p>
+      )}
+      {isError && (
+        <p className="text-sm text-red-600 mt-3">Failed to load transactions</p>
+      )}
 
       {showSaveModal && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">

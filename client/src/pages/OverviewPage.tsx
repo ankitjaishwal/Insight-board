@@ -9,13 +9,13 @@ const OverviewPage = () => {
     activeRoute: RouteConfig;
   }>();
 
-  const { data, loading, error } = useOverviewQuery();
+  const { data, isLoading, isError, error } = useOverviewQuery();
 
-  if (loading) {
+  if (isLoading) {
     return <p className="text-gray-500">Loading overview...</p>;
   }
 
-  if (error) {
+  if (isError) {
     return <p className="text-red-600">{error}</p>;
   }
 

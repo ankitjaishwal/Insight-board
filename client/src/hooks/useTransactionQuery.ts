@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { fetchTransactions } from "../api/transactionApi";
 import { parseFilters } from "../filters/filters.parser";
 import type { Transaction } from "../types/transaction";
@@ -43,10 +44,6 @@ function normalizeStatusParam(statusParam: string | null): string | undefined {
 }
 
 export function useTransactionQuery(searchParams: URLSearchParams) {
-  const [data, setData] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   const filters = useMemo(() => parseFilters(searchParams), [searchParams]);
 
   const validation = useMemo(() => validateFilters(filters), [filters]);
@@ -64,42 +61,27 @@ export function useTransactionQuery(searchParams: URLSearchParams) {
 
   const sorting = sortKey && direction ? { key: sortKey, direction } : null;
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const result = await fetchTransactions({
-          search: filters.search,
-          status: normalizeStatusParam(searchParams.get("status")),
-          from: filters.from,
-          to: filters.to,
-          min: filters.minAmount,
-          max: filters.maxAmount,
-          page: Number(searchParams.get("page") || 1),
-          limit: 20,
-          sort: sortKey,
-          dir: direction || undefined,
-        });
-
-        setData(result.data);
-      } catch (e) {
-        console.error(e);
-        setData([]);
-        setError("Failed to load transactions");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    load();
-  }, [filters, searchParams]);
+  const query = useQuery({
+    queryKey: ["transactions", searchParams.toString()],
+    queryFn: () =>
+      fetchTransactions({
+        search: filters.search,
+        status: normalizeStatusParam(searchParams.get("status")),
+        from: filters.from,
+        to: filters.to,
+        min: filters.minAmount,
+        max: filters.maxAmount,
+        page: Number(searchParams.get("page") || 1),
+        limit: 20,
+        sort: sortKey,
+        dir: direction || undefined,
+      }),
+  });
 
   return {
-    data,
-    loading,
-    error,
+    data: query.data?.data ?? [],
+    isLoading: query.isLoading,
+    isError: query.isError,
     filters,
     validation,
     hasActiveFilters,

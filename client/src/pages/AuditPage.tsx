@@ -45,7 +45,7 @@ const columns: Column<AuditLog>[] = [
 
 const AuditPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { data, loading, error, sorting } = useAuditQuery(searchParams);
+  const { data, isLoading, isError, sorting } = useAuditQuery(searchParams);
   const outletContext = useOutletContext<
     { activeRoute?: RouteConfig } | undefined
   >();
@@ -94,10 +94,12 @@ const AuditPage = () => {
         onSort={handleSort}
         getRowId={(row) => row.id}
       />
-      {loading && (
+      {isLoading && (
         <p className="text-sm text-gray-500 mt-3">Loading audit logs...</p>
       )}
-      {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
+      {isError && (
+        <p className="text-sm text-red-600 mt-3">Failed to load audit logs</p>
+      )}
     </>
   );
 };

@@ -1,5 +1,6 @@
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { render, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi } from "vitest";
 import { routes } from "../routes";
 import { AuthProvider } from "../context/AuthContext";
@@ -89,11 +90,22 @@ export async function renderApp(route = "/") {
   const router = createMemoryRouter(routes, {
     initialEntries: [route],
   });
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: 1,
+        staleTime: 30_000,
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
 
   const utils = render(
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>,
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </QueryClientProvider>,
   );
 
   await waitFor(() => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { fetchAuditLogs } from "../api/auditApi";
 import type { AuditAction, AuditLog } from "../types/audit";
 
@@ -19,10 +19,6 @@ function toAuditAction(action: string): AuditAction {
 }
 
 export function useAuditQuery(searchParams: URLSearchParams) {
-  const [data, setData] = useState<AuditLog[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   const sortKey = searchParams.get("sort");
   const direction = searchParams.get("dir") as SortDirection | null;
 
@@ -31,53 +27,36 @@ export function useAuditQuery(searchParams: URLSearchParams) {
       ? { key: (sortKey === "createdAt" ? "timestamp" : sortKey) as keyof AuditLog, direction }
       : null;
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const query = useQuery({
+    queryKey: ["audit-logs", searchParams.toString()],
+    queryFn: () =>
+      fetchAuditLogs({
+        search: searchParams.get("search") || undefined,
+        action: searchParams.get("action") || undefined,
+        from: searchParams.get("from") || undefined,
+        to: searchParams.get("to") || undefined,
+        page: Number(searchParams.get("page") || 1),
+        limit: 20,
+        sort: searchParams.get("sort") === "action" ? "action" : "createdAt",
+        dir: direction || "desc",
+      }),
+  });
 
-        const result = await fetchAuditLogs({
-          search: searchParams.get("search") || undefined,
-          action: searchParams.get("action") || undefined,
-          from: searchParams.get("from") || undefined,
-          to: searchParams.get("to") || undefined,
-          page: Number(searchParams.get("page") || 1),
-          limit: 20,
-          sort:
-            searchParams.get("sort") === "action"
-              ? "action"
-              : "createdAt",
-          dir: direction || "desc",
-        });
-
-        setData(
-          result.data.map((row) => ({
-            id: row.id,
-            actor: row.user?.email ?? "System",
-            role: row.user?.role ?? "System",
-            action: toAuditAction(row.action),
-            entity: row.entityId ?? undefined,
-            timestamp: row.createdAt,
-            metadata: row.meta ? { raw: row.meta } : undefined,
-          })),
-        );
-      } catch (e) {
-        console.error(e);
-        setData([]);
-        setError("Failed to load audit logs");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    load();
-  }, [searchParams]);
+  const data =
+    query.data?.data.map((row) => ({
+      id: row.id,
+      actor: row.user?.email ?? "System",
+      role: row.user?.role ?? "System",
+      action: toAuditAction(row.action),
+      entity: row.entityId ?? undefined,
+      timestamp: row.createdAt,
+      metadata: row.meta ? { raw: row.meta } : undefined,
+    })) ?? [];
 
   return {
     data,
-    loading,
-    error,
+    isLoading: query.isLoading,
+    isError: query.isError,
     sorting,
   };
 }
