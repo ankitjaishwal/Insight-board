@@ -1,11 +1,14 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-const ProtectedRoute = () => {
-  const { token, loading } = useAuth();
+type Props = {
+  roles?: string[];
+};
+
+const ProtectedRoute = ({ roles }: Props) => {
+  const { user, token, loading } = useAuth();
   const location = useLocation();
 
-  // Still checking auth
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -14,9 +17,14 @@ const ProtectedRoute = () => {
     );
   }
 
-  // Not logged in → redirect
-  if (!token) {
+  // Not logged in
+  if (!token || !user) {
     return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  // Role check
+  if (roles && !roles.includes(user.role)) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return <Outlet />;

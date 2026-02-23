@@ -17,5 +17,9 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}) {
     window.location.href = "/login";
   }
 
+  if (res.status === 403) {
+    window.location.href = "/unauthorized";
+  }
+
   return res;
 }
