@@ -1,5 +1,5 @@
 import { fetchWithAuth } from "./fetchWithAuth";
-import type { Transaction } from "../types/transaction";
+import type { Status, Transaction } from "../types/transaction";
 
 export type FetchTransactionsParams = {
   search?: string;
@@ -28,7 +28,7 @@ export type CreateTransactionPayload = {
   userName: string;
   amount: number;
   date: string;
-  status: "PENDING" | "COMPLETED" | "FAILED";
+  status: Status
 };
 
 export type UpdateTransactionPayload = Partial<CreateTransactionPayload>;

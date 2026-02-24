@@ -56,7 +56,9 @@ export function useTransactionQuery(searchParams: URLSearchParams) {
 
     if (
       Number.isInteger(rawLimit) &&
-      ALLOWED_PAGE_LIMITS.includes(rawLimit as (typeof ALLOWED_PAGE_LIMITS)[number])
+      ALLOWED_PAGE_LIMITS.includes(
+        rawLimit as (typeof ALLOWED_PAGE_LIMITS)[number],
+      )
     ) {
       return rawLimit;
     }
@@ -83,6 +85,7 @@ export function useTransactionQuery(searchParams: URLSearchParams) {
 
   const query = useQuery({
     queryKey: [...transactionsQueryKey, searchParams.toString()],
+
     queryFn: () =>
       fetchTransactions({
         search: filters.search,
@@ -96,6 +99,11 @@ export function useTransactionQuery(searchParams: URLSearchParams) {
         sort: sortKey,
         dir: direction || undefined,
       }),
+
+    placeholderData: (prev) => prev,
+
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
   });
 
   return {

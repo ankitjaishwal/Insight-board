@@ -18,6 +18,7 @@ import type {
   TransactionListResponse,
   UpdateTransactionPayload,
 } from "../api/transactionApi";
+import type { Transaction } from "../types/transaction";
 
 function encodeBase64Url(value: string): string {
   return btoa(value)
@@ -48,6 +49,8 @@ type RenderAppOptions = {
     params: FetchTransactionsParams,
   ) => Promise<TransactionListResponse> | TransactionListResponse;
 };
+
+type StoredTransaction = Transaction & { id: string };
 
 const transactionResponse = {
   data: [
@@ -104,9 +107,9 @@ const auditResponse = {
 export async function renderApp(route = "/", options: RenderAppOptions = {}) {
   const presetsStore: FilterPreset[] = [];
   const activeUser = options.user ?? defaultUser;
-  const transactionsStore = [...transactionResponse.data].map((tx) => ({
+  const transactionsStore: StoredTransaction[] = [...transactionResponse.data].map((tx) => ({
     ...tx,
-    id: tx.id ?? crypto.randomUUID(),
+    id: tx.transactionId ?? crypto.randomUUID(),
   }));
 
   if (!localStorage.getItem("token")) {
@@ -133,7 +136,7 @@ export async function renderApp(route = "/", options: RenderAppOptions = {}) {
   );
   vi.spyOn(transactionApi, "createTransaction").mockImplementation(
     async (payload: CreateTransactionPayload) => {
-      const created = {
+      const created: StoredTransaction = {
         id: crypto.randomUUID(),
         transactionId: `txn-${transactionsStore.length + 1}`,
         userName: payload.userName,

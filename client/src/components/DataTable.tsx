@@ -1,12 +1,14 @@
 import type { Column } from "../types/table";
+import { useState } from "react";
 import type { ReactNode } from "react";
+import VirtualizedTableBody from "./VirtualizedTableBody";
 
 type Sorting<T> = {
   key: keyof T;
   direction: "asc" | "desc";
 } | null;
 
-type DataTableProps<T> = {
+type DataTableProps<T extends Record<string, unknown>> = {
   columns: Column<T>[];
   data: T[];
   sorting?: Sorting<T>;
@@ -16,7 +18,7 @@ type DataTableProps<T> = {
   rowActions?: (row: T) => ReactNode;
 };
 
-function DataTable<T>({
+function DataTable<T extends Record<string, unknown>>({
   columns,
   data,
   sorting,
@@ -25,8 +27,13 @@ function DataTable<T>({
   maxHeightClassName = "max-h-[calc(100vh-140px)]",
   rowActions,
 }: DataTableProps<T>) {
+  const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(
+    null,
+  );
+
   return (
     <div
+      ref={setScrollElement}
       className={`w-full border border-gray-200 rounded-md overflow-auto ${maxHeightClassName}`}
     >
       <table className="w-full border-collapse">
@@ -64,9 +71,8 @@ function DataTable<T>({
           </tr>
         </thead>
 
-        {/* Body */}
-        <tbody className="bg-white">
-          {data.length === 0 ? (
+        {data.length === 0 ? (
+          <tbody className="bg-white">
             <tr>
               <td
                 colSpan={columns.length + (rowActions ? 1 : 0)}
@@ -75,39 +81,16 @@ function DataTable<T>({
                 No data found.
               </td>
             </tr>
-          ) : (
-            data.map((row, index) => (
-              <tr
-                key={getRowId ? getRowId(row) : index}
-                className="border-b border-gray-100 hover:bg-gray-50 last:border-0"
-              >
-                {columns.map((col) => {
-                  const value = row[col.key];
-
-                  return (
-                    <td
-                      key={String(col.key)}
-                      className={`px-4 py-3 text-sm text-gray-700 ${
-                        col.align === "right" ? "text-right" : ""
-                      }`}
-                    >
-                      {value !== undefined && value !== null && value !== ""
-                        ? col.render
-                          ? col.render(value, row)
-                          : String(value)
-                        : "-"}
-                    </td>
-                  );
-                })}
-                {rowActions && (
-                  <td className="px-4 py-3 text-sm text-gray-700 text-right">
-                    {rowActions(row)}
-                  </td>
-                )}
-              </tr>
-            ))
-          )}
-        </tbody>
+          </tbody>
+        ) : (
+          <VirtualizedTableBody
+            data={data}
+            columns={columns}
+            scrollElement={scrollElement}
+            getRowId={getRowId}
+            rowActions={rowActions}
+          />
+        )}
       </table>
     </div>
   );
