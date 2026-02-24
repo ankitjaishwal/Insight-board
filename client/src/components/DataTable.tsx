@@ -1,5 +1,5 @@
 import type { Column } from "../types/table";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import VirtualizedTableBody from "./VirtualizedTableBody";
 
@@ -16,6 +16,10 @@ type DataTableProps<T extends Record<string, unknown>> = {
   getRowId?: (row: T) => string;
   maxHeightClassName?: string;
   rowActions?: (row: T) => ReactNode;
+  onReachEnd?: () => void;
+  canLoadMore?: boolean;
+  isLoadingMore?: boolean;
+  bottomThreshold?: number;
 };
 
 function DataTable<T extends Record<string, unknown>>({
@@ -26,10 +30,43 @@ function DataTable<T extends Record<string, unknown>>({
   getRowId,
   maxHeightClassName = "max-h-[calc(100vh-140px)]",
   rowActions,
+  onReachEnd,
+  canLoadMore = false,
+  isLoadingMore = false,
+  bottomThreshold = 300,
 }: DataTableProps<T>) {
   const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(
     null,
   );
+  const onReachEndRef = useRef(onReachEnd);
+
+  useEffect(() => {
+    onReachEndRef.current = onReachEnd;
+  }, [onReachEnd]);
+
+  useEffect(() => {
+    if (!scrollElement || !onReachEndRef.current) return;
+
+    const handleScroll = () => {
+      const { scrollHeight, scrollTop, clientHeight } = scrollElement;
+      const distanceToBottom = scrollHeight - scrollTop - clientHeight;
+
+      if (
+        distanceToBottom < bottomThreshold &&
+        canLoadMore &&
+        !isLoadingMore
+      ) {
+        onReachEndRef.current?.();
+      }
+    };
+
+    scrollElement.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      scrollElement.removeEventListener("scroll", handleScroll);
+    };
+  }, [bottomThreshold, canLoadMore, isLoadingMore, scrollElement]);
 
   return (
     <div
@@ -90,6 +127,32 @@ function DataTable<T extends Record<string, unknown>>({
             getRowId={getRowId}
             rowActions={rowActions}
           />
+        )}
+
+        {isLoadingMore && data.length > 0 && (
+          <tbody className="bg-white">
+            {Array.from({ length: 3 }).map((_, rowIndex) => (
+              <tr
+                key={`loading-row-${rowIndex}`}
+                className="border-b border-gray-100"
+                aria-hidden="true"
+              >
+                {columns.map((col) => (
+                  <td
+                    key={`loading-cell-${String(col.key)}-${rowIndex}`}
+                    className={`px-4 py-3 ${col.align === "right" ? "text-right" : ""}`}
+                  >
+                    <div className="h-4 w-full rounded bg-gray-200 animate-pulse" />
+                  </td>
+                ))}
+                {rowActions && (
+                  <td className="px-4 py-3 text-right">
+                    <div className="ml-auto h-4 w-8 rounded bg-gray-200 animate-pulse" />
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
         )}
       </table>
     </div>

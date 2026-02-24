@@ -7,8 +7,8 @@ import type {
 } from "../api/transactionApi";
 import { renderApp } from "./renderApp";
 
-describe("Transactions pagination integration", () => {
-  it("uses page and limit from URL params", async () => {
+describe("Transactions infinite-scroll integration", () => {
+  it("ignores page URL param and uses pageParam=1 with limit", async () => {
     const fetchTransactionsMock = vi.fn(
       async (params: FetchTransactionsParams): Promise<TransactionListResponse> => ({
         data: [
@@ -30,22 +30,22 @@ describe("Transactions pagination integration", () => {
       }),
     );
 
-    await renderApp("/ops/transactions?page=2&limit=50", {
+    const { router } = await renderApp("/ops/transactions?page=2&limit=50", {
       fetchTransactionsMock,
     });
 
     await waitFor(() => {
       expect(fetchTransactionsMock).toHaveBeenCalledWith(
-        expect.objectContaining({ page: 2, limit: 50 }),
+        expect.objectContaining({ page: 1, limit: 50 }),
       );
     });
 
-    expect(screen.getByText("Page 2 of 3")).toBeInTheDocument();
     expect(screen.getByText("Total: 120")).toBeInTheDocument();
     expect(screen.getByLabelText(/rows per page/i)).toHaveValue("50");
+    expect(router.state.location.search).not.toContain("page=");
   });
 
-  it("updates URL on page and limit changes while preserving existing params", async () => {
+  it("updates limit in URL and preserves filters/sort without page param", async () => {
     const user = userEvent.setup();
 
     const { router } = await renderApp(
@@ -74,18 +74,6 @@ describe("Transactions pagination integration", () => {
       },
     );
 
-    await user.click(screen.getByRole("button", { name: "Next" }));
-
-    await waitFor(() => {
-      const search = router.state.location.search;
-      expect(search).toContain("search=Alice");
-      expect(search).toContain("status=Completed");
-      expect(search).toContain("sort=amount");
-      expect(search).toContain("dir=asc");
-      expect(search).toContain("page=2");
-      expect(search).toContain("limit=20");
-    });
-
     await user.selectOptions(screen.getByLabelText(/rows per page/i), "100");
 
     await waitFor(() => {
@@ -94,8 +82,8 @@ describe("Transactions pagination integration", () => {
       expect(search).toContain("status=Completed");
       expect(search).toContain("sort=amount");
       expect(search).toContain("dir=asc");
-      expect(search).toContain("page=1");
       expect(search).toContain("limit=100");
+      expect(search).not.toContain("page=");
     });
   });
 });

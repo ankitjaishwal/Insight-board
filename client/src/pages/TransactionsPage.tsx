@@ -17,7 +17,6 @@ import TransactionEditModal from "../components/transactions/TransactionEditModa
 import TransactionDeleteDialog from "../components/transactions/TransactionDeleteDialog";
 import TransactionRowActions from "../components/transactions/TransactionRowActions";
 import { ErrorBoundary } from "../components/errors/ErrorBoundary";
-import Pagination from "../components/Pagination";
 
 const columns: Column<Transaction>[] = [
   { key: "transactionId", header: "Transaction ID", sortable: true },
@@ -47,11 +46,13 @@ const TransactionsPage = () => {
   const {
     data,
     meta,
-    page,
     limit,
     isLoading,
     isFetching,
+    isFetchingNextPage,
     isError,
+    hasNextPage,
+    fetchNextPage,
     filters,
     validation,
     hasActiveFilters,
@@ -133,21 +134,17 @@ const TransactionsPage = () => {
   const canCreate = user?.role === "ADMIN" || user?.role === "OPS";
   const canUseRowActions = user?.role === "ADMIN" || user?.role === "OPS";
   const total = meta?.total ?? 0;
-  const pages = meta?.pages ?? 0;
+  const hasLoadedAnyRows = data.length > 0;
 
   useEffect(() => {
-    // If filters/page-size reduce the total number of pages, clamp page to the
-    // new last page. Guard clauses prevent a setSearchParams loop.
-    if (pages > 0 && page > pages) {
+    if (searchParams.has("page")) {
       setSearchParams((prev) => {
         const next = new URLSearchParams(prev);
-        next.set("page", String(pages));
+        next.delete("page");
         return next;
       });
     }
-  }, [page, pages, setSearchParams]);
-
-  const filename = `transactions-${Date.now()}.csv`;
+  }, [searchParams, setSearchParams]);
 
   return (
     <div className="h-full min-h-0 flex flex-col">
@@ -158,7 +155,9 @@ const TransactionsPage = () => {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => exportToCSV(data, columns, filename)}
+            onClick={() =>
+              exportToCSV(data, columns, `transactions-${Date.now()}.csv`)
+            }
             disabled={!data.length}
             className="px-3 py-2 text-sm border rounded-md bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -233,30 +232,48 @@ const TransactionsPage = () => {
                     )
                   : undefined
               }
+              onReachEnd={() => {
+                if (hasNextPage && !isFetchingNextPage) {
+                  fetchNextPage();
+                }
+              }}
+              canLoadMore={!!hasNextPage}
+              isLoadingMore={isFetchingNextPage}
             />
           )}
 
-          <Pagination
-            page={page}
-            pages={pages}
-            total={total}
-            limit={limit}
-            onPageChange={(newPage) => {
-              setSearchParams((prev) => {
-                const next = new URLSearchParams(prev);
-                next.set("page", String(newPage));
-                return next;
-              });
-            }}
-            onLimitChange={(newLimit) => {
-              setSearchParams((prev) => {
-                const next = new URLSearchParams(prev);
-                next.set("limit", String(newLimit));
-                next.set("page", "1");
-                return next;
-              });
-            }}
-          />
+          {!hasNextPage && !isLoading && hasLoadedAnyRows && (
+            <p className="text-sm text-gray-500 mt-2 text-center">
+              No more results
+            </p>
+          )}
+
+          <div className="mt-3 flex flex-col gap-3 rounded-md border border-gray-200 bg-white p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-sm text-gray-700">Total: {total}</div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="page-size" className="text-sm text-gray-600">
+                Rows per page
+              </label>
+              <select
+                id="page-size"
+                value={limit}
+                onChange={(e) => {
+                  const newLimit = Number(e.target.value);
+                  setSearchParams((prev) => {
+                    const next = new URLSearchParams(prev);
+                    next.set("limit", String(newLimit));
+                    next.delete("page");
+                    return next;
+                  });
+                }}
+                className="border border-gray-300 rounded px-2 py-1.5 bg-white text-sm"
+              >
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
+          </div>
         </div>
       </ErrorBoundary>
 

@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { deleteTransaction, type TransactionListResponse } from "../api/transactionApi";
 import { transactionsQueryKey } from "./useTransactionQuery";
 
@@ -14,10 +14,20 @@ export function useDeleteTransaction() {
         queryKey: transactionsQueryKey,
       });
 
-      queryClient.setQueriesData<TransactionListResponse>(
+      queryClient.setQueriesData<TransactionListResponse | InfiniteData<TransactionListResponse>>(
         { queryKey: transactionsQueryKey },
         (old) => {
           if (!old) return old;
+
+          if ("pages" in old) {
+            return {
+              ...old,
+              pages: old.pages.map((page) => ({
+                ...page,
+                data: page.data.filter((tx) => tx.id !== id),
+              })),
+            };
+          }
 
           return {
             ...old,
