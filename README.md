@@ -7,14 +7,15 @@ Focused on performance, scalability, and real-world dashboard architecture — n
 ⸻
 
 🚀 Key Highlights
-• Server-side filtering & sorting
-• Infinite scroll using useInfiniteQuery
-• Row virtualization with @tanstack/react-virtual
-• JWT authentication with session lifecycle handling
-• Role-based access control (Admin / User)
-• Audit logging system
-• Optimistic updates with React Query
-• UX hardening (skeletons, retry, slow network handling)
+
+- Server-side filtering & sorting
+- Infinite scroll using useInfiniteQuery
+- Row virtualization with @tanstack/react-virtual
+- JWT authentication with session lifecycle handling
+- Role-based access control (Admin / User)
+- Audit logging system
+- Optimistic updates with React Query
+- UX hardening (skeletons, retry, slow network handling)
 
 ⸻
 
