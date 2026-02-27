@@ -152,7 +152,7 @@ const Layout = () => {
         {/* Sidebar */}
         <SideNav config={config} />
         {/* Main */}
-        <main className="flex-1 min-h-0 overflow-auto bg-gray-50">
+        <main className="flex-1 min-h-0 overflow-auto p-6 bg-gray-50">
           <div className="p-6">
             <Outlet context={{ config, activeRoute }} />
           </div>

@@ -147,7 +147,7 @@ const TransactionsPage = () => {
   }, [searchParams, setSearchParams]);
 
   return (
-    <div className="h-full min-h-0 flex flex-col">
+    <div className="flex-1 min-h-0 flex flex-col">
       <div className="flex justify-between items-center mb-3">
         <h1 className="text-xl text-gray-900 font-semibold">
           {activeRoute.label}
@@ -214,32 +214,34 @@ const TransactionsPage = () => {
               No transactions found
             </div>
           ) : (
-            <DataTable<Transaction>
-              columns={columns}
-              data={data}
-              sorting={sorting}
-              onSort={handleSorting}
-              getRowId={(row) => row.id ?? row.transactionId}
-              maxHeightClassName="max-h-full"
-              rowActions={
-                canUseRowActions
-                  ? (row) => (
-                      <TransactionRowActions
-                        transaction={row}
-                        onEdit={setEditTarget}
-                        onDelete={setDeleteTarget}
-                      />
-                    )
-                  : undefined
-              }
-              onReachEnd={() => {
-                if (hasNextPage && !isFetchingNextPage) {
-                  fetchNextPage();
+            <div className="flex-1 min-h-0">
+              <DataTable<Transaction>
+                columns={columns}
+                data={data}
+                sorting={sorting}
+                onSort={handleSorting}
+                getRowId={(row) => row.id ?? row.transactionId}
+                maxHeightClassName="max-h-[calc(100vh-360px)]"
+                rowActions={
+                  canUseRowActions
+                    ? (row) => (
+                        <TransactionRowActions
+                          transaction={row}
+                          onEdit={setEditTarget}
+                          onDelete={setDeleteTarget}
+                        />
+                      )
+                    : undefined
                 }
-              }}
-              canLoadMore={!!hasNextPage}
-              isLoadingMore={isFetchingNextPage}
-            />
+                onReachEnd={() => {
+                  if (hasNextPage && !isFetchingNextPage) {
+                    fetchNextPage();
+                  }
+                }}
+                canLoadMore={!!hasNextPage}
+                isLoadingMore={isFetchingNextPage}
+              />
+            </div>
           )}
 
           {!hasNextPage && !isLoading && hasLoadedAnyRows && (
