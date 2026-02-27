@@ -12,18 +12,26 @@ const OverviewPage = () => {
   const { data, isLoading, isError, error } = useOverviewQuery();
 
   if (isLoading) {
-    return <p className="text-gray-500">Loading overview...</p>;
+    return (
+      <p className="text-gray-500 flex items-center justify-center h-full">
+        Loading overview...
+      </p>
+    );
   }
 
   if (isError) {
-    return <p className="text-red-600">{error}</p>;
+    return (
+      <p className="text-red-600 flex items-center justify-center h-full">
+        {error}
+      </p>
+    );
   }
 
   if (!data) return null;
 
   return (
     <>
-      <h1 className="text-xl text-gray-900 font-semibold pb-6">
+      <h1 className="text-2xl font-semibold text-gray-900 mb-8">
         {activeRoute.label}
       </h1>
 

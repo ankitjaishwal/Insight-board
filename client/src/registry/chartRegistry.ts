@@ -8,7 +8,7 @@ export const chartRegistry = {
       return Object.entries(overview.statusBreakdown).map(
         ([status, count]) => ({
           status,
-          count,
+          count: typeof count === "number" ? count : 0,
         }),
       );
     },

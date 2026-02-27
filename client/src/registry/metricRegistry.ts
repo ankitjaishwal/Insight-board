@@ -4,7 +4,7 @@ export const metricRegistry = {
   totalUsers: {
     label: "Total Users",
     derive: (transactions: Transaction[]) => {
-      return new Set(transactions.map((t) => t.user)).size;
+      return new Set(transactions.map((t) => t.userName)).size;
     },
   },
 

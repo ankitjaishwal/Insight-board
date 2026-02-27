@@ -5,6 +5,20 @@ export type OverviewResponse = {
   totalTransactions: number;
   totalRevenue: number;
   successRate: number;
+
+  failedCount: number;
+  pendingCount: number;
+  averageTransactionValue: number;
+
+  last7DaysTransactions: { date: string; count: number }[];
+  recentTransactions: {
+    id: string;
+    userName: string;
+    amount: number;
+    status: string;
+    date: string;
+  }[];
+
   statusBreakdown: Record<string, number>;
 };
 

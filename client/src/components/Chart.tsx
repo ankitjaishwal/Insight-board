@@ -1,4 +1,11 @@
-import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import {
+  Bar,
+  BarChart,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
 
 type Props = {
   data: {
@@ -12,13 +19,19 @@ const Chart = ({ data }: Props) => {
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
         data={data}
-        barSize={40}
-        barCategoryGap="30%"
-        margin={{ top: 16, right: 16, left: 8, bottom: 8 }}
+        barSize={32}
+        barCategoryGap="20%"
+        margin={{ top: 8, right: 16, left: 0, bottom: 0 }}
       >
-        <XAxis dataKey="status" />
-        <YAxis allowDecimals={false} />
-        <Bar dataKey="count" fill="#6366f1" />
+        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+        <XAxis
+          dataKey="status"
+          tick={{ fontSize: 12 }}
+          tickLine={false}
+          axisLine={false}
+        />
+        <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
+        <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );
