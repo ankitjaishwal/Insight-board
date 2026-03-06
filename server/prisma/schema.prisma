@@ -20,7 +20,6 @@ model User {
   createdAt     DateTime @default(now())
 
   transactions Transaction[]
-  auditLogs    AuditLog[]
   presets      FilterPreset[]
 }
 
@@ -41,13 +40,18 @@ model Transaction {
 model AuditLog {
   id        String   @id @default(uuid())
   action    String
-  entity    String  
-  entityId  String?
-  meta      String?
+  entity    String
+  entityId  String
+  userId    String
+  userEmail String
+  before    String?
+  after     String?
   createdAt DateTime @default(now())
 
-  userId String?
-  user   User? @relation(fields: [userId], references: [id])
+  @@index([createdAt])
+  @@index([userId])
+  @@index([entity])
+  @@index([action])
 }
 
 model FilterPreset {

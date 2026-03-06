@@ -126,6 +126,14 @@ router.post(
 
       const { userName, amount, date, status } = parsed.data;
       const userId = req.user!.userId;
+      const auditUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true },
+      });
+
+      if (!auditUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
 
       const result = await prisma.$transaction(async (tx) => {
         const transaction = await tx.transaction.create({
@@ -144,8 +152,10 @@ router.post(
             action: "CREATE_TRANSACTION",
             entity: "TRANSACTION",
             entityId: transaction.id,
-            meta: JSON.stringify({ data: transaction }),
             userId,
+            userEmail: auditUser.email,
+            before: null,
+            after: JSON.stringify(transaction),
           },
         });
 
@@ -180,6 +190,14 @@ router.put(
 
       const userId = req.user!.userId;
       const id = String(req.params.id);
+      const auditUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true },
+      });
+
+      if (!auditUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
 
       const updated = await prisma.$transaction(async (tx) => {
         const before = await tx.transaction.findUnique({
@@ -215,8 +233,10 @@ router.put(
             action: "UPDATE_TRANSACTION",
             entity: "TRANSACTION",
             entityId: id,
-            meta: JSON.stringify({ before, after }),
             userId,
+            userEmail: auditUser.email,
+            before: JSON.stringify(before),
+            after: JSON.stringify(after),
           },
         });
 
@@ -246,6 +266,14 @@ router.delete(
     try {
       const userId = req.user!.userId;
       const id = String(req.params.id);
+      const auditUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true },
+      });
+
+      if (!auditUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
 
       const deleted = await prisma.$transaction(async (tx) => {
         const snapshot = await tx.transaction.findUnique({
@@ -265,8 +293,10 @@ router.delete(
             action: "DELETE_TRANSACTION",
             entity: "TRANSACTION",
             entityId: id,
-            meta: JSON.stringify({ snapshot }),
             userId,
+            userEmail: auditUser.email,
+            before: JSON.stringify(snapshot),
+            after: null,
           },
         });
 

@@ -58,8 +58,10 @@ router.post("/reset-demo", requireAuth, requireAdmin, async (_req, res) => {
             action: "DEMO_RESET_SEEDED",
             entity: "TRANSACTION",
             entityId: transaction.id,
-            meta: JSON.stringify({ transactionId: transaction.transactionId }),
             userId: demoUser.id,
+            userEmail: demoUser.email,
+            before: null,
+            after: JSON.stringify({ transactionId: transaction.transactionId }),
           },
         });
       }

@@ -14,6 +14,10 @@ type DataTableProps<T extends Record<string, unknown>> = {
   sorting?: Sorting<T>;
   onSort?: (key: keyof T) => void;
   getRowId?: (row: T) => string;
+  expandedRowIds?: Set<string>;
+  onRowClick?: (row: T) => void;
+  getRowClassName?: (row: T) => string | undefined;
+  renderExpandedRow?: (row: T) => ReactNode;
   maxHeightClassName?: string;
   rowActions?: (row: T) => ReactNode;
   onReachEnd?: () => void;
@@ -28,6 +32,10 @@ function DataTable<T extends Record<string, unknown>>({
   sorting,
   onSort,
   getRowId,
+  expandedRowIds,
+  onRowClick,
+  getRowClassName,
+  renderExpandedRow,
   maxHeightClassName = "max-h-[calc(100vh-140px)]",
   rowActions,
   onReachEnd,
@@ -126,6 +134,10 @@ function DataTable<T extends Record<string, unknown>>({
             scrollElement={scrollElement}
             getRowId={getRowId}
             rowActions={rowActions}
+            expandedRowIds={expandedRowIds}
+            onRowClick={onRowClick}
+            getRowClassName={getRowClassName}
+            renderExpandedRow={renderExpandedRow}
           />
         )}
 

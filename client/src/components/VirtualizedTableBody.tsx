@@ -14,6 +14,10 @@ type VirtualizedTableBodyProps<T extends Record<string, unknown>> = {
   scrollElement: HTMLDivElement | null;
   getRowId?: (row: T) => string;
   rowActions?: (row: T) => ReactNode;
+  expandedRowIds?: Set<string>;
+  onRowClick?: (row: T) => void;
+  getRowClassName?: (row: T) => string | undefined;
+  renderExpandedRow?: (row: T) => ReactNode;
   estimateRowHeight?: number;
 };
 
@@ -23,6 +27,10 @@ type VirtualizedRowProps<T extends Record<string, unknown>> = {
   columns: Column<T>[];
   getRowId?: (row: T) => string;
   rowActions?: (row: T) => ReactNode;
+  expandedRowIds?: Set<string>;
+  onRowClick?: (row: T) => void;
+  getRowClassName?: (row: T) => string | undefined;
+  renderExpandedRow?: (row: T) => ReactNode;
   measureElement?: (node: HTMLTableRowElement | null) => void;
 };
 
@@ -32,39 +40,61 @@ function VirtualizedRowBase<T extends Record<string, unknown>>({
   columns,
   getRowId,
   rowActions,
+  expandedRowIds,
+  onRowClick,
+  getRowClassName,
+  renderExpandedRow,
   measureElement,
 }: VirtualizedRowProps<T>) {
+  const rowId = getRowId ? getRowId(row) : String(rowIndex);
+  const isExpanded = expandedRowIds?.has(rowId) ?? false;
+  const rowClassName = getRowClassName?.(row) ?? "";
+
   return (
-    <tr
-      key={getRowId ? getRowId(row) : rowIndex}
-      ref={measureElement}
-      className="border-b border-gray-100 hover:bg-gray-50 last:border-0"
-    >
-      {columns.map((col) => {
-        const value = row[col.key];
+    <>
+      <tr
+        key={rowId}
+        ref={measureElement}
+        className={`border-b border-gray-100 last:border-0 ${onRowClick ? "cursor-pointer hover:bg-gray-50" : "hover:bg-gray-50"} ${rowClassName}`}
+        onClick={() => onRowClick?.(row)}
+      >
+        {columns.map((col) => {
+          const value = row[col.key];
 
-        return (
-          <td
-            key={String(col.key)}
-            className={`px-4 py-3 text-sm text-gray-700 ${
-              col.align === "right" ? "text-right" : ""
-            }`}
-          >
-            {value !== undefined && value !== null && value !== ""
-              ? col.render
-                ? col.render(value, row)
-                : String(value)
-              : "-"}
+          return (
+            <td
+              key={String(col.key)}
+              className={`px-4 py-3 text-sm text-gray-700 ${
+                col.align === "right" ? "text-right" : ""
+              }`}
+            >
+              {value !== undefined && value !== null && value !== ""
+                ? col.render
+                  ? col.render(value, row)
+                  : String(value)
+                : "-"}
+            </td>
+          );
+        })}
+
+        {rowActions && (
+          <td className="px-4 py-3 text-sm text-gray-700 text-right">
+            {rowActions(row)}
           </td>
-        );
-      })}
+        )}
+      </tr>
 
-      {rowActions && (
-        <td className="px-4 py-3 text-sm text-gray-700 text-right">
-          {rowActions(row)}
-        </td>
+      {isExpanded && renderExpandedRow && (
+        <tr className="border-b border-gray-100 bg-gray-50">
+          <td
+            colSpan={columns.length + (rowActions ? 1 : 0)}
+            className="px-4 py-3"
+          >
+            {renderExpandedRow(row)}
+          </td>
+        </tr>
       )}
-    </tr>
+    </>
   );
 }
 
@@ -78,7 +108,11 @@ const MemoizedVirtualizedRow = memo(
     prev.rowIndex === next.rowIndex &&
     prev.columns === next.columns &&
     prev.getRowId === next.getRowId &&
-    prev.rowActions === next.rowActions,
+    prev.rowActions === next.rowActions &&
+    prev.expandedRowIds === next.expandedRowIds &&
+    prev.onRowClick === next.onRowClick &&
+    prev.getRowClassName === next.getRowClassName &&
+    prev.renderExpandedRow === next.renderExpandedRow,
 ) as <T extends Record<string, unknown>>(
   props: VirtualizedRowProps<T>,
 ) => ReactNode;
@@ -89,6 +123,10 @@ function VirtualizedTableBody<T extends Record<string, unknown>>({
   scrollElement,
   getRowId,
   rowActions,
+  expandedRowIds,
+  onRowClick,
+  getRowClassName,
+  renderExpandedRow,
   estimateRowHeight = 48,
 }: VirtualizedTableBodyProps<T>) {
   const lastScrollOffsetRef = useRef(0);
@@ -114,6 +152,7 @@ function VirtualizedTableBody<T extends Record<string, unknown>>({
     rowVirtualizer.getTotalSize() -
     (virtualRows[virtualRows.length - 1]?.end ?? 0);
   const totalColumns = columns.length + (rowActions ? 1 : 0);
+  const shouldVirtualize = !renderExpandedRow;
 
   useEffect(() => {
     if (!scrollElement) return;
@@ -146,7 +185,7 @@ function VirtualizedTableBody<T extends Record<string, unknown>>({
     }
   }, [data, rowVirtualizer, scrollElement]);
 
-  if (virtualRows.length === 0) {
+  if (!shouldVirtualize || virtualRows.length === 0) {
     return (
       <tbody className="bg-white">
         {data.map((row, index) => (
@@ -157,6 +196,10 @@ function VirtualizedTableBody<T extends Record<string, unknown>>({
             columns={columns}
             getRowId={getRowId}
             rowActions={rowActions}
+            expandedRowIds={expandedRowIds}
+            onRowClick={onRowClick}
+            getRowClassName={getRowClassName}
+            renderExpandedRow={renderExpandedRow}
           />
         ))}
       </tbody>
@@ -184,6 +227,10 @@ function VirtualizedTableBody<T extends Record<string, unknown>>({
             columns={columns}
             getRowId={getRowId}
             rowActions={rowActions}
+            expandedRowIds={expandedRowIds}
+            onRowClick={onRowClick}
+            getRowClassName={getRowClassName}
+            renderExpandedRow={renderExpandedRow}
             measureElement={(node) => rowVirtualizer.measureElement(node)}
           />
         );

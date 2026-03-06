@@ -1,62 +1,49 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAuditLogs } from "../api/auditApi";
-import type { AuditAction, AuditLog } from "../types/audit";
 
-type SortDirection = "asc" | "desc";
-
-function toAuditAction(action: string): AuditAction {
-  if (
-    action === "LOGIN" ||
-    action === "VIEW_TRANSACTIONS" ||
-    action === "EXPORT_DATA" ||
-    action === "CHANGE_CONFIG" ||
-    action === "FILTER_APPLIED"
-  ) {
-    return action;
-  }
-
-  return "VIEW_TRANSACTIONS";
-}
+const ALLOWED_PAGE_LIMITS = [20, 50, 100] as const;
 
 export function useAuditQuery(searchParams: URLSearchParams) {
-  const sortKey = searchParams.get("sort");
-  const direction = searchParams.get("dir") as SortDirection | null;
+  const page = useMemo(() => {
+    const raw = Number(searchParams.get("page") ?? "1");
+    return Number.isInteger(raw) && raw > 0 ? raw : 1;
+  }, [searchParams]);
 
-  const sorting =
-    sortKey && direction
-      ? { key: (sortKey === "createdAt" ? "timestamp" : sortKey) as keyof AuditLog, direction }
-      : null;
+  const limit = useMemo(() => {
+    const raw = Number(searchParams.get("limit") ?? "20");
+    return ALLOWED_PAGE_LIMITS.includes(raw as (typeof ALLOWED_PAGE_LIMITS)[number])
+      ? raw
+      : 20;
+  }, [searchParams]);
 
   const query = useQuery({
-    queryKey: ["audit-logs", searchParams.toString()],
+    queryKey: ["auditLogs", searchParams.toString()],
     queryFn: () =>
       fetchAuditLogs({
-        search: searchParams.get("search") || undefined,
-        action: searchParams.get("action") || undefined,
+        page,
+        limit,
         from: searchParams.get("from") || undefined,
         to: searchParams.get("to") || undefined,
-        page: Number(searchParams.get("page") || 1),
-        limit: 20,
-        sort: searchParams.get("sort") === "action" ? "action" : "createdAt",
-        dir: direction || "desc",
+        userId: searchParams.get("userId") || undefined,
+        action: searchParams.get("action") || undefined,
+        entity: searchParams.get("entity") || undefined,
+        search: searchParams.get("search") || undefined,
+        sort: "createdAt",
+        dir: (searchParams.get("dir") as "asc" | "desc" | null) || "desc",
       }),
+    placeholderData: (prev) => prev,
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
   });
 
-  const data =
-    query.data?.data.map((row) => ({
-      id: row.id,
-      actor: row.user?.email ?? "System",
-      role: row.user?.role ?? "System",
-      action: toAuditAction(row.action),
-      entity: row.entityId ?? undefined,
-      timestamp: row.createdAt,
-      metadata: row.meta ? { raw: row.meta } : undefined,
-    })) ?? [];
-
   return {
-    data,
+    data: query.data?.data ?? [],
+    meta: query.data?.meta,
+    page,
+    limit,
     isLoading: query.isLoading,
+    isFetching: query.isFetching,
     isError: query.isError,
-    sorting,
   };
 }

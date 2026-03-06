@@ -86,14 +86,14 @@ const auditResponse = {
   data: [
     {
       id: "audit-1",
-      action: "VIEW_TRANSACTIONS",
+      action: "CREATE_TRANSACTION",
+      entity: "TRANSACTION",
       entityId: "txn-1",
-      meta: null,
+      userId: "test-user",
+      userEmail: "admin@example.com",
+      before: null,
+      after: { id: "txn-1" },
       createdAt: "2026-01-15T10:00:00.000Z",
-      user: {
-        email: "admin@example.com",
-        role: "ADMIN",
-      },
     },
   ],
   meta: {

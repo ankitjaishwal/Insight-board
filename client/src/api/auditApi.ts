@@ -1,30 +1,21 @@
 import { fetchWithAuth } from "./fetchWithAuth";
+import type { AuditLog } from "../types/audit";
 
 export type FetchAuditLogsParams = {
-  search?: string;
-  action?: string;
-  from?: string;
-  to?: string;
   page?: number;
   limit?: number;
-  sort?: "createdAt" | "action";
+  from?: string;
+  to?: string;
+  userId?: string;
+  action?: string;
+  entity?: string;
+  search?: string;
+  sort?: "createdAt";
   dir?: "asc" | "desc";
 };
 
-type AuditApiRow = {
-  id: string;
-  action: string;
-  entityId?: string | null;
-  meta?: string | null;
-  createdAt: string;
-  user?: {
-    email?: string | null;
-    role?: string | null;
-  } | null;
-};
-
 export type FetchAuditLogsResponse = {
-  data: AuditApiRow[];
+  data: AuditLog[];
   meta: {
     total: number;
     page: number;

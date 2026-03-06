@@ -87,13 +87,15 @@ async function main() {
     await prisma.auditLog.create({
       data: {
         action: "VIEW_TRANSACTION",
-        entity: "Transaction",
+        entity: "TRANSACTION",
         entityId: transactions[i].id,
-        meta: JSON.stringify({
+        userId: user.id,
+        userEmail: user.email,
+        before: null,
+        after: JSON.stringify({
           ip: "127.0.0.1",
           browser: "Chrome",
         }),
-        userId: user.id,
       },
     });
   }
