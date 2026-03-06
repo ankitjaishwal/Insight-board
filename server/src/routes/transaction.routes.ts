@@ -4,18 +4,21 @@ import { transactionQuerySchema } from "../validators/transactionQuery";
 import { AuthRequest, requireAuth } from "../middleware/auth";
 import { requireRole } from "../middleware/auth";
 import { validateCreate, validateUpdate } from "../utils/validateTransaction";
+import { ApiError } from "../utils/apiError";
 
 const router = Router();
 
-router.get("/", requireAuth, async (req, res) => {
+router.get("/", requireAuth, async (req, res, next) => {
   try {
     const parsed = transactionQuerySchema.safeParse(req.query);
 
     if (!parsed.success) {
-      return res.status(400).json({
-        error: "Invalid query params",
-        details: parsed.error.flatten(),
-      });
+      throw new ApiError(
+        400,
+        "VALIDATION_ERROR",
+        "Invalid query params",
+        parsed.error.flatten(),
+      );
     }
 
     const {
@@ -101,11 +104,7 @@ router.get("/", requireAuth, async (req, res) => {
       },
     });
   } catch (err) {
-    console.error(err);
-
-    res.status(500).json({
-      error: "Failed to fetch transactions",
-    });
+    next(err);
   }
 });
 
@@ -113,15 +112,17 @@ router.post(
   "/",
   requireAuth,
   requireRole(["ADMIN", "OPS"]),
-  async (req: AuthRequest, res) => {
+  async (req: AuthRequest, res, next) => {
     try {
       const parsed = validateCreate(req.body);
 
       if (!parsed.ok) {
-        return res.status(400).json({
-          error: parsed.error.message,
-          details: parsed.error.details,
-        });
+        throw new ApiError(
+          400,
+          "VALIDATION_ERROR",
+          parsed.error.message,
+          parsed.error.details,
+        );
       }
 
       const { userName, amount, date, status } = parsed.data;
@@ -132,7 +133,7 @@ router.post(
       });
 
       if (!auditUser) {
-        return res.status(401).json({ error: "Unauthorized" });
+        throw new ApiError(401, "UNAUTHORIZED", "Unauthorized");
       }
 
       const result = await prisma.$transaction(async (tx) => {
@@ -164,11 +165,7 @@ router.post(
 
       return res.status(201).json(result);
     } catch (err) {
-      console.error(err);
-
-      return res.status(500).json({
-        error: "Failed to create transaction",
-      });
+      return next(err);
     }
   },
 );
@@ -177,15 +174,17 @@ router.put(
   "/:id",
   requireAuth,
   requireRole(["ADMIN", "OPS"]),
-  async (req: AuthRequest, res) => {
+  async (req: AuthRequest, res, next) => {
     try {
       const parsed = validateUpdate(req.body);
 
       if (!parsed.ok) {
-        return res.status(400).json({
-          error: parsed.error.message,
-          details: parsed.error.details,
-        });
+        throw new ApiError(
+          400,
+          "VALIDATION_ERROR",
+          parsed.error.message,
+          parsed.error.details,
+        );
       }
 
       const userId = req.user!.userId;
@@ -196,7 +195,7 @@ router.put(
       });
 
       if (!auditUser) {
-        return res.status(401).json({ error: "Unauthorized" });
+        throw new ApiError(401, "UNAUTHORIZED", "Unauthorized");
       }
 
       const updated = await prisma.$transaction(async (tx) => {
@@ -244,16 +243,12 @@ router.put(
       });
 
       if (!updated) {
-        return res.status(404).json({ error: "Transaction not found" });
+        throw new ApiError(404, "NOT_FOUND", "Transaction not found");
       }
 
       return res.json(updated);
     } catch (err) {
-      console.error(err);
-
-      return res.status(500).json({
-        error: "Failed to update transaction",
-      });
+      return next(err);
     }
   },
 );
@@ -262,7 +257,7 @@ router.delete(
   "/:id",
   requireAuth,
   requireRole(["ADMIN"]),
-  async (req: AuthRequest, res) => {
+  async (req: AuthRequest, res, next) => {
     try {
       const userId = req.user!.userId;
       const id = String(req.params.id);
@@ -272,7 +267,7 @@ router.delete(
       });
 
       if (!auditUser) {
-        return res.status(401).json({ error: "Unauthorized" });
+        throw new ApiError(401, "UNAUTHORIZED", "Unauthorized");
       }
 
       const deleted = await prisma.$transaction(async (tx) => {
@@ -304,16 +299,12 @@ router.delete(
       });
 
       if (!deleted) {
-        return res.status(404).json({ error: "Transaction not found" });
+        throw new ApiError(404, "NOT_FOUND", "Transaction not found");
       }
 
       return res.json({ message: "Transaction deleted successfully" });
     } catch (err) {
-      console.error(err);
-
-      return res.status(500).json({
-        error: "Failed to delete transaction",
-      });
+      return next(err);
     }
   },
 );

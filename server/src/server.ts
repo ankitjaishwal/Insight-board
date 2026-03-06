@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth.router";
 import presetsRoutes from "./routes/presets.routes";
 import adminRoutes from "./routes/admin.routes";
 import { ensureDemoUser } from "./bootstrap/ensureDemoUser";
+import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use("/api/audit-logs", auditRoutes);
 app.use("/api/overview", overviewRoutes);
 app.use("/api/presets", presetsRoutes);
 app.use("/api/admin", adminRoutes);
+app.use(errorHandler);
 
 ensureDemoUser()
   .then(() => {

@@ -3,6 +3,7 @@ import { prisma } from "../db";
 import { auditQuerySchema } from "../validators/auditQuery";
 import { requireAuth, requireRole } from "../middleware/auth";
 import type { Prisma } from "@prisma/client";
+import { ApiError } from "../utils/apiError";
 
 const router = Router();
 
@@ -16,15 +17,17 @@ function parseJson(value: string | null): unknown | null {
   }
 }
 
-router.get("/", requireAuth, requireRole(["ADMIN"]), async (req, res) => {
+router.get("/", requireAuth, requireRole(["ADMIN"]), async (req, res, next) => {
   try {
     const parsed = auditQuerySchema.safeParse(req.query);
 
     if (!parsed.success) {
-      return res.status(400).json({
-        error: "Invalid query params",
-        details: parsed.error.flatten(),
-      });
+      throw new ApiError(
+        400,
+        "VALIDATION_ERROR",
+        "Invalid query params",
+        parsed.error.flatten(),
+      );
     }
 
     const {
@@ -90,8 +93,7 @@ router.get("/", requireAuth, requireRole(["ADMIN"]), async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Failed to fetch audit logs" });
+    return next(error);
   }
 });
 

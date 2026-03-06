@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { ApiError } from "../utils/apiError";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -14,13 +15,13 @@ export interface AuthRequest extends Request {
 
 export function requireAuth(
   req: AuthRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction,
 ) {
   const header = req.headers.authorization;
 
   if (!header || !header.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Missing token" });
+    return next(new ApiError(401, "UNAUTHORIZED", "Missing token"));
   }
 
   const token = header.replace("Bearer ", "");
@@ -30,18 +31,18 @@ export function requireAuth(
     req.user = decoded;
     next();
   } catch (err) {
-    return res.status(401).json({ error: "Invalid token" + err });
+    return next(new ApiError(401, "UNAUTHORIZED", "Invalid token"));
   }
 }
 
 export function requireRole(allowedRoles: string[]) {
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
+  return (req: AuthRequest, _res: Response, next: NextFunction) => {
     if (!req.user) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return next(new ApiError(401, "UNAUTHORIZED", "Unauthorized"));
     }
 
     if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ error: "Forbidden" });
+      return next(new ApiError(403, "FORBIDDEN", "Forbidden"));
     }
 
     next();
@@ -50,15 +51,15 @@ export function requireRole(allowedRoles: string[]) {
 
 export function requireAdmin(
   req: AuthRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction,
 ) {
   if (!req.user) {
-    return res.status(401).json({ error: "Unauthorized" });
+    return next(new ApiError(401, "UNAUTHORIZED", "Unauthorized"));
   }
 
   if (req.user.role !== "ADMIN") {
-    return res.status(403).json({ error: "Forbidden" });
+    return next(new ApiError(403, "FORBIDDEN", "Forbidden"));
   }
 
   next();

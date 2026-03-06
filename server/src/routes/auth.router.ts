@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { prisma } from "../db";
 import { requireAuth, type AuthRequest } from "../middleware/auth";
+import { ApiError } from "../utils/apiError";
 
 const router = express.Router();
 
@@ -14,12 +15,12 @@ if (!JWT_SECRET) {
 
 // routes...
 
-router.post("/register", async (req, res) => {
+router.post("/register", async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ error: "Missing fields" });
+      throw new ApiError(400, "VALIDATION_ERROR", "Missing fields");
     }
 
     const existing = await prisma.user.findUnique({
@@ -27,7 +28,7 @@ router.post("/register", async (req, res) => {
     });
 
     if (existing) {
-      return res.status(409).json({ error: "User already exists" });
+      throw new ApiError(409, "CONFLICT", "User already exists");
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -48,17 +49,16 @@ router.post("/register", async (req, res) => {
       role: user.role,
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Registration failed" });
+    next(err);
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ error: "Missing fields" });
+      throw new ApiError(400, "VALIDATION_ERROR", "Missing fields");
     }
 
     const user = await prisma.user.findUnique({
@@ -66,13 +66,13 @@ router.post("/login", async (req, res) => {
     });
 
     if (!user || !user.passwordHash) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      throw new ApiError(401, "UNAUTHORIZED", "Invalid credentials");
     }
 
     const valid = await bcrypt.compare(password, user.passwordHash);
 
     if (!valid) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      throw new ApiError(401, "UNAUTHORIZED", "Invalid credentials");
     }
 
     const token = jwt.sign(
@@ -94,17 +94,16 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Login failed" });
+    next(err);
   }
 });
 
-router.get("/me", requireAuth, async (req: AuthRequest, res) => {
+router.get("/me", requireAuth, async (req: AuthRequest, res, next) => {
   try {
     const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      throw new ApiError(401, "UNAUTHORIZED", "Unauthorized");
     }
 
     const user = await prisma.user.findUnique({
@@ -118,13 +117,12 @@ router.get("/me", requireAuth, async (req: AuthRequest, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      throw new ApiError(404, "NOT_FOUND", "User not found");
     }
 
     return res.json(user);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Failed to fetch user" });
+    return next(err);
   }
 });
 
