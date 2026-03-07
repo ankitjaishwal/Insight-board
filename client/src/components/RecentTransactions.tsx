@@ -11,7 +11,7 @@ type Props = {
 const RecentTransactions = ({ transactions = [] }: Props) => {
   if (!transactions.length) {
     return (
-      <div className="flex items-center justify-center h-full text-sm text-gray-500">
+      <div className="flex h-full items-center justify-center text-sm text-slate-500 dark:text-slate-400">
         No recent transactions.
       </div>
     );
@@ -29,19 +29,19 @@ const RecentTransactions = ({ transactions = [] }: Props) => {
         return (
           <div
             key={txn.id}
-            className="flex justify-between items-center pb-4 border-b border-gray-100 last:border-0"
+            className="flex items-center justify-between border-b border-slate-100 pb-4 last:border-0 dark:border-slate-800"
           >
             <div>
-              <p className="text-sm font-medium text-gray-800">
+              <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
                 {txn.userName}
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {new Date(txn.date).toLocaleDateString()}
               </p>
             </div>
 
             <div className="text-right">
-              <p className="text-sm font-semibold">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                 ₹{txn.amount.toLocaleString()}
               </p>
               <p className={`text-xs ${statusColor}`}>{txn.status}</p>

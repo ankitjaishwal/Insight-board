@@ -23,7 +23,6 @@ const Overview = ({
 
   return (
     <div className="mt-8 space-y-8">
-      {/* KPI GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
         {(Object.keys(overviewMetricRegistry) as OverviewMetricKey[]).map(
           (key) => {
@@ -41,54 +40,56 @@ const Overview = ({
             return (
               <div
                 key={key}
-                className={`rounded-xl p-6 transition-all duration-200 cursor-pointer ${
+                className={`cursor-pointer rounded-lg p-6 transition-all duration-200 ${
                   isPrimary
-                    ? "bg-linear-to-br from-indigo-600 to-indigo-500 text-white shadow-lg"
-                    : "bg-white border border-gray-200 shadow-sm hover:shadow-md"
+                    ? "bg-linear-to-br from-blue-600 via-indigo-600 to-violet-600 text-white shadow-lg hover:-translate-y-1 hover:shadow-xl"
+                    : "border border-slate-200 bg-white shadow-sm hover:-translate-y-1 hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
                 }`}
                 onClick={() => navigate("/transactions")}
               >
                 <p
-                  className={`text-xs uppercase tracking-wide ${
-                    isPrimary ? "text-indigo-100" : "text-gray-500"
+                  className={`text-xs uppercase tracking-[0.2em] ${
+                    isPrimary
+                      ? "text-blue-100"
+                      : "text-slate-500 dark:text-slate-400"
                   }`}
                 >
                   {metric.label}
                 </p>
 
-                <p className="text-3xl font-bold mt-3">{value}</p>
+                <p
+                  className={`mt-3 font-bold tracking-tight ${isPrimary ? "text-4xl" : "text-3xl text-slate-900 dark:text-slate-100"}`}
+                >
+                  {value}
+                </p>
               </div>
             );
           },
         )}
       </div>
 
-      {/* Trend + Recent */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-        {/* Trend */}
-        <div className="xl:col-span-3 bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-          <h2 className="text-base font-semibold text-gray-900 mb-5">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+        <div className="surface-card lg:col-span-3">
+          <h2 className="mb-5 text-base font-semibold text-slate-900 dark:text-slate-100">
             Last 7 Days Trend
           </h2>
           <TrendChart data={overview.last7DaysTransactions} />
         </div>
 
-        {/* Recent */}
-        <div className="xl:col-span-1 bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-          <h2 className="text-base font-semibold text-gray-900 mb-5">
+        <div className="surface-card">
+          <h2 className="mb-5 text-base font-semibold text-slate-900 dark:text-slate-100">
             Recent Activity
           </h2>
           <RecentTransactions transactions={overview.recentTransactions} />
         </div>
       </div>
 
-      {/* Status Breakdown */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-        <h2 className="text-base font-semibold text-gray-900 mb-5">
+      <div className="surface-card">
+        <h2 className="mb-5 text-base font-semibold text-slate-900 dark:text-slate-100">
           Status Breakdown
         </h2>
 
-        <div className="max-w-xl mx-auto h-[260px]">
+        <div className="mx-auto h-[260px] max-w-3xl">
           <ChartComponent data={chartData} />
         </div>
       </div>

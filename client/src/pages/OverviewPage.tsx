@@ -2,6 +2,7 @@ import Overview from "../components/Overview";
 import { useOutletContext } from "react-router-dom";
 import { useOverviewQuery } from "../hooks/useOverviewQuery";
 import type { DashboardConfig, RouteConfig } from "../config/app.config";
+import { OverviewSkeleton } from "../components/LoadingSkeletons";
 
 const OverviewPage = () => {
   const { config, activeRoute } = useOutletContext<{
@@ -12,16 +13,12 @@ const OverviewPage = () => {
   const { data, isLoading, isError, error } = useOverviewQuery();
 
   if (isLoading) {
-    return (
-      <p className="text-gray-500 flex items-center justify-center h-full">
-        Loading overview...
-      </p>
-    );
+    return <OverviewSkeleton />;
   }
 
   if (isError) {
     return (
-      <p className="text-red-600 flex items-center justify-center h-full">
+      <p className="flex h-full items-center justify-center text-red-600">
         {error}
       </p>
     );
@@ -30,8 +27,8 @@ const OverviewPage = () => {
   if (!data) return null;
 
   return (
-    <>
-      <h1 className="text-2xl font-semibold text-gray-900 mb-8">
+      <>
+      <h1 className="mb-8 text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
         {activeRoute.label}
       </h1>
 

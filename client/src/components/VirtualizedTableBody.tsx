@@ -55,7 +55,7 @@ function VirtualizedRowBase<T extends Record<string, unknown>>({
       <tr
         key={rowId}
         ref={measureElement}
-        className={`border-b border-gray-100 last:border-0 ${onRowClick ? "cursor-pointer hover:bg-gray-50" : "hover:bg-gray-50"} ${rowClassName}`}
+        className={`border-b border-slate-100 last:border-0 dark:border-slate-800 ${onRowClick ? "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/80" : "hover:bg-slate-50 dark:hover:bg-slate-800/80"} ${rowClassName}`}
         onClick={() => onRowClick?.(row)}
       >
         {columns.map((col) => {
@@ -64,7 +64,7 @@ function VirtualizedRowBase<T extends Record<string, unknown>>({
           return (
             <td
               key={String(col.key)}
-              className={`px-4 py-3 text-sm text-gray-700 ${
+              className={`px-4 py-3 text-sm text-slate-700 dark:text-slate-200 ${
                 col.align === "right" ? "text-right" : ""
               }`}
             >
@@ -78,14 +78,14 @@ function VirtualizedRowBase<T extends Record<string, unknown>>({
         })}
 
         {rowActions && (
-          <td className="px-4 py-3 text-sm text-gray-700 text-right">
+          <td className="px-4 py-3 text-right text-sm text-slate-700 dark:text-slate-200">
             {rowActions(row)}
           </td>
         )}
       </tr>
 
       {isExpanded && renderExpandedRow && (
-        <tr className="border-b border-gray-100 bg-gray-50">
+        <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/70">
           <td
             colSpan={columns.length + (rowActions ? 1 : 0)}
             className="px-4 py-3"
@@ -187,7 +187,7 @@ function VirtualizedTableBody<T extends Record<string, unknown>>({
 
   if (!shouldVirtualize || virtualRows.length === 0) {
     return (
-      <tbody className="bg-white">
+      <tbody className="bg-white dark:bg-slate-900">
         {data.map((row, index) => (
           <MemoizedVirtualizedRow
             key={getRowId ? getRowId(row) : index}
@@ -207,7 +207,7 @@ function VirtualizedTableBody<T extends Record<string, unknown>>({
   }
 
   return (
-    <tbody className="bg-white">
+    <tbody className="bg-white dark:bg-slate-900">
       {topPadding > 0 && (
         <tr aria-hidden="true">
           <td colSpan={totalColumns} style={{ height: `${topPadding}px` }} />

@@ -10,8 +10,8 @@ export const StatusCheckboxes: React.FC<StatusCheckboxesProps> = ({
   onChange,
 }) => {
   return (
-    <div className="flex gap-3 items-center">
-      <span className="text-xs font-medium text-gray-600 whitespace-nowrap">
+    <div className="flex items-center gap-3">
+      <span className="whitespace-nowrap text-xs font-medium text-slate-600 dark:text-slate-300">
         Status:
       </span>
       <div className="flex gap-3">
@@ -24,9 +24,11 @@ export const StatusCheckboxes: React.FC<StatusCheckboxesProps> = ({
               type="checkbox"
               checked={selectedStatuses.includes(status)}
               onChange={(e) => onChange(status, e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+              className="h-4 w-4 cursor-pointer rounded border-slate-300 dark:border-slate-600"
             />
-            <span className="text-sm text-gray-700">{status}</span>
+            <span className="text-sm text-slate-700 dark:text-slate-200">
+              {status}
+            </span>
           </label>
         ))}
       </div>

@@ -6,6 +6,7 @@ import { AuthProvider } from "./context/AuthContext.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastProvider } from "./context/ToastContext.tsx";
 import { AppErrorBoundary } from "./components/errors/AppErrorBoundary.tsx";
+import { ThemeProvider } from "./context/ThemeContext.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,14 +19,16 @@ const queryClient = new QueryClient({
 });
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AppErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <ToastProvider>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </ToastProvider>
-      </QueryClientProvider>
-    </AppErrorBoundary>
+    <ThemeProvider>
+      <AppErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <ToastProvider>
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          </ToastProvider>
+        </QueryClientProvider>
+      </AppErrorBoundary>
+    </ThemeProvider>
   </StrictMode>,
 );

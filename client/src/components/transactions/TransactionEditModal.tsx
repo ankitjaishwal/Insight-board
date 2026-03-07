@@ -8,7 +8,10 @@ import {
   type CreateTransactionFormValues,
 } from "../../forms/transactionCrud.schema";
 import { useToast } from "../../context/ToastContext";
-import { TransactionApiError } from "../../api/transactionApi";
+import {
+  TransactionApiError,
+  type UpdateTransactionPayload,
+} from "../../api/transactionApi";
 
 type TransactionEditModalProps = {
   isOpen: boolean;
@@ -78,7 +81,7 @@ export default function TransactionEditModal({
     try {
       await updateMutation.mutateAsync({
         id: transaction.id,
-        payload: formValues,
+        payload: formValues as unknown as UpdateTransactionPayload,
       });
       showToast("Transaction updated", "success");
       onClose();
@@ -92,22 +95,24 @@ export default function TransactionEditModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-md">
-        <h3 className="text-lg font-semibold mb-4">Edit Transaction</h3>
+    <div className="ui-modal-backdrop">
+      <div className="ui-modal-card">
+        <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">
+          Edit Transaction
+        </h3>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label
               htmlFor="edit-user-name"
-              className="block text-sm text-gray-700 mb-1"
+              className="mb-1 block text-sm text-slate-700 dark:text-slate-200"
             >
               User Name
             </label>
             <input
               id="edit-user-name"
               {...register("userName")}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="ui-input w-full"
             />
             {errors.userName && (
               <p className="text-xs text-red-600 mt-1">
@@ -119,7 +124,7 @@ export default function TransactionEditModal({
           <div>
             <label
               htmlFor="edit-amount"
-              className="block text-sm text-gray-700 mb-1"
+              className="mb-1 block text-sm text-slate-700 dark:text-slate-200"
             >
               Amount
             </label>
@@ -128,7 +133,7 @@ export default function TransactionEditModal({
               type="number"
               step="0.01"
               {...register("amount", { valueAsNumber: true })}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="ui-input w-full"
             />
             {errors.amount && (
               <p className="text-xs text-red-600 mt-1">
@@ -140,14 +145,14 @@ export default function TransactionEditModal({
           <div>
             <label
               htmlFor="edit-date"
-              className="block text-sm text-gray-700 mb-1"
+              className="mb-1 block text-sm text-slate-700 dark:text-slate-200"
             >
               Date (ISO)
             </label>
             <input
               id="edit-date"
               {...register("date")}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="ui-input w-full"
             />
             {errors.date && (
               <p className="text-xs text-red-600 mt-1">{errors.date.message}</p>
@@ -157,14 +162,14 @@ export default function TransactionEditModal({
           <div>
             <label
               htmlFor="edit-status"
-              className="block text-sm text-gray-700 mb-1"
+              className="mb-1 block text-sm text-slate-700 dark:text-slate-200"
             >
               Status
             </label>
             <select
               id="edit-status"
               {...register("status")}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="ui-select w-full"
             >
               <option value="PENDING">Pending</option>
               <option value="COMPLETED">Completed</option>
@@ -190,14 +195,14 @@ export default function TransactionEditModal({
               type="button"
               onClick={onClose}
               disabled={updateMutation.isPending || isSubmitting}
-              className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition disabled:opacity-50"
+              className="ui-button-secondary"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!hasChanges || updateMutation.isPending || isSubmitting}
-              className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="ui-button-primary"
             >
               {updateMutation.isPending || isSubmitting ? "Saving..." : "Save"}
             </button>

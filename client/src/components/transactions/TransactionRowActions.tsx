@@ -20,7 +20,7 @@ export default function TransactionRowActions({
   const canDelete = user?.role === "ADMIN";
 
   if (!canEdit && !canDelete) {
-    return <span className="text-gray-400">-</span>;
+    return <span className="text-slate-400 dark:text-slate-500">-</span>;
   }
 
   const hasId = !!transaction.id;
@@ -31,13 +31,13 @@ export default function TransactionRowActions({
         type="button"
         aria-label="Transaction actions"
         onClick={() => setOpen((prev) => !prev)}
-        className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-100"
+        className="ui-button-secondary px-2 py-1"
       >
         ⋮
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-1 w-28 bg-white border border-gray-200 rounded shadow-md z-30">
+        <div className="absolute right-0 z-30 mt-1 w-28 rounded-lg border border-slate-200 bg-white shadow-md dark:border-slate-700 dark:bg-slate-900">
           {canEdit && (
             <button
               type="button"
@@ -46,7 +46,7 @@ export default function TransactionRowActions({
                 onEdit(transaction);
               }}
               disabled={!hasId}
-              className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+              className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-400 dark:hover:bg-slate-800 dark:disabled:text-slate-500"
             >
               Edit
             </button>
@@ -60,7 +60,7 @@ export default function TransactionRowActions({
                 onDelete(transaction);
               }}
               disabled={!hasId}
-              className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:text-gray-400 disabled:cursor-not-allowed"
+              className="block w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:text-slate-400 dark:text-red-300 dark:hover:bg-red-500/10 dark:disabled:text-slate-500"
             >
               Delete
             </button>

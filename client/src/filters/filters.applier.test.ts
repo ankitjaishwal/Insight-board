@@ -7,28 +7,28 @@ import type { TransactionFilters } from "../types/transactionFilters";
 const mockTransactions: Transaction[] = [
   {
     transactionId: "TX001",
-    user: "Alice",
+    userName: "Alice",
     amount: 150,
     status: Status.Completed,
     date: "2026-01-15",
   },
   {
     transactionId: "TX002",
-    user: "Bob",
+    userName: "Bob",
     amount: 250,
     status: Status.Pending,
     date: "2026-01-20",
   },
   {
     transactionId: "TX003",
-    user: "alice_secondary",
+    userName: "alice_secondary",
     amount: 75,
     status: Status.Failed,
     date: "2026-01-25",
   },
   {
     transactionId: "TX004",
-    user: "Charlie",
+    userName: "Charlie",
     amount: 500,
     status: Status.Completed,
     date: "2026-02-01",
@@ -55,7 +55,7 @@ describe("filters - applyFilters", () => {
       const filters: TransactionFilters = { search: "alice" };
       const result = applyFilters(mockTransactions, filters);
       expect(result).toHaveLength(2);
-      expect(result.every((tx) => tx.user.toLowerCase().includes("alice")));
+      expect(result.every((tx) => tx.userName.toLowerCase().includes("alice")));
     });
 
     it("should filter by single status", () => {

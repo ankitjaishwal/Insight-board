@@ -25,7 +25,7 @@ export const FilterFieldRow: React.FC<FilterFieldRowProps> = ({
     <div className="flex-1">
       <label
         htmlFor={id}
-        className="block text-xs text-gray-600 mb-0.5 font-medium"
+        className="mb-0.5 block text-xs font-medium text-slate-600 dark:text-slate-300"
       >
         {label}
       </label>
@@ -37,15 +37,15 @@ export const FilterFieldRow: React.FC<FilterFieldRowProps> = ({
         onFocus={onFocus}
         onBlur={onBlur}
         placeholder={placeholder}
-        className={`w-full border rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 ${
+        className={`w-full rounded-lg border px-2 py-1 text-xs shadow-sm focus:outline-none focus:ring-2 dark:bg-slate-950 dark:text-slate-100 ${
           error
-            ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-            : "border-gray-300 focus:ring-blue-500"
+            ? "border-red-300 focus:border-red-500 focus:ring-red-500 dark:border-red-500/40"
+            : "border-slate-200 focus:ring-blue-500 dark:border-slate-700"
         }`}
       />
       <div className="h-4 mt-0.5">
         {error && (
-          <p className="text-xs text-red-600 flex items-center gap-0.5">
+          <p className="flex items-center gap-0.5 text-xs text-red-600">
             <span>⚠</span>
             {error}
           </p>

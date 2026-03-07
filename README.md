@@ -1,115 +1,102 @@
 # Insight Board
 
-Production-grade analytics dashboard built with React, TypeScript, Express, and Prisma.
+Insight Board is a full-stack analytics dashboard for transaction monitoring, audit visibility, and demo-friendly admin workflows. The project combines a React frontend optimized for large datasets with an Express + Prisma backend that provides authentication, filtering, audit logging, and operational tooling.
 
-Focused on performance, scalability, and real-world dashboard architecture — not just UI.
+## Architecture Overview
 
-⸻
+- `client/`: React 19 + TypeScript SPA built with Vite, React Router, TanStack Query, Tailwind CSS, and virtualized data tables.
+- `server/`: Express + TypeScript API using Prisma ORM and SQLite in development.
+- Shared flow: authenticated frontend requests backend APIs for overview metrics, transactions, presets, audit logs, and demo reset actions.
 
-🚀 Key Highlights
+## Tech Stack
 
-- Server-side filtering & sorting
-- Infinite scroll using useInfiniteQuery
-- Row virtualization with @tanstack/react-virtual
-- JWT authentication with session lifecycle handling
-- Role-based access control (Admin / User)
-- Audit logging system
-- Optimistic updates with React Query
-- UX hardening (skeletons, retry, slow network handling)
+- Frontend: React, TypeScript, Vite, Tailwind CSS, TanStack Query, TanStack Virtual, React Hook Form, Zod, Recharts
+- Backend: Express, TypeScript, Prisma, SQLite, JWT auth, Pino logging, Helmet, express-rate-limit
+- Tooling: Vitest, ESLint
 
-⸻
+## Features
 
-🧠 Architecture Overview
+- JWT-based authentication with protected routes
+- Role-aware UI and API authorization
+- Overview dashboard with KPI cards and charts
+- Virtualized transaction table with infinite scroll
+- Server-side filtering, sorting, and CSV export
+- Audit log history with expandable before/after payloads
+- Saved filter presets
+- Demo mode with admin reset flow
+- Health check endpoint, structured logging, security headers, and rate limiting
+- Dark mode with persisted theme preference
 
-Frontend
+## Demo Credentials
 
-- React + TypeScript
-- React Router
-- TanStack React Query
-- TanStack React Virtual
-- React Hook Form + Zod
-- Tailwind CSS
+- Email: `demo@insightboard.local`
+- Password: `password123`
 
-Backend
+If your local seed/bootstrap differs, check [demo.ts](/Volumes/code/Insight-board/server/src/config/demo.ts) and the demo user bootstrap logic.
 
-- Express
-- Prisma ORM
-- SQLite (dev)
-- JWT-based authentication
-- Role-based middleware
+## Run the Project
 
-⸻
+1. Start the backend:
 
-⚡ Performance Design
-
-- Virtualized table (renders only visible rows)
-- Infinite server pagination
-- Query caching with staleTime
-- Scroll position preservation
-- Memoized row rendering
-- Prevent duplicate fetches
-
-Handles large datasets smoothly (10k+ rows tested).
-
-⸻
-
-🔐 Authentication & Authorization
-
-- Access token with expiry
-- Auto logout on expiration
-- Protected routes
-- Role-based UI and API guards
-- Audit logging for critical actions
-
-⸻
-
-📂 Project Structure
-
-```
-client/
-  components/
-  hooks/
-  api/
-  context/
-
-server/
-  routes/
-  middleware/
-  prisma/
-```
-
-⸻
-
-▶ Run Locally
-
-Backend
-
-```
+```bash
 cd server
 npm install
 npx prisma migrate dev
 npm run dev
 ```
 
-Frontend
+2. Start the frontend in a second terminal:
 
-```
+```bash
 cd client
 npm install
 npm run dev
 ```
 
-🛠 Future Improvements
+3. Open the app:
 
-- Refresh token flow
-- SSO (Google OAuth)
-- WebSocket real-time updates
-- Postgres migration
-- Full test suite
+```text
+http://localhost:5173
+```
 
-⸻
+The API runs on:
 
-👨‍💻 Author
+```text
+http://localhost:4000
+```
 
-Ankit Jaishwal  
-Frontend Engineer
+## Seed the Database
+
+Use Prisma seed support from the backend:
+
+```bash
+cd server
+npm install
+npx prisma db seed
+```
+
+If you want a clean local database first:
+
+```bash
+cd server
+rm -f prisma/dev.db
+npx prisma migrate dev
+npx prisma db seed
+```
+
+## Project Structure
+
+```text
+client/
+  src/components
+  src/context
+  src/hooks
+  src/pages
+  src/api
+
+server/
+  src/routes
+  src/middleware
+  src/utils
+  prisma
+```

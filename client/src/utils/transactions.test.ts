@@ -7,28 +7,28 @@ describe("transactions - deriveStatusBreakdown", () => {
   const transactions: Transaction[] = [
     {
       transactionId: "tx1",
-      user: "Alice",
+      userName: "Alice",
       status: Status.Completed,
       amount: 100,
       date: "2026-02-21",
     },
     {
       transactionId: "tx2",
-      user: "Bob",
+      userName: "Bob",
       status: Status.Completed,
       amount: 50,
       date: "2026-02-21",
     },
     {
       transactionId: "tx3",
-      user: "Charlie",
+      userName: "Charlie",
       status: Status.Pending,
       amount: 75,
       date: "2026-02-21",
     },
     {
       transactionId: "tx4",
-      user: "Dave",
+      userName: "Dave",
       status: Status.Failed,
       amount: 25,
       date: "2026-02-21",
@@ -92,21 +92,21 @@ describe("transactions - applyTransactionFilters", () => {
   const transactions: Transaction[] = [
     {
       transactionId: "tx1",
-      user: "Alice",
+      userName: "Alice",
       status: Status.Completed,
       amount: 100,
       date: "2026-02-21",
     },
     {
       transactionId: "tx2",
-      user: "Bob",
+      userName: "Bob",
       status: Status.Pending,
       amount: 50,
       date: "2026-02-21",
     },
     {
       transactionId: "tx-search",
-      user: "Charlie",
+      userName: "Charlie",
       status: Status.Failed,
       amount: 75,
       date: "2026-02-21",
@@ -130,7 +130,7 @@ describe("transactions - applyTransactionFilters", () => {
         status: "",
       });
       expect(result).toHaveLength(1);
-      expect(result[0].user).toBe("Alice");
+      expect(result[0].userName).toBe("Alice");
     });
 
     it("should filter by status", () => {

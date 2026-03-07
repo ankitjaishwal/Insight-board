@@ -6,7 +6,10 @@ import {
   type CreateTransactionFormValues,
 } from "../../forms/transactionCrud.schema";
 import { useToast } from "../../context/ToastContext";
-import { TransactionApiError } from "../../api/transactionApi";
+import {
+  TransactionApiError,
+  type CreateTransactionPayload,
+} from "../../api/transactionApi";
 
 type TransactionCreateModalProps = {
   isOpen: boolean;
@@ -39,7 +42,7 @@ export default function TransactionCreateModal({
 
   const onSubmit = async (values: CreateTransactionFormValues) => {
     try {
-      await createMutation.mutateAsync(values);
+      await createMutation.mutateAsync(values as unknown as CreateTransactionPayload);
       showToast("Transaction created", "success");
       reset();
       onClose();
@@ -53,22 +56,24 @@ export default function TransactionCreateModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-md">
-        <h3 className="text-lg font-semibold mb-4">Add Transaction</h3>
+    <div className="ui-modal-backdrop">
+      <div className="ui-modal-card">
+        <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">
+          Add Transaction
+        </h3>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label
               htmlFor="create-user-name"
-              className="block text-sm text-gray-700 mb-1"
+              className="mb-1 block text-sm text-slate-700 dark:text-slate-200"
             >
               User Name
             </label>
             <input
               id="create-user-name"
               {...register("userName")}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="ui-input w-full"
             />
             {errors.userName && (
               <p className="text-xs text-red-600 mt-1">
@@ -80,7 +85,7 @@ export default function TransactionCreateModal({
           <div>
             <label
               htmlFor="create-amount"
-              className="block text-sm text-gray-700 mb-1"
+              className="mb-1 block text-sm text-slate-700 dark:text-slate-200"
             >
               Amount
             </label>
@@ -89,7 +94,7 @@ export default function TransactionCreateModal({
               type="number"
               step="0.01"
               {...register("amount", { valueAsNumber: true })}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="ui-input w-full"
             />
             {errors.amount && (
               <p className="text-xs text-red-600 mt-1">
@@ -101,7 +106,7 @@ export default function TransactionCreateModal({
           <div>
             <label
               htmlFor="create-date"
-              className="block text-sm text-gray-700 mb-1"
+              className="mb-1 block text-sm text-slate-700 dark:text-slate-200"
             >
               Date (ISO)
             </label>
@@ -109,7 +114,7 @@ export default function TransactionCreateModal({
               id="create-date"
               {...register("date")}
               placeholder="2026-01-15T10:00:00.000Z"
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="ui-input w-full"
             />
             {errors.date && (
               <p className="text-xs text-red-600 mt-1">{errors.date.message}</p>
@@ -119,14 +124,14 @@ export default function TransactionCreateModal({
           <div>
             <label
               htmlFor="create-status"
-              className="block text-sm text-gray-700 mb-1"
+              className="mb-1 block text-sm text-slate-700 dark:text-slate-200"
             >
               Status
             </label>
             <select
               id="create-status"
               {...register("status")}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="ui-select w-full"
             >
               <option value="PENDING">Pending</option>
               <option value="COMPLETED">Completed</option>
@@ -152,14 +157,14 @@ export default function TransactionCreateModal({
               type="button"
               onClick={onClose}
               disabled={createMutation.isPending || isSubmitting}
-              className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition disabled:opacity-50"
+              className="ui-button-secondary"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={createMutation.isPending || isSubmitting}
-              className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="ui-button-primary"
             >
               {createMutation.isPending || isSubmitting
                 ? "Creating..."

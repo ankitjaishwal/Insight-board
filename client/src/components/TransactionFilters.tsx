@@ -146,8 +146,8 @@ const TransactionFilters: React.FC<Props> = ({
   const hasValidationErrors = Object.values(validationErrors).some(Boolean);
 
   return (
-    <div className="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
-      <div className="flex gap-4 items-center flex-wrap">
+    <div className="surface-panel mb-6">
+      <div className="flex flex-wrap items-center gap-4">
         <div className="relative">
           <input
             id="search"
@@ -157,13 +157,13 @@ const TransactionFilters: React.FC<Props> = ({
             value={search}
             onChange={(e) => updateSearch(e.target.value)}
             placeholder="Search by user/ID"
-            className="border border-gray-300 rounded px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="ui-input pr-8"
           />
           {search && (
             <button
               type="button"
               onClick={() => updateSearch("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition text-base leading-none"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-base leading-none text-slate-400 transition hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
               aria-label="Clear search"
             >
               ✕
@@ -178,10 +178,10 @@ const TransactionFilters: React.FC<Props> = ({
 
         <button
           onClick={() => setIsAdvancedExpanded(!isAdvancedExpanded)}
-          className={`px-3 py-2 text-sm font-medium flex items-center gap-1 rounded transition ${
+          className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition ${
             hasValidationErrors
-              ? "text-red-600 hover:text-red-700 hover:bg-red-50 bg-red-50 border border-red-200"
-              : "text-gray-700 hover:text-gray-900 hover:bg-gray-200"
+              ? "border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300"
+              : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
           }`}
         >
           {hasValidationErrors && <span className="text-lg">⚠</span>}
@@ -208,9 +208,9 @@ const TransactionFilters: React.FC<Props> = ({
       </div>
 
       {shouldShowAdvanced(hasAdvancedFilters) && (
-        <div className="mt-3 border-t border-gray-300 pt-3">
-          <div className="flex gap-3 items-end">
-            <div className="flex gap-1.5 items-start flex-1">
+        <div className="mt-4 border-t border-slate-200 pt-4 dark:border-slate-700">
+          <div className="grid gap-3 lg:grid-cols-2">
+            <div className="flex flex-1 items-start gap-1.5">
               <FilterFieldRow
                 label="From"
                 value={from}
@@ -231,7 +231,7 @@ const TransactionFilters: React.FC<Props> = ({
               />
             </div>
 
-            <div className="flex gap-1.5 items-start flex-1">
+            <div className="flex flex-1 items-start gap-1.5">
               <FilterFieldRow
                 label="Min"
                 value={minAmount}

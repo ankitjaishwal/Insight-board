@@ -40,14 +40,14 @@ export default function AuditFilters() {
   const search = searchParams.get("search") ?? "";
 
   return (
-    <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+    <div className="surface-panel mb-4">
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-6">
         <input
           type="date"
           aria-label="From date"
           value={from}
           onChange={(e) => updateParam(setSearchParams, "from", e.target.value)}
-          className="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+          className="ui-input"
         />
 
         <input
@@ -55,7 +55,7 @@ export default function AuditFilters() {
           aria-label="To date"
           value={to}
           onChange={(e) => updateParam(setSearchParams, "to", e.target.value)}
-          className="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+          className="ui-input"
         />
 
         <input
@@ -64,14 +64,14 @@ export default function AuditFilters() {
           placeholder="User ID / email"
           value={userId}
           onChange={(e) => updateParam(setSearchParams, "userId", e.target.value)}
-          className="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+          className="ui-input"
         />
 
         <select
           aria-label="Action"
           value={action}
           onChange={(e) => updateParam(setSearchParams, "action", e.target.value)}
-          className="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+          className="ui-select"
         >
           <option value="">All actions</option>
           {actionOptions.map((option) => (
@@ -85,7 +85,7 @@ export default function AuditFilters() {
           aria-label="Entity"
           value={entity}
           onChange={(e) => updateParam(setSearchParams, "entity", e.target.value)}
-          className="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+          className="ui-select"
         >
           <option value="">All entities</option>
           {entityOptions.map((option) => (
@@ -101,7 +101,7 @@ export default function AuditFilters() {
           placeholder="Search Entity ID"
           value={search}
           onChange={(e) => updateParam(setSearchParams, "search", e.target.value)}
-          className="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+          className="ui-input"
         />
       </div>
     </div>

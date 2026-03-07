@@ -79,16 +79,15 @@ function DataTable<T extends Record<string, unknown>>({
   return (
     <div
       ref={setScrollElement}
-      className={`w-full border border-gray-200 rounded-md overflow-auto ${maxHeightClassName}`}
+      className={`w-full overflow-auto rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 ${maxHeightClassName}`}
     >
       <table className="w-full border-collapse">
-        {/* Header */}
-        <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">
+        <thead className="sticky top-0 z-10 bg-slate-50 shadow-sm dark:bg-slate-900/95">
           <tr>
             {columns.map((column) => (
               <th
                 key={String(column.key)}
-                className={`px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200 ${
+                className={`border-b border-slate-200 px-4 py-3 text-left text-sm font-medium text-slate-600 dark:border-slate-700 dark:text-slate-300 ${
                   column.align === "right" ? "text-right" : ""
                 } ${
                   column.sortable && onSort
@@ -109,7 +108,7 @@ function DataTable<T extends Record<string, unknown>>({
               </th>
             ))}
             {rowActions && (
-              <th className="px-4 py-3 text-sm font-medium text-gray-700 border-b border-gray-200 text-right">
+              <th className="border-b border-slate-200 px-4 py-3 text-right text-sm font-medium text-slate-600 dark:border-slate-700 dark:text-slate-300">
                 Actions
               </th>
             )}
@@ -117,11 +116,11 @@ function DataTable<T extends Record<string, unknown>>({
         </thead>
 
         {data.length === 0 ? (
-          <tbody className="bg-white">
+          <tbody className="bg-white dark:bg-slate-900">
             <tr>
               <td
                 colSpan={columns.length + (rowActions ? 1 : 0)}
-                className="text-sm text-gray-500 py-6 text-center"
+                className="py-6 text-center text-sm text-slate-500 dark:text-slate-400"
               >
                 No data found.
               </td>
@@ -142,11 +141,11 @@ function DataTable<T extends Record<string, unknown>>({
         )}
 
         {isLoadingMore && data.length > 0 && (
-          <tbody className="bg-white">
+          <tbody className="bg-white dark:bg-slate-900">
             {Array.from({ length: 3 }).map((_, rowIndex) => (
               <tr
                 key={`loading-row-${rowIndex}`}
-                className="border-b border-gray-100"
+                className="border-b border-slate-100 dark:border-slate-800"
                 aria-hidden="true"
               >
                 {columns.map((col) => (
@@ -154,12 +153,12 @@ function DataTable<T extends Record<string, unknown>>({
                     key={`loading-cell-${String(col.key)}-${rowIndex}`}
                     className={`px-4 py-3 ${col.align === "right" ? "text-right" : ""}`}
                   >
-                    <div className="h-4 w-full rounded bg-gray-200 animate-pulse" />
+                    <div className="ui-skeleton h-4 w-full" />
                   </td>
                 ))}
                 {rowActions && (
                   <td className="px-4 py-3 text-right">
-                    <div className="ml-auto h-4 w-8 rounded bg-gray-200 animate-pulse" />
+                    <div className="ui-skeleton ml-auto h-4 w-8" />
                   </td>
                 )}
               </tr>

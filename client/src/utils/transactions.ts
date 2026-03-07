@@ -25,7 +25,7 @@ export function applyTransactionFilters(
     const matchesSearch =
       !search ||
       t.transactionId.includes(search) ||
-      t.user.toLowerCase().includes(search.toLowerCase());
+      t.userName.toLowerCase().includes(search.toLowerCase());
 
     const matchesStatus =
       !filters.status ||

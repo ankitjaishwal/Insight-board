@@ -17,6 +17,7 @@ import TransactionEditModal from "../components/transactions/TransactionEditModa
 import TransactionDeleteDialog from "../components/transactions/TransactionDeleteDialog";
 import TransactionRowActions from "../components/transactions/TransactionRowActions";
 import { ErrorBoundary } from "../components/errors/ErrorBoundary";
+import { TableSkeleton } from "../components/LoadingSkeletons";
 
 const columns: Column<Transaction>[] = [
   { key: "transactionId", header: "Transaction ID", sortable: true },
@@ -148,8 +149,8 @@ const TransactionsPage = () => {
 
   return (
     <div className="flex-1 min-h-0 flex flex-col">
-      <div className="flex justify-between items-center mb-3">
-        <h1 className="text-xl text-gray-900 font-semibold">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
           {activeRoute.label}
         </h1>
 
@@ -159,14 +160,14 @@ const TransactionsPage = () => {
               exportToCSV(data, columns, `transactions-${Date.now()}.csv`)
             }
             disabled={!data.length}
-            className="px-3 py-2 text-sm border rounded-md bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="ui-button-secondary"
           >
             ⬇ Export CSV
           </button>
           {canCreate && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-3 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
+              className="ui-button-primary"
             >
               + Add Transaction
             </button>
@@ -203,15 +204,15 @@ const TransactionsPage = () => {
         <div className="flex-1 min-h-0 flex flex-col">
           {/* Loading means query is still in-flight. Empty means request finished but no matches. */}
           {isLoading ? (
-            <div className="flex-1 min-h-0 flex items-center justify-center">
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <span className="h-4 w-4 rounded-full border-2 border-gray-300 border-t-blue-600 animate-spin" />
-                Loading transactions...
-              </div>
-            </div>
+            <TableSkeleton rows={8} columns={6} />
           ) : data.length === 0 ? (
-            <div className="flex-1 min-h-0 flex items-center justify-center text-sm text-gray-500 border border-gray-200 rounded-md bg-white">
-              No transactions found
+            <div className="ui-empty-state">
+              <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                No transactions found
+              </p>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                Try adjusting filters or create a new transaction.
+              </p>
             </div>
           ) : (
             <div className="flex-1 min-h-0">
@@ -245,15 +246,20 @@ const TransactionsPage = () => {
           )}
 
           {!hasNextPage && !isLoading && hasLoadedAnyRows && (
-            <p className="text-sm text-gray-500 mt-2 text-center">
+            <p className="mt-2 text-center text-sm text-slate-500 dark:text-slate-400">
               No more results
             </p>
           )}
 
-          <div className="mt-3 flex flex-col gap-3 rounded-md border border-gray-200 bg-white p-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-sm text-gray-700">Total: {total}</div>
+          <div className="surface-card mt-3 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-sm text-slate-700 dark:text-slate-200">
+              Total: {total}
+            </div>
             <div className="flex items-center gap-2">
-              <label htmlFor="page-size" className="text-sm text-gray-600">
+              <label
+                htmlFor="page-size"
+                className="text-sm text-slate-600 dark:text-slate-300"
+              >
                 Rows per page
               </label>
               <select
@@ -268,7 +274,7 @@ const TransactionsPage = () => {
                     return next;
                   });
                 }}
-                className="border border-gray-300 rounded px-2 py-1.5 bg-white text-sm"
+                className="ui-select"
               >
                 <option value={20}>20</option>
                 <option value={50}>50</option>
@@ -280,16 +286,20 @@ const TransactionsPage = () => {
       </ErrorBoundary>
 
       {isFetching && !isLoading && (
-        <p className="text-sm text-gray-500 mt-3">Refreshing transactions...</p>
+        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+          Refreshing transactions...
+        </p>
       )}
       {isError && (
         <p className="text-sm text-red-600 mt-3">Failed to load transactions</p>
       )}
 
       {showSaveModal && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-lg font-semibold mb-4">Save Filter Preset</h3>
+        <div className="ui-modal-backdrop">
+          <div className="ui-modal-card max-w-md">
+            <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">
+              Save Filter Preset
+            </h3>
 
             <input
               type="text"
@@ -299,7 +309,7 @@ const TransactionsPage = () => {
                 if (e.key === "Enter") handleSavePreset(presetName);
               }}
               placeholder="e.g., Completed Today"
-              className="w-full border border-gray-300 rounded px-3 py-2 mb-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="ui-input mb-4 w-full"
               autoFocus
             />
 
@@ -309,7 +319,7 @@ const TransactionsPage = () => {
                   setShowSaveModal(false);
                   setPresetName("");
                 }}
-                className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition"
+                className="ui-button-secondary"
               >
                 Cancel
               </button>
@@ -317,7 +327,7 @@ const TransactionsPage = () => {
               <button
                 onClick={() => handleSavePreset(presetName)}
                 disabled={!presetName.trim() || isCreatingPreset}
-                className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="ui-button-primary"
               >
                 {isCreatingPreset ? "Saving..." : "Save Preset"}
               </button>

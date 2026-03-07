@@ -75,6 +75,27 @@ const overviewResponse = {
   totalTransactions: 128,
   totalRevenue: 99999,
   successRate: 94,
+  failedCount: 8,
+  pendingCount: 20,
+  averageTransactionValue: 780.46,
+  last7DaysTransactions: [
+    { date: "2026-01-09", count: 12 },
+    { date: "2026-01-10", count: 14 },
+    { date: "2026-01-11", count: 18 },
+    { date: "2026-01-12", count: 20 },
+    { date: "2026-01-13", count: 19 },
+    { date: "2026-01-14", count: 22 },
+    { date: "2026-01-15", count: 23 },
+  ],
+  recentTransactions: [
+    {
+      id: "txn-1",
+      userName: "Alice",
+      amount: 120,
+      status: Status.Completed,
+      date: "2026-01-15T00:00:00.000Z",
+    },
+  ],
   statusBreakdown: {
     Completed: 100,
     Pending: 20,
@@ -142,7 +163,7 @@ export async function renderApp(route = "/", options: RenderAppOptions = {}) {
         userName: payload.userName,
         amount: payload.amount,
         date: payload.date,
-        status: payload.status,
+        status: payload.status as Transaction["status"],
       };
       transactionsStore.unshift(created);
       return created;
@@ -156,6 +177,9 @@ export async function renderApp(route = "/", options: RenderAppOptions = {}) {
       transactionsStore[index] = {
         ...transactionsStore[index],
         ...payload,
+        ...(payload.status
+          ? { status: payload.status as Transaction["status"] }
+          : {}),
       };
 
       return transactionsStore[index];

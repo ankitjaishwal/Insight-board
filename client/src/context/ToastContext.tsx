@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 
-type ToastType = "success" | "error";
+type ToastType = "success" | "error" | "warning";
 
 type Toast = {
   id: string;
@@ -25,6 +25,27 @@ const ToastContext = createContext<ToastContextType | null>(null);
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const timersRef = useRef<Record<string, number>>({});
+
+  const toastStyles: Record<
+    ToastType,
+    { icon: string; className: string }
+  > = {
+    success: {
+      icon: "✓",
+      className:
+        "border-emerald-400/40 bg-emerald-600 text-white dark:border-emerald-400/30 dark:bg-emerald-500",
+    },
+    error: {
+      icon: "!",
+      className:
+        "border-red-400/40 bg-red-600 text-white dark:border-red-400/30 dark:bg-red-500",
+    },
+    warning: {
+      icon: "!",
+      className:
+        "border-amber-400/40 bg-amber-500 text-slate-950 dark:border-amber-300/30 dark:bg-amber-400",
+    },
+  };
 
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
@@ -58,15 +79,18 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`px-4 py-3 rounded-md shadow-md text-sm text-white max-w-sm ${
-              toast.type === "success" ? "bg-emerald-600" : "bg-red-600"
-            }`}
+            className={`max-w-sm rounded-lg border px-4 py-3 text-sm shadow-lg ${toastStyles[toast.type].className}`}
             role="status"
           >
             <div className="flex items-center justify-between gap-3">
-              <span>{toast.message}</span>
+              <div className="flex items-center gap-3">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-xs font-bold">
+                  {toastStyles[toast.type].icon}
+                </span>
+                <span>{toast.message}</span>
+              </div>
               <button
-                className="text-white/90 hover:text-white"
+                className="text-current/80 hover:text-current"
                 onClick={() => removeToast(toast.id)}
               >
                 ✕

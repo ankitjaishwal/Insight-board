@@ -11,7 +11,7 @@ export function applyFilters(
       const searchLower = filters.search.toLowerCase();
       const matchesSearch =
         tx.transactionId.toLowerCase().includes(searchLower) ||
-        tx.user.toLowerCase().includes(searchLower);
+        tx.userName.toLowerCase().includes(searchLower);
       if (!matchesSearch) return false;
     }
 

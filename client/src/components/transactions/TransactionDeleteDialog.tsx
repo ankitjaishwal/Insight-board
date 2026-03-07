@@ -36,12 +36,12 @@ export default function TransactionDeleteDialog({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-104">
-        <h3 className="text-lg font-semibold mb-2 text-gray-900">
+    <div className="ui-modal-backdrop">
+      <div className="ui-modal-card max-w-lg">
+        <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
           Delete Transaction
         </h3>
-        <p className="text-sm text-gray-700 mb-2">
+        <p className="mb-2 text-sm text-slate-700 dark:text-slate-200">
           You are about to delete{" "}
           <span className="font-medium">{transaction.transactionId}</span>.
         </p>
@@ -62,7 +62,7 @@ export default function TransactionDeleteDialog({
             type="button"
             onClick={onClose}
             disabled={deleteMutation.isPending}
-            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition disabled:opacity-50"
+            className="ui-button-secondary"
           >
             Cancel
           </button>
@@ -70,7 +70,7 @@ export default function TransactionDeleteDialog({
             type="button"
             onClick={handleDelete}
             disabled={deleteMutation.isPending || !transaction.id}
-            className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded hover:bg-red-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="ui-button-danger"
           >
             {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </button>

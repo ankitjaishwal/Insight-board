@@ -16,6 +16,7 @@ import { DEMO_EMAIL } from "../config/demo";
 import { resetDemoData } from "../api/adminApi";
 import { useToast } from "../context/ToastContext";
 import { reloadPage } from "../utils/browser";
+import { useTheme } from "../context/ThemeContext";
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -23,6 +24,7 @@ const Header = () => {
   const navigate = useNavigate();
   const isDemoAdmin = user?.email === DEMO_EMAIL && user?.role === "ADMIN";
   const [isResettingDemo, setIsResettingDemo] = useState(false);
+  const { currentTheme, toggleTheme } = useTheme();
 
   const handleLogout = () => {
     logout();
@@ -48,30 +50,42 @@ const Header = () => {
   if (!user) return null;
 
   return (
-    <header className="h-14 bg-white border-b flex items-center justify-between px-6">
-      {/* Left */}
-      <div className="text-lg font-semibold text-gray-800">Insight Board</div>
+    <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-6 backdrop-blur dark:border-slate-700 dark:bg-slate-950/90">
+      <div className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+        Insight Board
+      </div>
 
-      {/* Right */}
       <div className="flex items-center gap-4">
         {isDemoAdmin && (
           <button
             onClick={handleResetDemo}
             disabled={isResettingDemo}
-            className="text-sm px-3 py-1.5 rounded border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 disabled:opacity-60"
+            className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-sm text-amber-800 shadow-sm transition hover:bg-amber-100 disabled:opacity-60 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200"
           >
             {isResettingDemo ? "Resetting..." : "Reset Demo"}
           </button>
         )}
 
-        <div className="text-sm text-gray-700">
+        <div className="text-sm text-slate-700 dark:text-slate-200">
           <span className="font-medium">{user.name}</span>
-          <span className="ml-1 text-gray-400">({user.role})</span>
+          <span className="ml-1 text-slate-400 dark:text-slate-500">
+            ({user.role})
+          </span>
         </div>
 
         <button
+          type="button"
+          onClick={toggleTheme}
+          className="ui-button-secondary px-3 py-1.5"
+          aria-label={`Switch to ${currentTheme === "dark" ? "light" : "dark"} mode`}
+          title={`Switch to ${currentTheme === "dark" ? "light" : "dark"} mode`}
+        >
+          {currentTheme === "dark" ? "☀" : "🌙"}
+        </button>
+
+        <button
           onClick={handleLogout}
-          className="text-sm px-3 py-1.5 rounded border hover:bg-gray-100"
+          className="ui-button-secondary px-3 py-1.5"
         >
           Logout
         </button>
@@ -84,7 +98,7 @@ const SideNav = ({ config }: { config: DashboardConfig }) => {
   const canViewAudit = usePermission("audit");
 
   return (
-    <aside className="w-60 shrink-0 border-r border-gray-200 bg-white p-4">
+    <aside className="w-60 shrink-0 border-r border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
       <nav className="flex flex-col gap-2">
         {config.routes.map((navItem) => {
           if (navItem.key === "audit" && !canViewAudit) {
@@ -96,10 +110,10 @@ const SideNav = ({ config }: { config: DashboardConfig }) => {
               key={navItem.key}
               to={navItem.path}
               className={({ isActive }) =>
-                `px-3 py-2 rounded-md text-md ${
+                `rounded-lg px-3 py-2 text-sm transition ${
                   isActive
-                    ? "bg-blue-50 text-blue-500 font-medium"
-                    : "text-gray-700 bg-transparent"
+                    ? "bg-blue-50 font-medium text-blue-700 dark:bg-blue-500/15 dark:text-blue-200"
+                    : "bg-transparent text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
                 }`
               }
             >
@@ -129,14 +143,14 @@ const Layout = () => {
   );
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex h-screen flex-col overflow-hidden bg-slate-100 dark:bg-slate-950">
       {isDemoUser && (
-        <div className="bg-yellow-100 text-yellow-900 px-4 py-2 text-sm border-b border-yellow-300">
+        <div className="border-b border-yellow-300 bg-yellow-100 px-4 py-2 text-sm text-yellow-900 dark:border-yellow-500/40 dark:bg-yellow-500/10 dark:text-yellow-200">
           🟡 Demo Mode — Data may reset anytime
         </div>
       )}
       {sessionMessage && (
-        <div className="bg-amber-100 text-amber-800 px-4 py-2 text-sm flex justify-between items-center">
+        <div className="flex items-center justify-between bg-amber-100 px-4 py-2 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-200">
           <span>{sessionMessage}</span>
 
           <button
@@ -152,8 +166,8 @@ const Layout = () => {
         {/* Sidebar */}
         <SideNav config={config} />
         {/* Main */}
-        <main className="flex-1 min-h-0 overflow-auto p-6 bg-gray-50">
-          <div className="p-6">
+        <main className="flex-1 min-h-0 overflow-auto bg-slate-100 p-6 dark:bg-slate-950">
+          <div className="mx-auto w-full max-w-[1440px] p-0 sm:p-2">
             <Outlet context={{ config, activeRoute }} />
           </div>
         </main>

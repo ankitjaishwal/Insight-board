@@ -13,8 +13,6 @@ const PresetDropdown: React.FC<Props> = ({
   onSelectPreset,
   onSelectCustom,
 }) => {
-  if (presets.length === 0) return null;
-
   const value = activePresetId || "";
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -36,19 +34,15 @@ const PresetDropdown: React.FC<Props> = ({
     <select
       value={value}
       onChange={handleChange}
-      className={`
-        border rounded px-3 py-2 text-sm cursor-pointer
-        focus:outline-none focus:ring-2 focus:ring-blue-500
-        ${
-          activePresetId
-            ? "border-blue-300 bg-blue-50 font-medium"
-            : "border-gray-300 bg-white"
-        }
-      `}
+      className={`ui-select cursor-pointer ${
+        activePresetId
+          ? "border-blue-300 bg-blue-50 font-medium dark:border-blue-500/40 dark:bg-blue-500/10"
+          : ""
+      }`}
     >
       {/* Placeholder (never selectable) */}
       <option value="" disabled>
-        Select preset
+        {presets.length === 0 ? "No saved presets" : "Select preset"}
       </option>
 
       {/* Custom mode */}

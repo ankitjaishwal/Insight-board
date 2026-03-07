@@ -23,15 +23,24 @@ const Chart = ({ data }: Props) => {
         barCategoryGap="20%"
         margin={{ top: 8, right: 16, left: 0, bottom: 0 }}
       >
-        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+        <CartesianGrid
+          vertical={false}
+          strokeDasharray="3 3"
+          stroke="rgba(148, 163, 184, 0.22)"
+        />
         <XAxis
           dataKey="status"
-          tick={{ fontSize: 12 }}
+          tick={{ fontSize: 12, fill: "#94a3b8" }}
           tickLine={false}
           axisLine={false}
         />
-        <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
-        <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} />
+        <YAxis
+          allowDecimals={false}
+          tick={{ fontSize: 12, fill: "#94a3b8" }}
+          tickLine={false}
+          axisLine={false}
+        />
+        <Bar dataKey="count" fill="#2563eb" radius={[8, 8, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );
