@@ -5,6 +5,7 @@ import { prisma } from "../db";
 import { requireAuth, type AuthRequest } from "../middleware/auth";
 import { ApiError } from "../utils/apiError";
 import { validateRequest } from "../middleware/validateRequest";
+import { loginLimiter } from "../middleware/loginLimiter";
 import { loginSchema, registerSchema } from "../schemas/authSchemas";
 
 const router = express.Router();
@@ -55,46 +56,51 @@ router.post(
   },
 );
 
-router.post("/login", validateRequest({ body: loginSchema }), async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
+router.post(
+  "/login",
+  loginLimiter,
+  validateRequest({ body: loginSchema }),
+  async (req, res, next) => {
+    try {
+      const { email, password } = req.body;
 
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
+      const user = await prisma.user.findUnique({
+        where: { email },
+      });
 
-    if (!user || !user.passwordHash) {
-      throw new ApiError(401, "UNAUTHORIZED", "Invalid credentials");
+      if (!user || !user.passwordHash) {
+        throw new ApiError(401, "UNAUTHORIZED", "Invalid credentials");
+      }
+
+      const valid = await bcrypt.compare(password, user.passwordHash);
+
+      if (!valid) {
+        throw new ApiError(401, "UNAUTHORIZED", "Invalid credentials");
+      }
+
+      const token = jwt.sign(
+        {
+          userId: user.id,
+          role: user.role,
+        },
+        JWT_SECRET,
+        { expiresIn: "1d" },
+      );
+
+      res.json({
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+      });
+    } catch (err) {
+      next(err);
     }
-
-    const valid = await bcrypt.compare(password, user.passwordHash);
-
-    if (!valid) {
-      throw new ApiError(401, "UNAUTHORIZED", "Invalid credentials");
-    }
-
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        role: user.role,
-      },
-      JWT_SECRET,
-      { expiresIn: "1d" },
-    );
-
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  } catch (err) {
-    next(err);
-  }
-});
+  },
+);
 
 router.get("/me", requireAuth, async (req: AuthRequest, res, next) => {
   try {

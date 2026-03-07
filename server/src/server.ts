@@ -8,11 +8,15 @@ import presetsRoutes from "./routes/presets.routes";
 import adminRoutes from "./routes/admin.routes";
 import { ensureDemoUser } from "./bootstrap/ensureDemoUser";
 import { errorHandler } from "./middleware/errorHandler";
+import { apiLimiter } from "./middleware/rateLimiter";
+import { securityHeaders } from "./middleware/securityHeaders";
 
 const app = express();
 
+app.use(securityHeaders);
 app.use(cors());
 app.use(express.json());
+app.use("/api", apiLimiter);
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/audit-logs", auditRoutes);
