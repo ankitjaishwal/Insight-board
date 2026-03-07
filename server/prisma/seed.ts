@@ -4,20 +4,28 @@ import { DEMO_EMAIL, DEMO_PASSWORD, DEMO_ROLE } from "../src/config/demo";
 
 const prisma = new PrismaClient();
 
-async function main() {
+async function seed() {
   console.log("🌱 Seeding database...");
+
   const defaultPasswordHash = await bcrypt.hash("password123", 10);
   const demoPasswordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
 
-  // Clear existing data
+  /* -----------------------------
+     CLEAN DATA
+  ----------------------------- */
+
   await prisma.filterPreset.deleteMany();
   await prisma.auditLog.deleteMany();
   await prisma.transaction.deleteMany();
-  await prisma.user.deleteMany();
 
-  // Create users
-  const admin = await prisma.user.create({
-    data: {
+  /* -----------------------------
+     UPSERT USERS
+  ----------------------------- */
+
+  const admin = await prisma.user.upsert({
+    where: { email: "admin@test.com" },
+    update: {},
+    create: {
       email: "admin@test.com",
       name: "Admin",
       passwordHash: defaultPasswordHash,
@@ -25,8 +33,10 @@ async function main() {
     },
   });
 
-  const ops = await prisma.user.create({
-    data: {
+  const ops = await prisma.user.upsert({
+    where: { email: "ops@test.com" },
+    update: {},
+    create: {
       email: "ops@test.com",
       name: "Ops User",
       passwordHash: defaultPasswordHash,
@@ -34,8 +44,10 @@ async function main() {
     },
   });
 
-  const finance = await prisma.user.create({
-    data: {
+  const finance = await prisma.user.upsert({
+    where: { email: "finance@test.com" },
+    update: {},
+    create: {
       email: "finance@test.com",
       name: "Finance User",
       passwordHash: defaultPasswordHash,
@@ -43,8 +55,10 @@ async function main() {
     },
   });
 
-  await prisma.user.create({
-    data: {
+  await prisma.user.upsert({
+    where: { email: DEMO_EMAIL },
+    update: {},
+    create: {
       email: DEMO_EMAIL,
       name: "Demo Admin",
       passwordHash: demoPasswordHash,
@@ -54,60 +68,78 @@ async function main() {
 
   const users = [admin, ops, finance];
 
-  // Status pool
+  /* -----------------------------
+     TRANSACTIONS
+  ----------------------------- */
+
   const statuses = ["COMPLETED", "PENDING", "FAILED"] as const;
 
-  // Create transactions
-  const transactions = [];
+  const transactionData = [];
 
-  for (let i = 1; i <= 120; i++) {
-    const user = users[i % users.length];
-    const status = statuses[i % statuses.length];
+  for (let i = 1; i <= 10000; i++) {
+    const user = users[(i - 1) % users.length];
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
 
-    const tx = await prisma.transaction.create({
-      data: {
-        transactionId: `TX-${1000 + i}`,
-        userName: user.name || "User",
-        status,
-        amount: Math.floor(Math.random() * 9000) + 100,
-        date: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 30), // last 30 days
-        user: {
-          connect: { id: user.id },
-        },
-      },
-    });
-
-    transactions.push(tx);
-  }
-
-  // Create audit logs
-  for (let i = 0; i < 50; i++) {
-    const user = users[i % users.length];
-
-    await prisma.auditLog.create({
-      data: {
-        action: "VIEW_TRANSACTION",
-        entity: "TRANSACTION",
-        entityId: transactions[i].id,
-        userId: user.id,
-        userEmail: user.email,
-        before: null,
-        after: JSON.stringify({
-          ip: "127.0.0.1",
-          browser: "Chrome",
-        }),
-      },
+    transactionData.push({
+      transactionId: `TX-${100000 + i}`,
+      userName: user.name || "User",
+      status,
+      amount: Math.floor(Math.random() * 50000) + 100,
+      date: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 30),
+      userId: user.id,
     });
   }
 
-  console.log("✅ Seeding complete");
+  await prisma.transaction.createMany({
+    data: transactionData,
+  });
+
+  const transactions = await prisma.transaction.findMany({
+    select: { id: true },
+    take: 500,
+  });
+
+  /* -----------------------------
+     AUDIT LOGS
+  ----------------------------- */
+
+  const auditData = transactions.map((tx, i) => {
+    const user = users[i % users.length];
+
+    return {
+      action: "VIEW_TRANSACTION",
+      entity: "TRANSACTION",
+      entityId: tx.id,
+      userId: user.id,
+      userEmail: user.email,
+      before: null,
+      after: JSON.stringify({
+        ip: "127.0.0.1",
+        browser: "Chrome",
+      }),
+    };
+  });
+
+  await prisma.auditLog.createMany({
+    data: auditData,
+  });
+
+  console.log(`✅ Users ready: ${users.length + 1}`);
+  console.log(`✅ Transactions created: ${transactionData.length}`);
+  console.log(`✅ Audit logs created: ${auditData.length}`);
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
+export async function runSeed() {
+  try {
+    await seed();
+  } catch (e) {
+    console.error("❌ Seed failed", e);
     process.exit(1);
-  })
-  .finally(async () => {
+  } finally {
     await prisma.$disconnect();
-  });
+  }
+}
+
+if (require.main === module) {
+  runSeed();
+}

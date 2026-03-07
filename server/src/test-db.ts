@@ -1,4 +1,5 @@
 import { prisma } from "./db";
+import { logger } from "./utils/logger";
 
 async function test() {
   const tx = await prisma.transaction.create({
@@ -11,10 +12,10 @@ async function test() {
     },
   });
 
-  console.log("Inserted:", tx);
+  logger.info({ transaction: tx }, "Inserted transaction");
 
   const all = await prisma.transaction.findMany();
-  console.log("All:", all);
+  logger.info({ transactions: all }, "Fetched transactions");
 }
 
 test();

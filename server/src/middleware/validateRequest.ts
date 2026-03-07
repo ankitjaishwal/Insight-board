@@ -8,19 +8,40 @@ type RequestSchema = {
   params?: ZodTypeAny;
 };
 
+function setValidatedRequestValue<K extends "body" | "query" | "params">(
+  req: Request,
+  key: K,
+  value: Request[K],
+) {
+  Object.defineProperty(req, key, {
+    value,
+    configurable: true,
+    enumerable: true,
+    writable: true,
+  });
+}
+
 export function validateRequest(schema: RequestSchema) {
   return (req: Request, _res: Response, next: NextFunction) => {
     try {
       if (schema.body) {
-        req.body = schema.body.parse(req.body);
+        setValidatedRequestValue(req, "body", schema.body.parse(req.body));
       }
 
       if (schema.query) {
-        req.query = schema.query.parse(req.query) as Request["query"];
+        setValidatedRequestValue(
+          req,
+          "query",
+          schema.query.parse(req.query) as Request["query"],
+        );
       }
 
       if (schema.params) {
-        req.params = schema.params.parse(req.params) as Request["params"];
+        setValidatedRequestValue(
+          req,
+          "params",
+          schema.params.parse(req.params) as Request["params"],
+        );
       }
 
       return next();

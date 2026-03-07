@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../db";
 import { requireAuth, type AuthRequest } from "../middleware/auth";
+import { logger } from "../utils/logger";
 
 const router = Router();
 
@@ -46,7 +47,7 @@ router.get("/", requireAuth, async (req: AuthRequest, res) => {
 
     return res.json(presets.map(toClientPreset));
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, "Failed to fetch presets");
     return res.status(500).json({ error: "Failed to fetch presets" });
   }
 });
@@ -84,7 +85,7 @@ router.post("/", requireAuth, async (req: AuthRequest, res) => {
       return res.status(409).json({ error: "Preset already exists" });
     }
 
-    console.error(err);
+    logger.error({ err }, "Failed to create preset");
     return res.status(500).json({ error: "Failed to create preset" });
   }
 });
@@ -129,7 +130,7 @@ router.put("/:id", requireAuth, async (req: AuthRequest, res) => {
 
     return res.json(toClientPreset(updated));
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, "Failed to update preset");
     return res.status(500).json({ error: "Failed to update preset" });
   }
 });
@@ -160,7 +161,7 @@ router.delete("/:id", requireAuth, async (req: AuthRequest, res) => {
 
     return res.json({ id: presetId });
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, "Failed to delete preset");
     return res.status(500).json({ error: "Failed to delete preset" });
   }
 });

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../db";
 import { requireAuth } from "../middleware/auth";
+import { logger } from "../utils/logger";
 
 const router = Router();
 
@@ -121,7 +122,7 @@ router.get("/", requireAuth, async (_req, res) => {
       recentTransactions,
     });
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, "Failed to fetch overview");
     res.status(500).json({
       error: "Failed to fetch overview",
     });

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { prisma } from "../db";
 import { requireAuth, requireAdmin } from "../middleware/auth";
 import { DEMO_EMAIL } from "../config/demo";
+import { logger } from "../utils/logger";
 
 const router = Router();
 
@@ -88,7 +89,7 @@ router.post("/reset-demo", requireAuth, requireAdmin, async (_req, res) => {
 
     return res.json({ success: true });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to reset demo data");
     return res.status(500).json({ error: "Failed to reset demo data" });
   }
 });
