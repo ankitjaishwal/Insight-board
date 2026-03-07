@@ -5,6 +5,7 @@ import { vi } from "vitest";
 import { routes } from "../routes";
 import { AuthProvider } from "../context/AuthContext";
 import { ToastProvider } from "../context/ToastContext";
+import { ThemeProvider } from "../context/ThemeContext";
 import * as authApi from "../api/authApi";
 import * as transactionApi from "../api/transactionApi";
 import * as overviewApi from "../api/overviewApi";
@@ -240,13 +241,15 @@ export async function renderApp(route = "/", options: RenderAppOptions = {}) {
   });
 
   const utils = render(
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <AuthProvider>
-          <RouterProvider router={router} />
-        </AuthProvider>
-      </ToastProvider>
-    </QueryClientProvider>,
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <AuthProvider>
+            <RouterProvider router={router} />
+          </AuthProvider>
+        </ToastProvider>
+      </QueryClientProvider>
+    </ThemeProvider>,
   );
 
   await waitFor(() => {
