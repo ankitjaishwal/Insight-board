@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import { prisma } from "../db";
 import { requireAuth, type AuthRequest } from "../middleware/auth";
 import { ApiError } from "../utils/apiError";
+import { validateRequest } from "../middleware/validateRequest";
+import { loginSchema, registerSchema } from "../schemas/authSchemas";
 
 const router = express.Router();
 
@@ -15,13 +17,12 @@ if (!JWT_SECRET) {
 
 // routes...
 
-router.post("/register", async (req, res, next) => {
+router.post(
+  "/register",
+  validateRequest({ body: registerSchema }),
+  async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
-
-    if (!name || !email || !password) {
-      throw new ApiError(400, "VALIDATION_ERROR", "Missing fields");
-    }
 
     const existing = await prisma.user.findUnique({
       where: { email },
@@ -51,15 +52,12 @@ router.post("/register", async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-});
+  },
+);
 
-router.post("/login", async (req, res, next) => {
+router.post("/login", validateRequest({ body: loginSchema }), async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
-    if (!email || !password) {
-      throw new ApiError(400, "VALIDATION_ERROR", "Missing fields");
-    }
 
     const user = await prisma.user.findUnique({
       where: { email },

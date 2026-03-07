@@ -1,26 +1,25 @@
 import { Router } from "express";
 import { prisma } from "../db";
-import { transactionQuerySchema } from "../validators/transactionQuery";
 import { AuthRequest, requireAuth } from "../middleware/auth";
 import { requireRole } from "../middleware/auth";
-import { validateCreate, validateUpdate } from "../utils/validateTransaction";
 import { ApiError } from "../utils/apiError";
+import { validateRequest } from "../middleware/validateRequest";
+import {
+  createTransactionSchema,
+  transactionIdParamsSchema,
+  transactionQuerySchema,
+  updateTransactionSchema,
+  type TransactionQueryInput,
+} from "../schemas/transactionSchemas";
 
 const router = Router();
 
-router.get("/", requireAuth, async (req, res, next) => {
+router.get(
+  "/",
+  requireAuth,
+  validateRequest({ query: transactionQuerySchema }),
+  async (req, res, next) => {
   try {
-    const parsed = transactionQuerySchema.safeParse(req.query);
-
-    if (!parsed.success) {
-      throw new ApiError(
-        400,
-        "VALIDATION_ERROR",
-        "Invalid query params",
-        parsed.error.flatten(),
-      );
-    }
-
     const {
       search,
       status,
@@ -32,7 +31,7 @@ router.get("/", requireAuth, async (req, res, next) => {
       limit = 20,
       sort = "date",
       dir = "desc",
-    } = parsed.data;
+    } = req.query as unknown as TransactionQueryInput;
 
     const where: any = {};
 
@@ -106,26 +105,17 @@ router.get("/", requireAuth, async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-});
+  },
+);
 
 router.post(
   "/",
   requireAuth,
   requireRole(["ADMIN", "OPS"]),
+  validateRequest({ body: createTransactionSchema }),
   async (req: AuthRequest, res, next) => {
     try {
-      const parsed = validateCreate(req.body);
-
-      if (!parsed.ok) {
-        throw new ApiError(
-          400,
-          "VALIDATION_ERROR",
-          parsed.error.message,
-          parsed.error.details,
-        );
-      }
-
-      const { userName, amount, date, status } = parsed.data;
+      const { userName, amount, date, status } = req.body;
       const userId = req.user!.userId;
       const auditUser = await prisma.user.findUnique({
         where: { id: userId },
@@ -174,19 +164,12 @@ router.put(
   "/:id",
   requireAuth,
   requireRole(["ADMIN", "OPS"]),
+  validateRequest({
+    params: transactionIdParamsSchema,
+    body: updateTransactionSchema,
+  }),
   async (req: AuthRequest, res, next) => {
     try {
-      const parsed = validateUpdate(req.body);
-
-      if (!parsed.ok) {
-        throw new ApiError(
-          400,
-          "VALIDATION_ERROR",
-          parsed.error.message,
-          parsed.error.details,
-        );
-      }
-
       const userId = req.user!.userId;
       const id = String(req.params.id);
       const auditUser = await prisma.user.findUnique({
@@ -208,17 +191,17 @@ router.put(
         }
 
         const updateData = {
-          ...(parsed.data.userName !== undefined
-            ? { userName: parsed.data.userName }
+          ...(req.body.userName !== undefined
+            ? { userName: req.body.userName }
             : {}),
-          ...(parsed.data.amount !== undefined
-            ? { amount: parsed.data.amount }
+          ...(req.body.amount !== undefined
+            ? { amount: req.body.amount }
             : {}),
-          ...(parsed.data.status !== undefined
-            ? { status: parsed.data.status }
+          ...(req.body.status !== undefined
+            ? { status: req.body.status }
             : {}),
-          ...(parsed.data.date !== undefined
-            ? { date: new Date(parsed.data.date) }
+          ...(req.body.date !== undefined
+            ? { date: new Date(req.body.date) }
             : {}),
         };
 
@@ -257,6 +240,7 @@ router.delete(
   "/:id",
   requireAuth,
   requireRole(["ADMIN"]),
+  validateRequest({ params: transactionIdParamsSchema }),
   async (req: AuthRequest, res, next) => {
     try {
       const userId = req.user!.userId;
