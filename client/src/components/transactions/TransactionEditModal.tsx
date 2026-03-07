@@ -30,20 +30,11 @@ export default function TransactionEditModal({
   const defaultValues = useMemo<CreateTransactionFormValues | undefined>(() => {
     if (!transaction) return undefined;
 
-    const status =
-      transaction.status === "Pending"
-        ? "PENDING"
-        : transaction.status === "Completed"
-          ? "COMPLETED"
-          : transaction.status === "Failed"
-            ? "FAILED"
-            : (transaction.status as "PENDING" | "COMPLETED" | "FAILED");
-
     return {
       userName: transaction.userName,
       amount: transaction.amount,
       date: transaction.date,
-      status,
+      status: transaction.status,
     };
   }, [transaction]);
 
@@ -64,14 +55,7 @@ export default function TransactionEditModal({
     (values.userName !== transaction.userName ||
       values.amount !== transaction.amount ||
       values.date !== transaction.date ||
-      values.status !==
-        (transaction.status === "Pending"
-          ? "PENDING"
-          : transaction.status === "Completed"
-            ? "COMPLETED"
-            : transaction.status === "Failed"
-              ? "FAILED"
-              : transaction.status));
+      values.status !== transaction.status);
 
   if (!isOpen || !transaction) return null;
 
@@ -79,9 +63,16 @@ export default function TransactionEditModal({
     if (!transaction.id || !hasChanges) return;
 
     try {
+      const payload: UpdateTransactionPayload = {
+        userName: formValues.userName,
+        amount: formValues.amount,
+        date: formValues.date,
+        status: formValues.status,
+      };
+
       await updateMutation.mutateAsync({
         id: transaction.id,
-        payload: formValues as unknown as UpdateTransactionPayload,
+        payload,
       });
       showToast("Transaction updated", "success");
       onClose();

@@ -34,14 +34,15 @@ describe("Transactions CRUD integration", () => {
     expect(await screen.findByText("Bob")).toBeInTheDocument();
   });
 
-  it("edits a transaction from actions menu", async () => {
+  it("edits a transaction from inline row action", async () => {
     const user = userEvent.setup();
 
     await renderApp("/ops/transactions");
     await screen.findByText("txn-1");
 
-    await user.click(screen.getByRole("button", { name: /transaction actions/i }));
-    await user.click(screen.getByRole("button", { name: /^edit$/i }));
+    await user.click(
+      screen.getByRole("button", { name: /edit transaction/i }),
+    );
 
     await user.clear(screen.getByLabelText(/user name/i));
     await user.type(screen.getByLabelText(/user name/i), "Alice Updated");
@@ -60,8 +61,9 @@ describe("Transactions CRUD integration", () => {
     await renderApp("/ops/transactions");
     await screen.findByText("txn-1");
 
-    await user.click(screen.getByRole("button", { name: /transaction actions/i }));
-    await user.click(screen.getByRole("button", { name: /^delete$/i }));
+    await user.click(
+      screen.getByRole("button", { name: /delete transaction/i }),
+    );
 
     const dialog = screen.getByText(/delete transaction/i).closest("div");
     expect(dialog).toBeInTheDocument();
@@ -94,7 +96,10 @@ describe("Transactions CRUD integration", () => {
     const table = screen.getByRole("table");
     expect(within(table).queryByText("Actions")).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: /transaction actions/i }),
+      screen.queryByRole("button", { name: /edit transaction/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /delete transaction/i }),
     ).not.toBeInTheDocument();
   });
 });

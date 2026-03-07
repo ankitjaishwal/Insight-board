@@ -20,7 +20,10 @@ export function parseFilters(
   // Parse status (comma-separated)
   const statusParam = searchParams.get("status");
   if (statusParam) {
-    const statuses = statusParam.split(",").filter(Boolean);
+    const statuses = statusParam
+      .split(",")
+      .map((status) => status.trim().toUpperCase())
+      .filter(Boolean);
 
     // Optimization: If all statuses are selected, treat as undefined (no filtering)
     const allStatuses = [Status.Completed, Status.Pending, Status.Failed];

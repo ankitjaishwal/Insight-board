@@ -16,7 +16,7 @@ describe("Transactions infinite-scroll integration", () => {
             id: "tx-1",
             transactionId: "txn-1",
             userName: "Alice",
-            status: "Completed",
+            status: "COMPLETED",
             amount: 120,
             date: "2026-01-15T00:00:00.000Z",
           },
@@ -49,7 +49,7 @@ describe("Transactions infinite-scroll integration", () => {
     const user = userEvent.setup();
 
     const { router } = await renderApp(
-      "/ops/transactions?search=Alice&status=Completed&sort=amount&dir=asc&page=1&limit=20",
+      "/ops/transactions?search=Alice&status=COMPLETED&sort=amount&dir=asc&page=1&limit=20",
       {
         fetchTransactionsMock: async (
           params: FetchTransactionsParams,
@@ -59,7 +59,7 @@ describe("Transactions infinite-scroll integration", () => {
               id: "tx-1",
               transactionId: "txn-1",
               userName: "Alice",
-              status: "Completed",
+              status: "COMPLETED",
               amount: 120,
               date: "2026-01-15T00:00:00.000Z",
             },
@@ -79,7 +79,7 @@ describe("Transactions infinite-scroll integration", () => {
     await waitFor(() => {
       const search = router.state.location.search;
       expect(search).toContain("search=Alice");
-      expect(search).toContain("status=Completed");
+      expect(search).toContain("status=COMPLETED");
       expect(search).toContain("sort=amount");
       expect(search).toContain("dir=asc");
       expect(search).toContain("limit=100");

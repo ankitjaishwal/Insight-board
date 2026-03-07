@@ -1,4 +1,4 @@
-import { Status } from "../types/transaction";
+import { Status, statusLabel } from "../types/transaction";
 
 interface StatusCheckboxesProps {
   selectedStatuses: string[];
@@ -27,7 +27,7 @@ export const StatusCheckboxes: React.FC<StatusCheckboxesProps> = ({
               className="h-4 w-4 cursor-pointer rounded border-slate-300 dark:border-slate-600"
             />
             <span className="text-sm text-slate-700 dark:text-slate-200">
-              {status}
+              {statusLabel[status]}
             </span>
           </label>
         ))}

@@ -42,7 +42,14 @@ export default function TransactionCreateModal({
 
   const onSubmit = async (values: CreateTransactionFormValues) => {
     try {
-      await createMutation.mutateAsync(values as unknown as CreateTransactionPayload);
+      const payload: CreateTransactionPayload = {
+        userName: values.userName,
+        amount: values.amount,
+        date: values.date,
+        status: values.status,
+      };
+
+      await createMutation.mutateAsync(payload);
       showToast("Transaction created", "success");
       reset();
       onClose();

@@ -1,4 +1,5 @@
 import { formatDate } from "../utils";
+import { statusLabel, type Status } from "../types/transaction";
 import type { TransactionFilters } from "../types/transactionFilters";
 
 type Props = {
@@ -38,7 +39,11 @@ const ActiveFiltersSummary: React.FC<Props> = ({ filters, onRemoveFilter }) => {
 
       {filters.status && filters.status.length > 0 && (
         <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-          <span>{filters.status.join(" · ")}</span>
+          <span>
+            {filters.status
+              .map((status) => statusLabel[status as Status] ?? status)
+              .join(" · ")}
+          </span>
           <button
             onClick={() => onRemoveFilter("status")}
             className="ml-1 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"

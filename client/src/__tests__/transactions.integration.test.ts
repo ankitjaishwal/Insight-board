@@ -41,12 +41,12 @@ describe("Transactions filters integration", () => {
     await user.click(screen.getByRole("checkbox", { name: "Failed" }));
 
     await waitFor(() => {
-      expect(router.state.location.search).toContain("status=Completed%2CFailed");
+      expect(router.state.location.search).toContain("status=COMPLETED%2CFAILED");
     });
 
     await user.click(screen.getByRole("checkbox", { name: "Completed" }));
     await waitFor(() => {
-      expect(router.state.location.search).toContain("status=Failed");
+      expect(router.state.location.search).toContain("status=FAILED");
     });
   });
 
