@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchAuditLogs } from "../api/auditApi";
 
 const ALLOWED_PAGE_LIMITS = [20, 50, 100] as const;
+export const auditLogsQueryKey = ["auditLogs"] as const;
 
 export function useAuditQuery(searchParams: URLSearchParams) {
   const page = useMemo(() => {
@@ -18,7 +19,7 @@ export function useAuditQuery(searchParams: URLSearchParams) {
   }, [searchParams]);
 
   const query = useQuery({
-    queryKey: ["auditLogs", searchParams.toString()],
+    queryKey: [...auditLogsQueryKey, searchParams.toString()],
     queryFn: () =>
       fetchAuditLogs({
         page,

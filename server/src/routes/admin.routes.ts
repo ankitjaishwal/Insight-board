@@ -7,6 +7,7 @@ import { logger } from "../utils/logger";
 const router = Router();
 
 const sampleStatuses = ["PENDING", "COMPLETED", "FAILED"] as const;
+const DEMO_TRANSACTION_COUNT = 10_000;
 
 router.post("/reset-demo", requireAuth, requireAdmin, async (_req, res) => {
   try {
@@ -32,7 +33,7 @@ router.post("/reset-demo", requireAuth, requireAdmin, async (_req, res) => {
         transactionId: string;
       }>;
 
-      for (let i = 1; i <= 100; i += 1) {
+      for (let i = 1; i <= DEMO_TRANSACTION_COUNT; i += 1) {
         const status = sampleStatuses[i % sampleStatuses.length];
         const transaction = await tx.transaction.create({
           data: {

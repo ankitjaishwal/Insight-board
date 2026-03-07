@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { deleteTransaction, type TransactionListResponse } from "../api/transactionApi";
 import { transactionsQueryKey } from "./useTransactionQuery";
+import { overviewQueryKey } from "./useOverviewQuery";
+import { auditLogsQueryKey } from "./useAuditQuery";
 
 export function useDeleteTransaction() {
   const queryClient = useQueryClient();
@@ -46,6 +48,14 @@ export function useDeleteTransaction() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: transactionsQueryKey,
+        refetchType: "active",
+      });
+      queryClient.invalidateQueries({
+        queryKey: overviewQueryKey,
+        refetchType: "active",
+      });
+      queryClient.invalidateQueries({
+        queryKey: auditLogsQueryKey,
         refetchType: "active",
       });
     },

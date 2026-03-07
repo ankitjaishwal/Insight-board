@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchOverview, type OverviewResponse } from "../api/overviewApi";
 
+export const overviewQueryKey = ["overview"] as const;
+
 export function useOverviewQuery() {
   const query = useQuery<OverviewResponse, Error>({
-    queryKey: ["overview"],
+    queryKey: overviewQueryKey,
     queryFn: fetchOverview,
   });
 

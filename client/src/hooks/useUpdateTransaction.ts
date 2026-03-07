@@ -5,6 +5,8 @@ import {
   type UpdateTransactionPayload,
 } from "../api/transactionApi";
 import { transactionsQueryKey } from "./useTransactionQuery";
+import { overviewQueryKey } from "./useOverviewQuery";
+import { auditLogsQueryKey } from "./useAuditQuery";
 
 type UpdateVariables = {
   id: string;
@@ -69,6 +71,14 @@ export function useUpdateTransaction() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: transactionsQueryKey,
+        refetchType: "active",
+      });
+      queryClient.invalidateQueries({
+        queryKey: overviewQueryKey,
+        refetchType: "active",
+      });
+      queryClient.invalidateQueries({
+        queryKey: auditLogsQueryKey,
         refetchType: "active",
       });
     },
