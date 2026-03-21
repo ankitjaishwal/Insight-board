@@ -18,7 +18,12 @@ const app = express();
 
 app.use(requestLogger);
 app.use(securityHeaders);
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use("/health", healthRoutes);
 app.use("/api", apiLimiter);
