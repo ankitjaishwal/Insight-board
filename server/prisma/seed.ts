@@ -129,17 +129,27 @@ async function seed() {
   console.log(`✅ Audit logs created: ${auditData.length}`);
 }
 
-export async function runSeed() {
+export async function runSeed(options?: { isCli?: boolean }) {
+  const isCli = options?.isCli ?? false;
+
   try {
     await seed();
+    console.log("✅ Seed complete");
   } catch (e) {
     console.error("❌ Seed failed", e);
-    process.exit(1);
+
+    if (isCli) {
+      process.exit(1);
+    }
+
+    throw e;
   } finally {
-    await prisma.$disconnect();
+    if (isCli) {
+      await prisma.$disconnect();
+    }
   }
 }
 
 if (require.main === module) {
-  runSeed();
+  runSeed({ isCli: true });
 }

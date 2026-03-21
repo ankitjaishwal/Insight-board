@@ -25,38 +25,42 @@ router.post("/reset-demo", requireAuth, requireAdmin, async (_req, res) => {
       await tx.filterPreset.deleteMany({
         where: { userId: demoUser.id },
       });
-      await tx.auditLog.deleteMany();
-      await tx.transaction.deleteMany();
+      await tx.auditLog.deleteMany({
+        where: { userId: demoUser.id },
+      });
+      await tx.transaction.deleteMany({
+        where: { userId: demoUser.id },
+      });
 
       const createdTransactions = [] as Array<{
         id: string;
         transactionId: string;
+        userName: string;
+        status: (typeof sampleStatuses)[number];
+        amount: number;
+        date: Date;
+        userId: string;
       }>;
 
       for (let i = 1; i <= DEMO_TRANSACTION_COUNT; i += 1) {
         const status = sampleStatuses[i % sampleStatuses.length];
-        const transaction = await tx.transaction.create({
-          data: {
-            transactionId: `DEMO-TX-${1000 + i}`,
-            userName: `Demo User ${((i - 1) % 5) + 1}`,
-            status,
-            amount: 50 + i * 25,
-            date: new Date(now - i * 60 * 60 * 1000),
-            userId: demoUser.id,
-          },
-        });
-
         createdTransactions.push({
-          id: transaction.id,
-          transactionId: transaction.transactionId,
+          id: crypto.randomUUID(),
+          transactionId: `DEMO-TX-${1000 + i}`,
+          userName: `Demo User ${((i - 1) % 5) + 1}`,
+          status,
+          amount: 50 + i * 25,
+          date: new Date(now - i * 60 * 60 * 1000),
+          userId: demoUser.id,
         });
       }
 
-      for (let i = 0; i < 10; i += 1) {
-        const transaction = createdTransactions[i];
+      await tx.transaction.createMany({
+        data: createdTransactions,
+      });
 
-        await tx.auditLog.create({
-          data: {
+      await tx.auditLog.createMany({
+        data: createdTransactions.slice(0, 10).map((transaction) => ({
             action: "DEMO_RESET_SEEDED",
             entity: "TRANSACTION",
             entityId: transaction.id,
@@ -64,9 +68,8 @@ router.post("/reset-demo", requireAuth, requireAdmin, async (_req, res) => {
             userEmail: demoUser.email,
             before: null,
             after: JSON.stringify({ transactionId: transaction.transactionId }),
-          },
-        });
-      }
+        })),
+      });
 
       await tx.filterPreset.createMany({
         data: [
@@ -86,6 +89,8 @@ router.post("/reset-demo", requireAuth, requireAdmin, async (_req, res) => {
           },
         ],
       });
+    }, {
+      timeout: 60_000,
     });
 
     return res.json({ success: true });
