@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "./apiBaseUrl";
 import { fetchWithAuth } from "./fetchWithAuth";
 import type { Status, Transaction } from "../types/transaction";
 
@@ -76,7 +77,7 @@ export async function fetchTransactions(
   });
 
   const res = await fetchWithAuth(
-    `http://localhost:4000/api/transactions?${qs}`,
+    `${API_BASE_URL}/api/transactions?${qs}`,
   );
 
   if (!res.ok) {
@@ -89,7 +90,7 @@ export async function fetchTransactions(
 export async function createTransaction(
   payload: CreateTransactionPayload,
 ): Promise<Transaction> {
-  const res = await fetchWithAuth("http://localhost:4000/api/transactions", {
+  const res = await fetchWithAuth(`${API_BASE_URL}/api/transactions`, {
     method: "POST",
     body: JSON.stringify(payload),
   });
@@ -106,7 +107,7 @@ export async function updateTransaction(
   payload: UpdateTransactionPayload,
 ): Promise<Transaction> {
   const res = await fetchWithAuth(
-    `http://localhost:4000/api/transactions/${id}`,
+    `${API_BASE_URL}/api/transactions/${id}`,
     {
       method: "PUT",
       body: JSON.stringify(payload),
@@ -124,7 +125,7 @@ export async function deleteTransaction(
   id: string,
 ): Promise<{ message: string }> {
   const res = await fetchWithAuth(
-    `http://localhost:4000/api/transactions/${id}`,
+    `${API_BASE_URL}/api/transactions/${id}`,
     {
       method: "DELETE",
     },

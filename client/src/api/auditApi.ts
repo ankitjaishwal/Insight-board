@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "./fetchWithAuth";
+import { API_BASE_URL } from "./apiBaseUrl";
 import type { AuditLog } from "../types/audit";
 
 export type FetchAuditLogsParams = {
@@ -35,7 +36,7 @@ export async function fetchAuditLogs(
     }
   });
 
-  const res = await fetchWithAuth(`http://localhost:4000/api/audit-logs?${qs}`);
+  const res = await fetchWithAuth(`${API_BASE_URL}/api/audit-logs?${qs}`);
 
   if (!res.ok) {
     const err = await res.json();

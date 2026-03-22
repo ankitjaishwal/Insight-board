@@ -1,7 +1,8 @@
+import { API_BASE_URL } from "./apiBaseUrl";
 import { fetchWithAuth } from "./fetchWithAuth";
 import type { FilterPreset } from "../types/preset";
 
-const PRESETS_URL = "http://localhost:4000/api/presets";
+const PRESETS_URL = `${API_BASE_URL}/api/presets`;
 
 type PresetDto = {
   id: string;

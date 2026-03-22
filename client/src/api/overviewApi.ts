@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "./fetchWithAuth";
+import { API_BASE_URL } from "./apiBaseUrl";
 
 export type OverviewResponse = {
   totalUsers: number;
@@ -23,7 +24,7 @@ export type OverviewResponse = {
 };
 
 export async function fetchOverview(): Promise<OverviewResponse> {
-  const res = await fetchWithAuth("http://localhost:4000/api/overview");
+  const res = await fetchWithAuth(`${API_BASE_URL}/api/overview`);
 
   if (!res.ok) {
     throw new Error("Failed to fetch overview");

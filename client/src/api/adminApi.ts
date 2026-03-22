@@ -1,8 +1,9 @@
+import { API_BASE_URL } from "./apiBaseUrl";
 import { fetchWithAuth } from "./fetchWithAuth";
 
 export async function resetDemoData(): Promise<{ success: boolean }> {
   const res = await fetchWithAuth(
-    "http://localhost:4000/api/admin/reset-demo",
+    `${API_BASE_URL}/api/admin/reset-demo`,
     {
       method: "POST",
     },
