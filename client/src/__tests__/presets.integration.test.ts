@@ -71,8 +71,8 @@ describe("Presets integration", () => {
 
     await screen.findByRole("option", { name: "To Delete" });
 
-    await user.click(screen.getByRole("button", { name: "⋮" }));
-    await user.click(screen.getByRole("button", { name: /delete/i }));
+    await user.click(screen.getByRole("button", { name: /preset actions/i }));
+    await user.click(screen.getByRole("button", { name: /delete preset/i }));
 
     expect(
       screen.queryByRole("option", { name: "Select preset" }),

@@ -22,8 +22,8 @@ const Overview = ({
   const chartData = chartConfig.deriveData(overview);
 
   return (
-    <div className="mt-8 space-y-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+    <div className="mt-6 space-y-6 sm:mt-8 sm:space-y-8">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-4">
         {(Object.keys(overviewMetricRegistry) as OverviewMetricKey[]).map(
           (key) => {
             const isPrimary = key === "totalRevenue";
@@ -40,7 +40,7 @@ const Overview = ({
             return (
               <div
                 key={key}
-                className={`cursor-pointer rounded-lg p-6 transition-all duration-200 ${
+                className={`cursor-pointer rounded-lg p-4 transition-all duration-200 sm:p-6 ${
                   isPrimary
                     ? "bg-linear-to-br from-blue-600 via-indigo-600 to-violet-600 text-white shadow-lg hover:-translate-y-1 hover:shadow-xl"
                     : "border border-slate-200 bg-white shadow-sm hover:-translate-y-1 hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
@@ -58,7 +58,7 @@ const Overview = ({
                 </p>
 
                 <p
-                  className={`mt-3 font-bold tracking-tight ${isPrimary ? "text-4xl" : "text-3xl text-slate-900 dark:text-slate-100"}`}
+                  className={`mt-3 font-bold tracking-tight ${isPrimary ? "text-3xl sm:text-4xl" : "text-2xl sm:text-3xl text-slate-900 dark:text-slate-100"}`}
                 >
                   {value}
                 </p>
@@ -89,7 +89,7 @@ const Overview = ({
           Status Breakdown
         </h2>
 
-        <div className="mx-auto h-[260px] max-w-3xl">
+        <div className="mx-auto h-[220px] max-w-3xl sm:h-[260px]">
           <ChartComponent data={chartData} />
         </div>
       </div>

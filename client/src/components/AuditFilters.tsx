@@ -47,7 +47,7 @@ export default function AuditFilters() {
           aria-label="From date"
           value={from}
           onChange={(e) => updateParam(setSearchParams, "from", e.target.value)}
-          className="ui-input"
+          className="ui-input w-full"
         />
 
         <input
@@ -55,7 +55,7 @@ export default function AuditFilters() {
           aria-label="To date"
           value={to}
           onChange={(e) => updateParam(setSearchParams, "to", e.target.value)}
-          className="ui-input"
+          className="ui-input w-full"
         />
 
         <input
@@ -64,14 +64,14 @@ export default function AuditFilters() {
           placeholder="User ID / email"
           value={userId}
           onChange={(e) => updateParam(setSearchParams, "userId", e.target.value)}
-          className="ui-input"
+          className="ui-input w-full"
         />
 
         <select
           aria-label="Action"
           value={action}
           onChange={(e) => updateParam(setSearchParams, "action", e.target.value)}
-          className="ui-select"
+          className="ui-select w-full"
         >
           <option value="">All actions</option>
           {actionOptions.map((option) => (
@@ -85,7 +85,7 @@ export default function AuditFilters() {
           aria-label="Entity"
           value={entity}
           onChange={(e) => updateParam(setSearchParams, "entity", e.target.value)}
-          className="ui-select"
+          className="ui-select w-full"
         >
           <option value="">All entities</option>
           {entityOptions.map((option) => (
@@ -101,7 +101,7 @@ export default function AuditFilters() {
           placeholder="Search Entity ID"
           value={search}
           onChange={(e) => updateParam(setSearchParams, "search", e.target.value)}
-          className="ui-input"
+          className="ui-input w-full"
         />
       </div>
     </div>

@@ -10,15 +10,15 @@ export const StatusCheckboxes: React.FC<StatusCheckboxesProps> = ({
   onChange,
 }) => {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center gap-3">
       <span className="whitespace-nowrap text-xs font-medium text-slate-600 dark:text-slate-300">
         Status:
       </span>
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         {[Status.Completed, Status.Pending, Status.Failed].map((status) => (
           <label
             key={status}
-            className="flex items-center gap-1 cursor-pointer"
+            className="flex cursor-pointer items-center gap-1"
           >
             <input
               type="checkbox"

@@ -64,7 +64,7 @@ function VirtualizedRowBase<T extends Record<string, unknown>>({
           return (
             <td
               key={String(col.key)}
-              className={`px-4 py-3 text-sm text-slate-700 dark:text-slate-200 ${
+              className={`px-3 py-3 text-sm text-slate-700 sm:px-4 dark:text-slate-200 ${
                 col.align === "right" ? "text-right" : ""
               }`}
             >
@@ -78,7 +78,7 @@ function VirtualizedRowBase<T extends Record<string, unknown>>({
         })}
 
         {rowActions && (
-          <td className="px-4 py-3 text-right text-sm text-slate-700 dark:text-slate-200">
+          <td className="px-3 py-3 text-right text-sm text-slate-700 sm:px-4 dark:text-slate-200">
             {rowActions(row)}
           </td>
         )}
@@ -88,7 +88,7 @@ function VirtualizedRowBase<T extends Record<string, unknown>>({
         <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/70">
           <td
             colSpan={columns.length + (rowActions ? 1 : 0)}
-            className="px-4 py-3"
+            className="px-3 py-3 sm:px-4"
           >
             {renderExpandedRow(row)}
           </td>

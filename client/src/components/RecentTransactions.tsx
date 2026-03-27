@@ -29,7 +29,7 @@ const RecentTransactions = ({ transactions = [] }: Props) => {
         return (
           <div
             key={txn.id}
-            className="flex items-center justify-between border-b border-slate-100 pb-4 last:border-0 dark:border-slate-800"
+            className="flex flex-col gap-2 border-b border-slate-100 pb-4 last:border-0 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800"
           >
             <div>
               <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
@@ -40,7 +40,7 @@ const RecentTransactions = ({ transactions = [] }: Props) => {
               </p>
             </div>
 
-            <div className="text-right">
+            <div className="text-left sm:text-right">
               <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                 ₹{txn.amount.toLocaleString()}
               </p>

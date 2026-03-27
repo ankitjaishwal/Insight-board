@@ -81,13 +81,13 @@ function DataTable<T extends Record<string, unknown>>({
       ref={setScrollElement}
       className={`w-full overflow-auto rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 ${maxHeightClassName}`}
     >
-      <table className="w-full border-collapse">
+      <table className="min-w-180 w-full border-collapse">
         <thead className="sticky top-0 z-10 bg-slate-50 shadow-sm dark:bg-slate-900/95">
           <tr>
             {columns.map((column) => (
               <th
                 key={String(column.key)}
-                className={`border-b border-slate-200 px-4 py-3 text-left text-sm font-medium text-slate-600 dark:border-slate-700 dark:text-slate-300 ${
+                className={`border-b border-slate-200 px-3 py-3 text-left text-sm font-medium whitespace-nowrap text-slate-600 sm:px-4 dark:border-slate-700 dark:text-slate-300 ${
                   column.align === "right" ? "text-right" : ""
                 } ${
                   column.sortable && onSort
@@ -108,7 +108,7 @@ function DataTable<T extends Record<string, unknown>>({
               </th>
             ))}
             {rowActions && (
-              <th className="border-b border-slate-200 px-4 py-3 text-right text-sm font-medium text-slate-600 dark:border-slate-700 dark:text-slate-300">
+              <th className="border-b border-slate-200 px-3 py-3 text-right text-sm font-medium whitespace-nowrap text-slate-600 sm:px-4 dark:border-slate-700 dark:text-slate-300">
                 Actions
               </th>
             )}
@@ -151,13 +151,13 @@ function DataTable<T extends Record<string, unknown>>({
                 {columns.map((col) => (
                   <td
                     key={`loading-cell-${String(col.key)}-${rowIndex}`}
-                    className={`px-4 py-3 ${col.align === "right" ? "text-right" : ""}`}
+                    className={`px-3 py-3 sm:px-4 ${col.align === "right" ? "text-right" : ""}`}
                   >
                     <div className="ui-skeleton h-4 w-full" />
                   </td>
                 ))}
                 {rowActions && (
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-3 py-3 text-right sm:px-4">
                     <div className="ui-skeleton ml-auto h-4 w-8" />
                   </td>
                 )}

@@ -28,7 +28,7 @@ const OverviewPage = () => {
 
   return (
       <>
-      <h1 className="mb-8 text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+      <h1 className="mb-6 text-2xl font-semibold tracking-tight text-slate-900 sm:mb-8 sm:text-3xl dark:text-slate-100">
         {activeRoute.label}
       </h1>
 

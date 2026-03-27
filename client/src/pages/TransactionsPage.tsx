@@ -148,26 +148,26 @@ const TransactionsPage = () => {
   }, [searchParams, setSearchParams]);
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
           {activeRoute.label}
         </h1>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <button
             onClick={() =>
               exportToCSV(data, columns, `transactions-${Date.now()}.csv`)
             }
             disabled={!data.length}
-            className="ui-button-secondary"
+            className="ui-button-secondary w-full sm:w-auto"
           >
             ⬇ Export CSV
           </button>
           {canCreate && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="ui-button-primary"
+              className="ui-button-primary w-full sm:w-auto"
             >
               + Add Transaction
             </button>
@@ -201,7 +201,7 @@ const TransactionsPage = () => {
       />
 
       <ErrorBoundary fallbackMessage="Failed to render transactions table.">
-        <div className="flex-1 min-h-0 flex flex-col">
+        <div className="flex min-h-0 flex-1 flex-col">
           {/* Loading means query is still in-flight. Empty means request finished but no matches. */}
           {isLoading ? (
             <TableSkeleton rows={8} columns={6} />
@@ -251,11 +251,11 @@ const TransactionsPage = () => {
             </p>
           )}
 
-          <div className="surface-card mt-3 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="surface-card mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-sm text-slate-700 dark:text-slate-200">
               Total: {total}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <label
                 htmlFor="page-size"
                 className="text-sm text-slate-600 dark:text-slate-300"
@@ -274,7 +274,7 @@ const TransactionsPage = () => {
                     return next;
                   });
                 }}
-                className="ui-select"
+                className="ui-select w-full sm:w-auto"
               >
                 <option value={20}>20</option>
                 <option value={50}>50</option>

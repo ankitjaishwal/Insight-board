@@ -48,7 +48,7 @@ describe("presetUtils - filtersToParams", () => {
       });
       expect(params.size).toBe(6);
       expect(params.get("search")).toBe("test");
-      expect(params.get("status")).toBe("Completed");
+      expect(params.get("status")).toBe(Status.Completed);
     });
   });
 

@@ -169,11 +169,11 @@ export default function AuditPage() {
         )}
       </div>
 
-      <div className="surface-card mt-3 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="surface-card mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-sm text-slate-700 dark:text-slate-200">
           Total: {meta?.total ?? 0}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <label
             htmlFor="audit-page-size"
             className="text-sm text-slate-600 dark:text-slate-300"
@@ -192,7 +192,7 @@ export default function AuditPage() {
                 return next;
               });
             }}
-            className="ui-select"
+            className="ui-select w-full sm:w-auto"
           >
             <option value={20}>20</option>
             <option value={50}>50</option>
@@ -200,7 +200,7 @@ export default function AuditPage() {
           </select>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <button
             type="button"
             onClick={() => {
@@ -211,11 +211,11 @@ export default function AuditPage() {
               });
             }}
             disabled={page <= 1}
-            className="ui-button-secondary px-3 py-1.5"
+            className="ui-button-secondary w-full px-3 py-1.5 sm:w-auto"
           >
             Prev
           </button>
-          <span className="text-sm text-slate-600 dark:text-slate-300">
+          <span className="text-center text-sm text-slate-600 dark:text-slate-300">
             Page {meta?.page ?? page} of {meta?.pages ?? 1}
           </span>
           <button
@@ -228,7 +228,7 @@ export default function AuditPage() {
               });
             }}
             disabled={page >= (meta?.pages ?? 1)}
-            className="ui-button-secondary px-3 py-1.5"
+            className="ui-button-secondary w-full px-3 py-1.5 sm:w-auto"
           >
             Next
           </button>

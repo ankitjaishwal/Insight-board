@@ -147,8 +147,8 @@ const TransactionFilters: React.FC<Props> = ({
 
   return (
     <div className="surface-panel mb-6">
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="relative">
+      <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center">
+        <div className="relative w-full sm:max-w-sm">
           <input
             id="search"
             name="search"
@@ -157,7 +157,7 @@ const TransactionFilters: React.FC<Props> = ({
             value={search}
             onChange={(e) => updateSearch(e.target.value)}
             placeholder="Search by user/ID"
-            className="ui-input pr-8"
+            className="ui-input w-full pr-8"
           />
           {search && (
             <button
@@ -210,7 +210,7 @@ const TransactionFilters: React.FC<Props> = ({
       {shouldShowAdvanced(hasAdvancedFilters) && (
         <div className="mt-4 border-t border-slate-200 pt-4 dark:border-slate-700">
           <div className="grid gap-3 lg:grid-cols-2">
-            <div className="flex flex-1 items-start gap-1.5">
+            <div className="grid flex-1 gap-3 sm:grid-cols-2">
               <FilterFieldRow
                 label="From"
                 value={from}
@@ -231,7 +231,7 @@ const TransactionFilters: React.FC<Props> = ({
               />
             </div>
 
-            <div className="flex flex-1 items-start gap-1.5">
+            <div className="grid flex-1 gap-3 sm:grid-cols-2">
               <FilterFieldRow
                 label="Min"
                 value={minAmount}

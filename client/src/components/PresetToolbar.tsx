@@ -75,11 +75,15 @@ export const PresetToolbar: React.FC<PresetToolbarProps> = ({
             onClick={() => setShowPresetMenu(!showPresetMenu)}
             disabled={isDeletingPreset || isUpdatingPreset}
             className="ui-button-secondary px-2 py-2"
+            aria-label="Preset actions"
           >
             ⋮
           </button>
           {showPresetMenu && (
-            <div className="absolute right-0 top-full z-50 mt-1 rounded-lg border border-slate-200 bg-white text-sm shadow-md dark:border-slate-700 dark:bg-slate-900">
+            <div
+              className="absolute right-0 top-full z-50 mt-1 rounded-lg border border-slate-200 bg-white text-sm shadow-md dark:border-slate-700 dark:bg-slate-900"
+              aria-label="Preset actions menu"
+            >
               <button
                 onClick={handleRenameClick}
                 disabled={isUpdatingPreset}
@@ -91,6 +95,7 @@ export const PresetToolbar: React.FC<PresetToolbarProps> = ({
                 onClick={handleDeleteClick}
                 disabled={isDeletingPreset}
                 className="block w-full px-3 py-2 text-left text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-500/10"
+                aria-label="Delete preset"
               >
                 {isDeletingPreset ? "Deleting..." : "Delete"}
               </button>
