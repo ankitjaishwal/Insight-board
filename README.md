@@ -65,6 +65,21 @@ The API runs on:
 http://localhost:4000
 ```
 
+## Deploy the Backend
+
+Run database schema changes as a deploy step, not inside the web server start
+command. This keeps cold starts fast because `npm start` only launches the API.
+
+```bash
+cd server
+npm run build
+npm run deploy:migrate
+npm start
+```
+
+Use `npm run deploy:push` only when you intentionally want Prisma to sync the
+schema directly without migrations.
+
 ## Seed the Database
 
 Use Prisma seed support from the backend:

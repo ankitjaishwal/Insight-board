@@ -6,7 +6,9 @@
   "scripts": {
     "build": "tsc",
     "dev": "NODE_ENV=development tsx src/server.ts",
-    "start": "NODE_ENV=production prisma db push && node dist/server.js",
+    "start": "NODE_ENV=production node dist/server.js",
+    "deploy:migrate": "prisma migrate deploy",
+    "deploy:push": "prisma db push",
     "seed": "tsx prisma/seed.ts",
     "postinstall": "prisma generate"
   },
